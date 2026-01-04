@@ -93,6 +93,7 @@ const Index = () => {
         isOpen={isVideoPlayerOpen}
         onClose={handleCloseVideoPlayer}
         movieTitle={selectedMovie?.title || ''}
+        movieId={selectedMovie?.id || 0}
       />
     </div>
   );
