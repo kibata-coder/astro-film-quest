@@ -11,7 +11,7 @@ interface VideoPlayerProps {
 const VideoPlayer = ({ isOpen, onClose, movieTitle, movieId }: VideoPlayerProps) => {
   const [isConnecting, setIsConnecting] = useState(true);
 
-  const embedUrl = `https://vidsrc-embed.su/embed/movie?tmdb=${movieId}&autoplay=1`;
+  const embedUrl = `https://vidsrc-embed.ru/embed/movie?tmdb=${movieId}&autoplay=1`;
 
   useEffect(() => {
     if (isOpen) {
@@ -42,17 +42,14 @@ const VideoPlayer = ({ isOpen, onClose, movieTitle, movieId }: VideoPlayerProps)
             className="w-full h-full"
             allowFullScreen
             allow="autoplay; fullscreen"
-            sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
-            referrerPolicy="no-referrer"
           />
 
-          {/* Close button - more prominent */}
+          {/* Close button */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-3 rounded-full bg-destructive hover:bg-destructive/80 transition-colors z-10 shadow-lg"
-            title="Close player"
+            className="absolute top-4 right-4 p-2 rounded-full bg-background/50 hover:bg-background/80 transition-colors z-10"
           >
-            <X className="w-6 h-6 text-destructive-foreground" />
+            <X className="w-6 h-6" />
           </button>
         </>
       )}
