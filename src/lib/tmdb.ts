@@ -93,3 +93,30 @@ export const getWatchProviders = async (movieId: number) => {
   const data = await callTMDB<{ results: Record<string, { flatrate?: WatchProvider[]; rent?: WatchProvider[]; buy?: WatchProvider[] }> }>(`/movie/${movieId}/watch/providers`);
   return data.results?.US || null;
 };
+
+// Indian movies (Hindi, Tamil, Telugu, Malayalam, Kannada)
+export const getIndianMovies = async (page = 1) => {
+  return callTMDB<Movie>('/discover/movie', {
+    page,
+    with_original_language: 'hi|ta|te|ml|kn',
+    sort_by: 'popularity.desc'
+  });
+};
+
+// English movies
+export const getEnglishMovies = async (page = 1) => {
+  return callTMDB<Movie>('/discover/movie', {
+    page,
+    with_original_language: 'en',
+    sort_by: 'popularity.desc'
+  });
+};
+
+// Other languages (excluding Indian and English)
+export const getOtherMovies = async (page = 1) => {
+  return callTMDB<Movie>('/discover/movie', {
+    page,
+    without_original_language: 'en,hi,ta,te,ml,kn',
+    sort_by: 'popularity.desc'
+  });
+};

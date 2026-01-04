@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Film, Globe, Clapperboard } from 'lucide-react';
 import { useDebounce } from '@/hooks/use-debounce';
 import Header from '@/components/Header';
 import MovieGrid from '@/components/MovieGrid';
@@ -6,11 +7,25 @@ import MovieModal from '@/components/MovieModal';
 import VideoPlayer from '@/components/VideoPlayer';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import LatestSection from '@/components/LatestSection';
-import { Movie, getTrendingMovies, searchMovies } from '@/lib/tmdb';
+import GenreSection from '@/components/GenreSection';
+import { 
+  Movie, 
+  getTrendingMovies, 
+  searchMovies, 
+  getIndianMovies, 
+  getEnglishMovies, 
+  getOtherMovies 
+} from '@/lib/tmdb';
 
 const Index = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
+  const [indianMovies, setIndianMovies] = useState<Movie[]>([]);
+  const [englishMovies, setEnglishMovies] = useState<Movie[]>([]);
+  const [otherMovies, setOtherMovies] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingIndian, setIsLoadingIndian] = useState(true);
+  const [isLoadingEnglish, setIsLoadingEnglish] = useState(true);
+  const [isLoadingOther, setIsLoadingOther] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -33,9 +48,33 @@ const Index = () => {
     }
   }, [debouncedSearch]);
 
+  const fetchGenreMovies = useCallback(async () => {
+    // Fetch all genre sections in parallel
+    Promise.all([
+      getIndianMovies().then(data => {
+        setIndianMovies(data.results?.slice(0, 10) || []);
+        setIsLoadingIndian(false);
+      }),
+      getEnglishMovies().then(data => {
+        setEnglishMovies(data.results?.slice(0, 10) || []);
+        setIsLoadingEnglish(false);
+      }),
+      getOtherMovies().then(data => {
+        setOtherMovies(data.results?.slice(0, 10) || []);
+        setIsLoadingOther(false);
+      })
+    ]).catch(error => {
+      console.error('Error fetching genre movies:', error);
+    });
+  }, []);
+
   useEffect(() => {
     fetchMovies();
   }, [fetchMovies]);
+
+  useEffect(() => {
+    fetchGenreMovies();
+  }, [fetchGenreMovies]);
 
   const handleMovieClick = (movie: Movie) => {
     setSelectedMovie(movie);
@@ -61,27 +100,56 @@ const Index = () => {
       <Header onSearch={setSearchQuery} searchQuery={searchQuery} />
 
       <main className="pt-24 px-4 md:px-12 pb-12">
-        {/* Section title */}
-        <h2 className="text-xl md:text-2xl font-semibold mb-6">
-          {debouncedSearch ? `Search Results for "${debouncedSearch}"` : 'Trending This Week'}
-        </h2>
-
-        {isLoading ? (
-          <LoadingSpinner />
-        ) : movies.length > 0 ? (
-          <MovieGrid movies={movies} onMovieClick={handleMovieClick} />
+        {debouncedSearch ? (
+          <>
+            <h2 className="text-xl md:text-2xl font-semibold mb-6">
+              Search Results for "{debouncedSearch}"
+            </h2>
+            {isLoading ? (
+              <LoadingSpinner />
+            ) : movies.length > 0 ? (
+              <MovieGrid movies={movies} onMovieClick={handleMovieClick} />
+            ) : (
+              <div className="text-center py-20">
+                <p className="text-muted-foreground text-lg">
+                  No movies found. Try a different search term.
+                </p>
+              </div>
+            )}
+          </>
         ) : (
-          <div className="text-center py-20">
-            <p className="text-muted-foreground text-lg">
-              {debouncedSearch
-                ? 'No movies found. Try a different search term.'
-                : 'No trending movies available.'}
-            </p>
+          <div className="space-y-8">
+            {/* Indian Movies */}
+            <GenreSection
+              title="Indian Movies"
+              icon={Film}
+              movies={indianMovies}
+              isLoading={isLoadingIndian}
+              onMovieClick={handleMovieClick}
+            />
+
+            {/* Latest Added Section */}
+            <LatestSection onMovieClick={handleMovieClick} />
+
+            {/* English Movies */}
+            <GenreSection
+              title="English Movies"
+              icon={Clapperboard}
+              movies={englishMovies}
+              isLoading={isLoadingEnglish}
+              onMovieClick={handleMovieClick}
+            />
+
+            {/* Other International Movies */}
+            <GenreSection
+              title="International Movies"
+              icon={Globe}
+              movies={otherMovies}
+              isLoading={isLoadingOther}
+              onMovieClick={handleMovieClick}
+            />
           </div>
         )}
-
-        {/* Latest Added Section - only show when not searching */}
-        {!debouncedSearch && <LatestSection onMovieClick={handleMovieClick} />}
       </main>
 
       {/* Movie Detail Modal */}
