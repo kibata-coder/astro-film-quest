@@ -5,6 +5,7 @@ import MovieGrid from '@/components/MovieGrid';
 import MovieModal from '@/components/MovieModal';
 import VideoPlayer from '@/components/VideoPlayer';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import LatestSection from '@/components/LatestSection';
 import { Movie, getTrendingMovies, searchMovies } from '@/lib/tmdb';
 
 const Index = () => {
@@ -78,6 +79,9 @@ const Index = () => {
             </p>
           </div>
         )}
+
+        {/* Latest Added Section - only show when not searching */}
+        {!debouncedSearch && <LatestSection onMovieClick={handleMovieClick} />}
       </main>
 
       {/* Movie Detail Modal */}
