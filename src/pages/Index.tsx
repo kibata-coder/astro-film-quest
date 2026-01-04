@@ -4,6 +4,7 @@ import Header from '@/components/Header';
 import MovieGrid from '@/components/MovieGrid';
 import MovieModal from '@/components/MovieModal';
 import VideoPlayer from '@/components/VideoPlayer';
+import PlayWarningModal from '@/components/PlayWarningModal';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { Movie, getTrendingMovies, searchMovies } from '@/lib/tmdb';
 
@@ -13,6 +14,7 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isWarningOpen, setIsWarningOpen] = useState(false);
   const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
 
   const debouncedSearch = useDebounce(searchQuery, 500);
@@ -48,6 +50,11 @@ const Index = () => {
 
   const handlePlay = () => {
     setIsModalOpen(false);
+    setIsWarningOpen(true);
+  };
+
+  const handleWarningContinue = () => {
+    setIsWarningOpen(false);
     setIsVideoPlayerOpen(true);
   };
 
@@ -86,6 +93,14 @@ const Index = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onPlay={handlePlay}
+      />
+
+      {/* Warning Modal */}
+      <PlayWarningModal
+        isOpen={isWarningOpen}
+        onClose={() => setIsWarningOpen(false)}
+        onContinue={handleWarningContinue}
+        movieTitle={selectedMovie?.title || ''}
       />
 
       {/* Video Player */}
