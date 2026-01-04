@@ -23,7 +23,9 @@ const LatestSection = ({ onMovieClick }: LatestSectionProps) => {
       const movieDetails = await Promise.all(
         vidsrcMovies.slice(0, 10).map(async (item) => {
           try {
-            const details = await getMovieDetails(item.tmdb_id);
+            const tmdbId = parseInt(item.tmdb_id, 10);
+            if (isNaN(tmdbId)) return null;
+            const details = await getMovieDetails(tmdbId);
             return details as Movie;
           } catch {
             return null;
