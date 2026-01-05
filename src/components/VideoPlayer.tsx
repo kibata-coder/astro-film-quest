@@ -48,6 +48,7 @@ const VideoPlayer = ({ isOpen, onClose, title, mediaId, mediaType, seasonNumber,
           <iframe
             src={embedUrl}
             className="w-full h-full"
+            sandbox="allow-scripts allow-same-origin allow-presentation"
             allowFullScreen
             allow="autoplay; fullscreen"
           />
