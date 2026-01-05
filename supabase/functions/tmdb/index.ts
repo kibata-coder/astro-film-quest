@@ -82,12 +82,12 @@ serve(async (req) => {
   }
 
   try {
-    // Validate that request includes apikey header (sent by Supabase client)
-    // This ensures requests come through the Supabase client, not direct external calls
+    // Validate Supabase API key to prevent unauthorized external access
     const requestApiKey = req.headers.get('apikey');
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
     
-    if (!requestApiKey) {
-      console.warn('Unauthorized request - missing API key header');
+    if (!requestApiKey || requestApiKey !== supabaseAnonKey) {
+      console.warn('Unauthorized request - invalid or missing API key');
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
