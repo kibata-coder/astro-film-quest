@@ -82,11 +82,17 @@ serve(async (req) => {
   }
 
   try {
-    // Validate Supabase API key to prevent unauthorized external access
-    const requestApiKey = req.headers.get('apikey');
+    // Validate request origin - check for valid Supabase client request
+    // The Supabase client sends Authorization header with the anon key as Bearer token
+    const authHeader = req.headers.get('Authorization');
+    const apiKeyHeader = req.headers.get('apikey');
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
     
-    if (!requestApiKey || requestApiKey !== supabaseAnonKey) {
+    // Accept either Authorization Bearer token or apikey header
+    const isValidAuth = (authHeader && authHeader === `Bearer ${supabaseAnonKey}`) || 
+                        (apiKeyHeader && apiKeyHeader === supabaseAnonKey);
+    
+    if (!isValidAuth) {
       console.warn('Unauthorized request - invalid or missing API key');
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
