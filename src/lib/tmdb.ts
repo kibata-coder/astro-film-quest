@@ -1,5 +1,5 @@
-import { supabase } from '@/integrations/supabase/client';
-
+const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
+const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p';
 
 export const getImageUrl = (path: string | null, size: 'w300' | 'w500' | 'w780' | 'original' = 'w500') => {
@@ -21,16 +21,25 @@ interface TMDBResponse<T> {
 }
 
 async function callTMDB<T>(endpoint: string, params?: Record<string, string | number>): Promise<TMDBResponse<T> & T> {
-  const { data, error } = await supabase.functions.invoke('tmdb', {
-    body: { endpoint, params }
-  });
-
-  if (error) {
-    console.error('TMDB API error:', error);
-    throw error;
+  const url = new URL(`${TMDB_BASE_URL}${endpoint}`);
+  url.searchParams.append('api_key', TMDB_API_KEY);
+  
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        url.searchParams.append(key, String(value));
+      }
+    });
   }
 
-  return data;
+  const response = await fetch(url.toString());
+  
+  if (!response.ok) {
+    console.error('TMDB API error:', response.status);
+    throw new Error(`TMDB API error: ${response.status}`);
+  }
+
+  return response.json();
 }
 
 export interface Movie {
