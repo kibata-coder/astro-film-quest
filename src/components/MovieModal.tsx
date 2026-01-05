@@ -81,8 +81,9 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay }: MovieModalProps) => {
       <div className="relative aspect-video w-full">
         {trailer ? (
           <iframe
-            src={`https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=1&controls=0&showinfo=0&rel=0`}
+            src={`https://www.youtube-nocookie.com/embed/${trailer.key}?autoplay=1&mute=1&controls=0&showinfo=0&rel=0`}
             className="w-full h-full"
+            sandbox="allow-scripts allow-same-origin"
             allow="autoplay; encrypted-media"
             allowFullScreen
           />
