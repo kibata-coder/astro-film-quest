@@ -68,6 +68,45 @@ export interface WatchProvider {
   provider_name: string;
 }
 
+// TV Show types
+export interface TVShow {
+  id: number;
+  name: string;
+  overview: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+  first_air_date: string;
+  vote_average: number;
+  vote_count: number;
+  genre_ids?: number[];
+  number_of_seasons?: number;
+}
+
+export interface Season {
+  id: number;
+  season_number: number;
+  name: string;
+  episode_count: number;
+  poster_path: string | null;
+  air_date: string;
+}
+
+export interface Episode {
+  id: number;
+  episode_number: number;
+  name: string;
+  overview: string;
+  still_path: string | null;
+  air_date: string;
+  vote_average: number;
+}
+
+export interface TVShowDetails extends TVShow {
+  seasons: Season[];
+  number_of_episodes: number;
+  genres: { id: number; name: string }[];
+}
+
 export const getTrendingMovies = async (page = 1) => {
   return callTMDB<Movie>('/trending/movie/week', { page });
 };
@@ -115,6 +154,50 @@ export const getEnglishMovies = async (page = 1) => {
 // Other languages (excluding Indian and English)
 export const getOtherMovies = async (page = 1) => {
   return callTMDB<Movie>('/discover/movie', {
+    page,
+    without_original_language: 'en,hi,ta,te,ml,kn',
+    sort_by: 'popularity.desc'
+  });
+};
+
+// TV Show API functions
+export const getTrendingTVShows = async (page = 1) => {
+  return callTMDB<TVShow>('/trending/tv/week', { page });
+};
+
+export const searchTVShows = async (query: string, page = 1) => {
+  return callTMDB<TVShow>('/search/tv', { query, page });
+};
+
+export const getTVShowDetails = async (tvId: number): Promise<TVShowDetails> => {
+  return callTMDB<TVShowDetails>(`/tv/${tvId}`);
+};
+
+export const getTVShowSeasonDetails = async (tvId: number, seasonNumber: number) => {
+  return callTMDB<{ episodes: Episode[] }>(`/tv/${tvId}/season/${seasonNumber}`);
+};
+
+// Indian TV shows
+export const getIndianTVShows = async (page = 1) => {
+  return callTMDB<TVShow>('/discover/tv', {
+    page,
+    with_original_language: 'hi|ta|te|ml|kn',
+    sort_by: 'popularity.desc'
+  });
+};
+
+// English TV shows
+export const getEnglishTVShows = async (page = 1) => {
+  return callTMDB<TVShow>('/discover/tv', {
+    page,
+    with_original_language: 'en',
+    sort_by: 'popularity.desc'
+  });
+};
+
+// Other TV shows
+export const getOtherTVShows = async (page = 1) => {
+  return callTMDB<TVShow>('/discover/tv', {
     page,
     without_original_language: 'en,hi,ta,te,ml,kn',
     sort_by: 'popularity.desc'

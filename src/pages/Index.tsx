@@ -8,16 +8,41 @@ import VideoPlayer from '@/components/VideoPlayer';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import LatestSection from '@/components/LatestSection';
 import GenreSection from '@/components/GenreSection';
+import TVShowSection from '@/components/TVShowSection';
+import TVShowModal from '@/components/TVShowModal';
+import ContinueWatchingSection from '@/components/ContinueWatchingSection';
 import { 
   Movie, 
+  TVShow,
   getTrendingMovies, 
-  searchMovies, 
+  searchMovies,
+  searchTVShows,
   getIndianMovies, 
   getEnglishMovies, 
-  getOtherMovies 
+  getOtherMovies,
+  getTrendingTVShows,
+  getIndianTVShows,
+  getEnglishTVShows
 } from '@/lib/tmdb';
+import { 
+  WatchHistoryItem, 
+  getWatchHistory, 
+  saveToWatchHistory, 
+  removeFromWatchHistory 
+} from '@/lib/watchHistory';
+
+interface VideoState {
+  isOpen: boolean;
+  title: string;
+  mediaId: number;
+  mediaType: 'movie' | 'tv';
+  seasonNumber?: number;
+  episodeNumber?: number;
+  posterPath?: string | null;
+}
 
 const Index = () => {
+  // Movies state
   const [movies, setMovies] = useState<Movie[]>([]);
   const [indianMovies, setIndianMovies] = useState<Movie[]>([]);
   const [englishMovies, setEnglishMovies] = useState<Movie[]>([]);
@@ -26,20 +51,52 @@ const Index = () => {
   const [isLoadingIndian, setIsLoadingIndian] = useState(true);
   const [isLoadingEnglish, setIsLoadingEnglish] = useState(true);
   const [isLoadingOther, setIsLoadingOther] = useState(true);
+  
+  // TV Shows state
+  const [tvShows, setTVShows] = useState<TVShow[]>([]);
+  const [indianTVShows, setIndianTVShows] = useState<TVShow[]>([]);
+  const [englishTVShows, setEnglishTVShows] = useState<TVShow[]>([]);
+  const [isLoadingTV, setIsLoadingTV] = useState(true);
+  const [isLoadingIndianTV, setIsLoadingIndianTV] = useState(true);
+  const [isLoadingEnglishTV, setIsLoadingEnglishTV] = useState(true);
+  
+  // Continue Watching state
+  const [watchHistory, setWatchHistory] = useState<WatchHistoryItem[]>([]);
+  
+  // Search and modal state
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const [selectedTVShow, setSelectedTVShow] = useState<TVShow | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
+  const [isTVModalOpen, setIsTVModalOpen] = useState(false);
+  const [videoState, setVideoState] = useState<VideoState>({
+    isOpen: false,
+    title: '',
+    mediaId: 0,
+    mediaType: 'movie'
+  });
 
   const debouncedSearch = useDebounce(searchQuery, 500);
+
+  // Load watch history on mount
+  useEffect(() => {
+    setWatchHistory(getWatchHistory());
+  }, []);
 
   const fetchMovies = useCallback(async () => {
     setIsLoading(true);
     try {
-      const data = debouncedSearch
-        ? await searchMovies(debouncedSearch)
-        : await getTrendingMovies();
-      setMovies(data.results || []);
+      if (debouncedSearch) {
+        const [movieData, tvData] = await Promise.all([
+          searchMovies(debouncedSearch),
+          searchTVShows(debouncedSearch)
+        ]);
+        setMovies(movieData.results || []);
+        setTVShows(tvData.results || []);
+      } else {
+        const data = await getTrendingMovies();
+        setMovies(data.results || []);
+      }
     } catch (error) {
       console.error('Error fetching movies:', error);
       setMovies([]);
@@ -49,7 +106,6 @@ const Index = () => {
   }, [debouncedSearch]);
 
   const fetchGenreMovies = useCallback(async () => {
-    // Fetch all genre sections in parallel
     Promise.all([
       getIndianMovies().then(data => {
         setIndianMovies(data.results?.slice(0, 10) || []);
@@ -68,17 +124,42 @@ const Index = () => {
     });
   }, []);
 
+  const fetchTVShows = useCallback(async () => {
+    Promise.all([
+      getTrendingTVShows().then(data => {
+        setTVShows(data.results?.slice(0, 10) || []);
+        setIsLoadingTV(false);
+      }),
+      getIndianTVShows().then(data => {
+        setIndianTVShows(data.results?.slice(0, 10) || []);
+        setIsLoadingIndianTV(false);
+      }),
+      getEnglishTVShows().then(data => {
+        setEnglishTVShows(data.results?.slice(0, 10) || []);
+        setIsLoadingEnglishTV(false);
+      })
+    ]).catch(error => {
+      console.error('Error fetching TV shows:', error);
+    });
+  }, []);
+
   useEffect(() => {
     fetchMovies();
   }, [fetchMovies]);
 
   useEffect(() => {
     fetchGenreMovies();
-  }, [fetchGenreMovies]);
+    fetchTVShows();
+  }, [fetchGenreMovies, fetchTVShows]);
 
   const handleMovieClick = (movie: Movie) => {
     setSelectedMovie(movie);
     setIsModalOpen(true);
+  };
+
+  const handleTVShowClick = (show: TVShow) => {
+    setSelectedTVShow(show);
+    setIsTVModalOpen(true);
   };
 
   const handleCloseModal = () => {
@@ -86,13 +167,92 @@ const Index = () => {
     setTimeout(() => setSelectedMovie(null), 300);
   };
 
-  const handlePlay = () => {
+  const handleCloseTVModal = () => {
+    setIsTVModalOpen(false);
+    setTimeout(() => setSelectedTVShow(null), 300);
+  };
+
+  const handlePlayMovie = () => {
+    if (!selectedMovie) return;
+    
+    // Save to watch history
+    saveToWatchHistory({
+      mediaType: 'movie',
+      mediaId: selectedMovie.id,
+      title: selectedMovie.title,
+      posterPath: selectedMovie.poster_path,
+      backdropPath: selectedMovie.backdrop_path,
+    });
+    setWatchHistory(getWatchHistory());
+    
     setIsModalOpen(false);
-    setIsVideoPlayerOpen(true);
+    setVideoState({
+      isOpen: true,
+      title: selectedMovie.title,
+      mediaId: selectedMovie.id,
+      mediaType: 'movie'
+    });
+  };
+
+  const handlePlayTVShow = (
+    showId: number, 
+    showName: string, 
+    seasonNumber: number, 
+    episodeNumber: number, 
+    episodeName: string,
+    posterPath: string | null
+  ) => {
+    // Save to watch history
+    saveToWatchHistory({
+      mediaType: 'tv',
+      mediaId: showId,
+      title: showName,
+      posterPath: posterPath,
+      backdropPath: selectedTVShow?.backdrop_path || null,
+      seasonNumber,
+      episodeNumber,
+      episodeName,
+    });
+    setWatchHistory(getWatchHistory());
+    
+    setIsTVModalOpen(false);
+    setVideoState({
+      isOpen: true,
+      title: `${showName} - ${episodeName}`,
+      mediaId: showId,
+      mediaType: 'tv',
+      seasonNumber,
+      episodeNumber
+    });
   };
 
   const handleCloseVideoPlayer = () => {
-    setIsVideoPlayerOpen(false);
+    setVideoState(prev => ({ ...prev, isOpen: false }));
+  };
+
+  const handleContinueWatchingClick = (item: WatchHistoryItem) => {
+    if (item.mediaType === 'tv' && item.seasonNumber && item.episodeNumber) {
+      setVideoState({
+        isOpen: true,
+        title: item.title,
+        mediaId: item.mediaId,
+        mediaType: 'tv',
+        seasonNumber: item.seasonNumber,
+        episodeNumber: item.episodeNumber
+      });
+    } else {
+      setVideoState({
+        isOpen: true,
+        title: item.title,
+        mediaId: item.mediaId,
+        mediaType: 'movie'
+      });
+    }
+  };
+
+  const handleRemoveFromHistory = (mediaId: number, mediaType: 'movie' | 'tv') => {
+    removeFromWatchHistory(mediaId, mediaType);
+    setWatchHistory(getWatchHistory());
   };
 
   return (
@@ -107,18 +267,41 @@ const Index = () => {
             </h2>
             {isLoading ? (
               <LoadingSpinner />
-            ) : movies.length > 0 ? (
-              <MovieGrid movies={movies} onMovieClick={handleMovieClick} />
             ) : (
-              <div className="text-center py-20">
-                <p className="text-muted-foreground text-lg">
-                  No movies found. Try a different search term.
-                </p>
-              </div>
+              <>
+                {movies.length > 0 && (
+                  <div className="mb-8">
+                    <h3 className="text-lg font-medium mb-4">Movies</h3>
+                    <MovieGrid movies={movies} onMovieClick={handleMovieClick} />
+                  </div>
+                )}
+                {tvShows.length > 0 && (
+                  <TVShowSection
+                    title="TV Shows"
+                    shows={tvShows}
+                    isLoading={false}
+                    onShowClick={handleTVShowClick}
+                  />
+                )}
+                {movies.length === 0 && tvShows.length === 0 && (
+                  <div className="text-center py-20">
+                    <p className="text-muted-foreground text-lg">
+                      No results found. Try a different search term.
+                    </p>
+                  </div>
+                )}
+              </>
             )}
           </>
         ) : (
           <div className="space-y-8">
+            {/* Continue Watching */}
+            <ContinueWatchingSection
+              items={watchHistory}
+              onItemClick={handleContinueWatchingClick}
+              onRemove={handleRemoveFromHistory}
+            />
+
             {/* Indian Movies */}
             <GenreSection
               title="Indian Movies"
@@ -126,6 +309,14 @@ const Index = () => {
               movies={indianMovies}
               isLoading={isLoadingIndian}
               onMovieClick={handleMovieClick}
+            />
+
+            {/* Trending TV Shows */}
+            <TVShowSection
+              title="Trending TV Shows"
+              shows={tvShows}
+              isLoading={isLoadingTV}
+              onShowClick={handleTVShowClick}
             />
 
             {/* Latest Added Section */}
@@ -140,6 +331,14 @@ const Index = () => {
               onMovieClick={handleMovieClick}
             />
 
+            {/* Indian TV Shows */}
+            <TVShowSection
+              title="Indian TV Shows"
+              shows={indianTVShows}
+              isLoading={isLoadingIndianTV}
+              onShowClick={handleTVShowClick}
+            />
+
             {/* Other International Movies */}
             <GenreSection
               title="International Movies"
@@ -147,6 +346,14 @@ const Index = () => {
               movies={otherMovies}
               isLoading={isLoadingOther}
               onMovieClick={handleMovieClick}
+            />
+
+            {/* English TV Shows */}
+            <TVShowSection
+              title="English TV Shows"
+              shows={englishTVShows}
+              isLoading={isLoadingEnglishTV}
+              onShowClick={handleTVShowClick}
             />
           </div>
         )}
@@ -157,15 +364,26 @@ const Index = () => {
         movie={selectedMovie}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        onPlay={handlePlay}
+        onPlay={handlePlayMovie}
+      />
+
+      {/* TV Show Modal */}
+      <TVShowModal
+        show={selectedTVShow}
+        isOpen={isTVModalOpen}
+        onClose={handleCloseTVModal}
+        onPlay={handlePlayTVShow}
       />
 
       {/* Video Player */}
       <VideoPlayer
-        isOpen={isVideoPlayerOpen}
+        isOpen={videoState.isOpen}
         onClose={handleCloseVideoPlayer}
-        movieTitle={selectedMovie?.title || ''}
-        movieId={selectedMovie?.id || 0}
+        title={videoState.title}
+        mediaId={videoState.mediaId}
+        mediaType={videoState.mediaType}
+        seasonNumber={videoState.seasonNumber}
+        episodeNumber={videoState.episodeNumber}
       />
     </div>
   );
