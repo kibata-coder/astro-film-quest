@@ -5,7 +5,7 @@ const ALLOWED_ORIGINS = [
   'http://localhost:8080',
   'http://localhost:5173',
   'https://lovable.dev',
-  'https://machakos.pages.dev/',
+  'https://machakos.pages.dev',
   // Add your production domain here once deployed
 ];
 
