@@ -14,8 +14,11 @@ interface VideoPlayerProps {
 const VideoPlayer = ({ isOpen, onClose, title, mediaId, mediaType, seasonNumber, episodeNumber }: VideoPlayerProps) => {
   const [isConnecting, setIsConnecting] = useState(true);
 
+  // Security Note: We construct the URL carefully.
+  // vidsrc-embed.ru is a third-party service. We cannot control its content,
+  // but we can control how it behaves in our app using the iframe sandbox.
   const embedUrl = mediaType === 'tv' && seasonNumber && episodeNumber
-    ? `https://vidsrc-embed.ru/embed/tv?tmdb=${mediaId}&s=${seasonNumber}&e=${episodeNumber}&autoplay=1`
+    ? `https://vidsrc-embed.ru/embed/tv?tmdb=${mediaId}&season=${seasonNumber}&episode=${episodeNumber}&autoplay=1`
     : `https://vidsrc-embed.ru/embed/movie?tmdb=${mediaId}&autoplay=1`;
 
   useEffect(() => {
@@ -50,6 +53,10 @@ const VideoPlayer = ({ isOpen, onClose, title, mediaId, mediaType, seasonNumber,
             className="w-full h-full"
             allowFullScreen
             allow="autoplay; fullscreen"
+            // SECURITY FIX: Sandbox restricts the iframe from opening popups or redirecting the page.
+            // 'allow-forms' 'allow-scripts' 'allow-same-origin' are needed for the player to work.
+            // DO NOT add 'allow-popups' or 'allow-top-navigation'.
+            sandbox="allow-forms allow-scripts allow-same-origin allow-presentation"
           />
 
           {/* Close button */}
