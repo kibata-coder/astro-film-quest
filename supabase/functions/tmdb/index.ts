@@ -9,6 +9,15 @@ const ALLOWED_ORIGINS = [
   // Add your production domain here once deployed
 ];
 
+// Check if origin is allowed (includes lovableproject.com pattern for previews)
+const isOriginAllowed = (origin: string | null): boolean => {
+  if (!origin) return false;
+  if (ALLOWED_ORIGINS.includes(origin)) return true;
+  // Allow all lovableproject.com subdomains for Lovable previews
+  if (origin.endsWith('.lovableproject.com')) return true;
+  return false;
+};
+
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 
 // Define strict allowlist of endpoints
@@ -23,10 +32,10 @@ const ALLOWED_ENDPOINTS = [
 
 serve(async (req) => {
   const origin = req.headers.get('origin');
-  const isAllowedOrigin = origin && ALLOWED_ORIGINS.includes(origin);
+  const isAllowedOrigin = isOriginAllowed(origin);
   
   const corsHeaders = {
-    'Access-Control-Allow-Origin': isAllowedOrigin ? origin : 'null',
+    'Access-Control-Allow-Origin': isAllowedOrigin && origin ? origin : 'null',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   };
 
