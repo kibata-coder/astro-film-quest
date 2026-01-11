@@ -31,7 +31,7 @@ const Header = ({ onSearch, searchQuery }: HeaderProps) => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-8">
           <h1 className="text-2xl md:text-3xl font-bold netflix-logo tracking-tight">
-            MOVIEFLIX
+            SOUD FLIX
           </h1>
         </div>
 
