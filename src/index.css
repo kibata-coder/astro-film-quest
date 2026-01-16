@@ -112,20 +112,20 @@
   }
 }
 
+/* OPTIMIZED COMPONENT LAYER FOR PROJECTORS */
 @layer components {
   .movie-card {
-    @apply relative overflow-hidden rounded-md cursor-pointer transition-all duration-300 ease-out;
+    @apply relative overflow-hidden rounded-md cursor-pointer transition-all duration-200;
   }
 
+  /* REPLACED: Simple border hover instead of heavy scale/shadow */
   .movie-card:hover {
-    @apply scale-110 z-20;
-    box-shadow: var(--shadow-card);
+    @apply ring-2 ring-primary z-10; 
   }
 
   @media (max-width: 768px) {
     .movie-card:hover {
-      @apply scale-100;
-      box-shadow: none;
+      @apply ring-0;
     }
   }
 
