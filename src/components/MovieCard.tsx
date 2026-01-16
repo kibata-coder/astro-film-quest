@@ -7,7 +7,8 @@ interface MovieCardProps {
 }
 
 const MovieCard = ({ movie, onClick }: MovieCardProps) => {
-  const posterUrl = getImageUrl(movie.poster_path, 'w500');
+  // CHANGED: 'w500' -> 'w342' (Faster loading for grids)
+  const posterUrl = getImageUrl(movie.poster_path, 'w342');
 
   return (
     <div
@@ -20,6 +21,7 @@ const MovieCard = ({ movie, onClick }: MovieCardProps) => {
           alt={movie.title}
           className="w-full h-full object-cover rounded-md"
           loading="lazy"
+          decoding="async" // ADDED: Helps prevent UI blocking while image loads
         />
       ) : (
         <div className="w-full h-full flex items-center justify-center bg-muted rounded-md">
