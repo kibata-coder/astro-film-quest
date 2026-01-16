@@ -20,9 +20,10 @@ const HeroBanner = ({ movies, onPlay, onInfo }: HeroBannerProps) => {
   useEffect(() => {
     if (featuredMovies.length <= 1) return;
     
+    // Increased time to 10s to reduce frequent re-renders on weak hardware
     const timer = setInterval(() => {
       handleNext();
-    }, 8000);
+    }, 10000);
 
     return () => clearInterval(timer);
   }, [currentIndex, featuredMovies.length]);
@@ -45,7 +46,8 @@ const HeroBanner = ({ movies, onPlay, onInfo }: HeroBannerProps) => {
 
   if (!currentMovie) return null;
 
-  const backdropUrl = getBackdropUrl(currentMovie.backdrop_path, 'original');
+  // CHANGED: 'original' -> 'w1280' (Saves ~3-5MB of RAM per image)
+  const backdropUrl = getBackdropUrl(currentMovie.backdrop_path, 'w1280');
 
   return (
     <div className="relative h-[70vh] md:h-[85vh] w-full overflow-hidden">
@@ -61,7 +63,7 @@ const HeroBanner = ({ movies, onPlay, onInfo }: HeroBannerProps) => {
         }}
       />
 
-      {/* Gradient Overlays */}
+      {/* Simplified Gradient for performance */}
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
       <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-transparent" />
 
