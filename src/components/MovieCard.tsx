@@ -7,8 +7,8 @@ interface MovieCardProps {
 }
 
 const MovieCard = ({ movie, onClick }: MovieCardProps) => {
-  // CHANGED: 'w500' -> 'w342' (Faster loading for grids)
-  const posterUrl = getImageUrl(movie.poster_path, 'w342');
+  // CHANGED: 'w500' -> 'w300' (Faster loading for grids)
+  const posterUrl = getImageUrl(movie.poster_path, 'w300');
 
   return (
     <div
