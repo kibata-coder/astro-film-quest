@@ -23,7 +23,7 @@ import {
   LatestSection,
   TrendingMoviesSection
 } from '@/components/sections/MovieSections';
-import { Movie, TVShow } from '@/lib/tmdb';
+import { Movie, TVShow, Episode, getTVShowSeasonDetails } from '@/lib/tmdb';
 import { 
   WatchHistoryItem, 
   getWatchHistory, 
@@ -38,6 +38,16 @@ interface VideoState {
   mediaType: 'movie' | 'tv';
   seasonNumber?: number;
   episodeNumber?: number;
+  episodeName?: string;
+}
+
+interface TVEpisodeContext {
+  showId: number;
+  showName: string;
+  seasonNumber: number;
+  episodes: Episode[];
+  posterPath: string | null;
+  backdropPath: string | null;
 }
 
 const Index = () => {
@@ -54,6 +64,7 @@ const Index = () => {
     mediaId: 0,
     mediaType: 'movie'
   });
+  const [tvEpisodeContext, setTvEpisodeContext] = useState<TVEpisodeContext | null>(null);
 
   const debouncedSearch = useDebounce(searchQuery, 500);
 
@@ -106,7 +117,7 @@ const Index = () => {
     });
   };
 
-  const handlePlayTVShow = (
+  const handlePlayTVShow = async (
     showId: number, 
     showName: string, 
     seasonNumber: number, 
@@ -126,25 +137,60 @@ const Index = () => {
     });
     setWatchHistory(getWatchHistory());
     setIsTVModalOpen(false);
+    
+    // Fetch episode list for navigation
+    try {
+      const seasonDetails = await getTVShowSeasonDetails(showId, seasonNumber);
+      setTvEpisodeContext({
+        showId,
+        showName,
+        seasonNumber,
+        episodes: seasonDetails.episodes || [],
+        posterPath,
+        backdropPath: selectedTVShow?.backdrop_path || null,
+      });
+    } catch (error) {
+      console.error('Failed to fetch season details:', error);
+      setTvEpisodeContext(null);
+    }
+    
     setVideoState({
       isOpen: true,
       title: `${showName} - ${episodeName}`,
       mediaId: showId,
       mediaType: 'tv',
       seasonNumber,
-      episodeNumber
+      episodeNumber,
+      episodeName
     });
   };
 
-  const handleContinueWatchingClick = (item: WatchHistoryItem) => {
+  const handleContinueWatchingClick = async (item: WatchHistoryItem) => {
     if (item.mediaType === 'tv' && item.seasonNumber && item.episodeNumber) {
+      // Fetch episode list for navigation
+      try {
+        const seasonDetails = await getTVShowSeasonDetails(item.mediaId, item.seasonNumber);
+        setTvEpisodeContext({
+          showId: item.mediaId,
+          showName: item.title,
+          seasonNumber: item.seasonNumber,
+          episodes: seasonDetails.episodes || [],
+          posterPath: item.posterPath,
+          backdropPath: item.backdropPath,
+        });
+      } catch (error) {
+        console.error('Failed to fetch season details:', error);
+        setTvEpisodeContext(null);
+      }
+      
       setVideoState({
         isOpen: true,
         title: item.title,
         mediaId: item.mediaId,
         mediaType: 'tv',
         seasonNumber: item.seasonNumber,
-        episodeNumber: item.episodeNumber
+        episodeNumber: item.episodeNumber,
+        episodeName: item.episodeName
       });
     } else {
       setVideoState({
@@ -154,6 +200,68 @@ const Index = () => {
         mediaType: 'movie'
       });
     }
+  };
+
+  const handleNextEpisode = () => {
+    if (!tvEpisodeContext || !videoState.episodeNumber) return;
+    
+    const currentEpIndex = tvEpisodeContext.episodes.findIndex(
+      ep => ep.episode_number === videoState.episodeNumber
+    );
+    
+    if (currentEpIndex === -1 || currentEpIndex >= tvEpisodeContext.episodes.length - 1) return;
+    
+    const nextEpisode = tvEpisodeContext.episodes[currentEpIndex + 1];
+    
+    saveToWatchHistory({
+      mediaType: 'tv',
+      mediaId: tvEpisodeContext.showId,
+      title: tvEpisodeContext.showName,
+      posterPath: tvEpisodeContext.posterPath,
+      backdropPath: tvEpisodeContext.backdropPath,
+      seasonNumber: tvEpisodeContext.seasonNumber,
+      episodeNumber: nextEpisode.episode_number,
+      episodeName: nextEpisode.name,
+    });
+    setWatchHistory(getWatchHistory());
+    
+    setVideoState(prev => ({
+      ...prev,
+      title: `${tvEpisodeContext.showName} - ${nextEpisode.name}`,
+      episodeNumber: nextEpisode.episode_number,
+      episodeName: nextEpisode.name
+    }));
+  };
+
+  const handlePreviousEpisode = () => {
+    if (!tvEpisodeContext || !videoState.episodeNumber) return;
+    
+    const currentEpIndex = tvEpisodeContext.episodes.findIndex(
+      ep => ep.episode_number === videoState.episodeNumber
+    );
+    
+    if (currentEpIndex <= 0) return;
+    
+    const prevEpisode = tvEpisodeContext.episodes[currentEpIndex - 1];
+    
+    saveToWatchHistory({
+      mediaType: 'tv',
+      mediaId: tvEpisodeContext.showId,
+      title: tvEpisodeContext.showName,
+      posterPath: tvEpisodeContext.posterPath,
+      backdropPath: tvEpisodeContext.backdropPath,
+      seasonNumber: tvEpisodeContext.seasonNumber,
+      episodeNumber: prevEpisode.episode_number,
+      episodeName: prevEpisode.name,
+    });
+    setWatchHistory(getWatchHistory());
+    
+    setVideoState(prev => ({
+      ...prev,
+      title: `${tvEpisodeContext.showName} - ${prevEpisode.name}`,
+      episodeNumber: prevEpisode.episode_number,
+      episodeName: prevEpisode.name
+    }));
   };
 
   const handleHeroPlay = (movie: Movie) => {
@@ -266,8 +374,14 @@ const Index = () => {
 
       <VideoPlayer
         isOpen={videoState.isOpen}
-        onClose={() => setVideoState(p => ({ ...p, isOpen: false }))}
+        onClose={() => {
+          setVideoState(p => ({ ...p, isOpen: false }));
+          setTvEpisodeContext(null);
+        }}
         {...videoState}
+        totalEpisodes={tvEpisodeContext?.episodes.length}
+        onNextEpisode={handleNextEpisode}
+        onPreviousEpisode={handlePreviousEpisode}
       />
     </div>
   );
