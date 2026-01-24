@@ -7,6 +7,7 @@ const ALLOWED_ORIGINS = [
   'https://lovable.dev',
   'https://machakos.pages.dev',
   'https://soudmovies.pages.dev',
+  'https://soudflex.pages.dev',
   // Add your production domain here once deployed
 ];
 
