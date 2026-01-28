@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Server } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { getMovieEmbedUrl, getTVShowEmbedUrl, type StreamingServer } from '@/lib/vidsrc';
 
 interface VideoPlayerProps {
   isOpen: boolean;
@@ -32,15 +33,26 @@ const VideoPlayer = ({
 }: VideoPlayerProps) => {
   const [isConnecting, setIsConnecting] = useState(true);
   const [showControls, setShowControls] = useState(true);
+  // Add server state
+  const [server, setServer] = useState<StreamingServer>('vidsrc');
   const hideControlsTimer = useRef<NodeJS.Timeout | null>(null);
 
+  // Generate URL based on media type and selected server
   const embedUrl = mediaType === 'tv' && seasonNumber && episodeNumber
-    ? `https://vidsrc-embed.ru/embed/tv?tmdb=${mediaId}&s=${seasonNumber}&e=${episodeNumber}&autoplay=1`
-    : `https://vidsrc-embed.ru/embed/movie?tmdb=${mediaId}&autoplay=1`;
+    ? getTVShowEmbedUrl(mediaId, seasonNumber, episodeNumber, server)
+    : getMovieEmbedUrl(mediaId, server);
 
   const isFirstEpisode = episodeNumber === 1;
   const isLastEpisode = episodeNumber === totalEpisodes;
 
+  // Reset to default server when opening a new media
+  useEffect(() => {
+    if (!isOpen) {
+      setServer('vidsrc');
+    }
+  }, [isOpen, mediaId]);
+
+  // Handle loading state when opening or switching servers
   useEffect(() => {
     if (isOpen) {
       setIsConnecting(true);
@@ -49,7 +61,7 @@ const VideoPlayer = ({
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [isOpen, mediaId, seasonNumber, episodeNumber]);
+  }, [isOpen, mediaId, seasonNumber, episodeNumber, server]);
 
   // Auto-hide controls after 3 seconds
   useEffect(() => {
@@ -97,7 +109,9 @@ const VideoPlayer = ({
         <div className="flex flex-col items-center justify-center h-full gap-6">
           <div className="loading-spinner w-16 h-16" />
           <div className="text-center">
-            <p className="text-xl font-medium mb-2">Connecting...</p>
+            <p className="text-xl font-medium mb-2">
+              Connecting to {server === 'vidsrc' ? 'Server 1' : 'Server 2'}...
+            </p>
             <p className="text-muted-foreground">{title}</p>
             {isTVShow && (
               <p className="text-sm text-muted-foreground">S{seasonNumber} E{episodeNumber}</p>
@@ -122,6 +136,35 @@ const VideoPlayer = ({
           >
             <X className="w-6 h-6" />
           </button>
+
+          {/* Server Selection Controls */}
+          {/* We position this above the episode navigation if it exists, otherwise at the bottom */}
+          <div 
+            className={`absolute left-0 right-0 flex justify-center gap-4 transition-all duration-300 z-20 ${
+              showControls ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+            } ${isTVShow && totalEpisodes ? 'bottom-24' : 'bottom-8'}`}
+          >
+            <div className="bg-black/60 backdrop-blur-sm p-1.5 rounded-full flex gap-2 border border-white/10">
+              <Button 
+                variant={server === 'vidsrc' ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setServer('vidsrc')}
+                className="h-8 rounded-full px-4 text-xs font-medium"
+              >
+                <Server className="w-3 h-3 mr-2" />
+                Server 1 (Fast)
+              </Button>
+              <Button 
+                variant={server === 'superembed' ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setServer('superembed')}
+                className="h-8 rounded-full px-4 text-xs font-medium"
+              >
+                <Server className="w-3 h-3 mr-2" />
+                Server 2 (Backup)
+              </Button>
+            </div>
+          </div>
 
           {/* Episode Navigation Controls - Only for TV shows */}
           {isTVShow && totalEpisodes && (
