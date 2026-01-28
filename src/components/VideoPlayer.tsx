@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { X, ChevronLeft, ChevronRight, Server } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getMovieEmbedUrl, getTVShowEmbedUrl, type StreamingServer } from '@/lib/vidsrc';
+import { addToHistory } from '@/lib/watchHistory';
 
 interface VideoPlayerProps {
   isOpen: boolean;
@@ -11,7 +12,6 @@ interface VideoPlayerProps {
   mediaType: 'movie' | 'tv';
   seasonNumber?: number;
   episodeNumber?: number;
-  // New props for episode navigation
   totalEpisodes?: number;
   episodeName?: string;
   onNextEpisode?: () => void;
@@ -33,7 +33,6 @@ const VideoPlayer = ({
 }: VideoPlayerProps) => {
   const [isConnecting, setIsConnecting] = useState(true);
   const [showControls, setShowControls] = useState(true);
-  // Add server state
   const [server, setServer] = useState<StreamingServer>('vidsrc');
   const hideControlsTimer = useRef<NodeJS.Timeout | null>(null);
 
@@ -52,16 +51,29 @@ const VideoPlayer = ({
     }
   }, [isOpen, mediaId]);
 
-  // Handle loading state when opening or switching servers
+  // Handle loading state and History saving when opening or switching servers
   useEffect(() => {
     if (isOpen) {
+      // 1. Existing connection logic
       setIsConnecting(true);
       const timer = setTimeout(() => {
         setIsConnecting(false);
       }, 1500);
+
+      // 2. Save to history (Cloud or Local)
+      // Note: We pass an empty string for poster_path as it's not available in this component's props yet
+      addToHistory({
+        id: mediaId,
+        media_type: mediaType,
+        title: title,
+        poster_path: "", 
+        season_number: seasonNumber,
+        episode_number: episodeNumber
+      });
+
       return () => clearTimeout(timer);
     }
-  }, [isOpen, mediaId, seasonNumber, episodeNumber, server]);
+  }, [isOpen, mediaId, seasonNumber, episodeNumber, server, title, mediaType]);
 
   // Auto-hide controls after 3 seconds
   useEffect(() => {
@@ -138,7 +150,7 @@ const VideoPlayer = ({
           </button>
 
           {/* Server Selection Controls */}
-          {/* We position this above the episode navigation if it exists, otherwise at the bottom */}
+          {/* Positioned above episode nav if TV show, otherwise at bottom */}
           <div 
             className={`absolute left-0 right-0 flex justify-center gap-4 transition-all duration-300 z-20 ${
               showControls ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
@@ -174,7 +186,6 @@ const VideoPlayer = ({
               }`}
             >
               <div className="flex items-center justify-between max-w-4xl mx-auto">
-                {/* Previous Episode Button */}
                 <Button
                   variant="ghost"
                   size="lg"
@@ -186,7 +197,6 @@ const VideoPlayer = ({
                   <span className="hidden sm:inline">Previous</span>
                 </Button>
 
-                {/* Current Episode Info */}
                 <div className="text-center flex-1 px-4">
                   <p className="text-sm text-muted-foreground">
                     Season {seasonNumber} • Episode {episodeNumber} of {totalEpisodes}
@@ -198,7 +208,6 @@ const VideoPlayer = ({
                   )}
                 </div>
 
-                {/* Next Episode Button */}
                 <Button
                   variant="ghost"
                   size="lg"
