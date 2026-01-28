@@ -2,6 +2,9 @@ import { z } from 'zod';
 
 const VIDSRC_BASE_URL = 'https://vidsrc-embed.ru';
 
+// 1. Define the Server Type
+export type StreamingServer = 'vidsrc' | 'superembed';
+
 // Zod schema for validating individual items from the API
 const VidsrcItemSchema = z.object({
   tmdb_id: z.string(),
@@ -64,13 +67,26 @@ export const getLatestTVShows = async (page = 1): Promise<VidsrcItem[]> => {
   }
 };
 
-export const getMovieEmbedUrl = (tmdbId: number): string => {
-  return `${VIDSRC_BASE_URL}/embed/movie?tmdb=${tmdbId}&autoplay=1`;
+// 2. Updated URL Generators with Server Support
+export const getMovieEmbedUrl = (tmdbId: number, server: StreamingServer = 'vidsrc'): string => {
+  if (server === 'superembed') {
+    return `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1`;
+  }
+  // Default to VidSrc
+  return `https://vidsrc.net/embed/movie?tmdb=${tmdbId}`;
 };
 
-export const getTVShowEmbedUrl = (tmdbId: number, season?: number, episode?: number): string => {
-  if (season !== undefined && episode !== undefined) {
-    return `${VIDSRC_BASE_URL}/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}&autoplay=1`;
+export const getTVShowEmbedUrl = (tmdbId: number, season?: number, episode?: number, server: StreamingServer = 'vidsrc'): string => {
+  if (server === 'superembed') {
+    if (season !== undefined && episode !== undefined) {
+      return `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`;
+    }
+    return `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1`;
   }
-  return `${VIDSRC_BASE_URL}/embed/tv?tmdb=${tmdbId}`;
+  
+  // Default to VidSrc
+  if (season !== undefined && episode !== undefined) {
+    return `https://vidsrc.net/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
+  }
+  return `https://vidsrc.net/embed/tv?tmdb=${tmdbId}`;
 };
