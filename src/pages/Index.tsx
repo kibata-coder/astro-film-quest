@@ -1,33 +1,35 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useSearchMedia, useTrendingMovies } from '@/hooks/use-media';
 import Header from '@/components/Header';
 import HeroBanner from '@/components/HeroBanner';
 import MovieGrid from '@/components/MovieGrid';
-import MovieModal from '@/components/MovieModal';
-import VideoPlayer from '@/components/VideoPlayer';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import TVShowModal from '@/components/TVShowModal';
 import ContinueWatchingSection from '@/components/ContinueWatchingSection';
 import Footer from '@/components/Footer';
 import ScrollableSection from '@/components/ScrollableSection';
 import MediaCard from '@/components/MediaCard';
 import { Tv } from 'lucide-react';
-import { 
-  IndianMoviesSection, 
-  EnglishMoviesSection, 
-  OtherMoviesSection, 
-  TrendingTVSection, 
-  IndianTVSection, 
+
+// Lazy load heavy components for better performance
+const MovieModal = lazy(() => import('@/components/MovieModal'));
+const TVShowModal = lazy(() => import('@/components/TVShowModal'));
+const VideoPlayer = lazy(() => import('@/components/VideoPlayer'));
+import {
+  IndianMoviesSection,
+  EnglishMoviesSection,
+  OtherMoviesSection,
+  TrendingTVSection,
+  IndianTVSection,
   EnglishTVSection,
   LatestSection,
   TrendingMoviesSection
 } from '@/components/sections/MovieSections';
 import { Movie, TVShow, Episode, getTVShowSeasonDetails } from '@/lib/tmdb';
-import { 
-  WatchHistoryItem, 
-  getWatchHistory, 
-  saveToWatchHistory, 
+import {
+  WatchHistoryItem,
+  getWatchHistory,
+  saveToWatchHistory,
   removeFromWatchHistory
 } from '@/lib/watchHistory';
 
@@ -72,7 +74,7 @@ const Index = () => {
   const { data: searchResults, isLoading: isSearchLoading } = useSearchMedia(debouncedSearch);
   const { data: trendingData } = useTrendingMovies();
   const trendingMovies = trendingData?.results || [];
-  
+
   // Load watch history
   useEffect(() => {
     setWatchHistory(getWatchHistory());
@@ -118,10 +120,10 @@ const Index = () => {
   };
 
   const handlePlayTVShow = async (
-    showId: number, 
-    showName: string, 
-    seasonNumber: number, 
-    episodeNumber: number, 
+    showId: number,
+    showName: string,
+    seasonNumber: number,
+    episodeNumber: number,
     episodeName: string,
     posterPath: string | null
   ) => {
@@ -137,7 +139,7 @@ const Index = () => {
     });
     setWatchHistory(getWatchHistory());
     setIsTVModalOpen(false);
-    
+
     // Fetch episode list for navigation
     try {
       const seasonDetails = await getTVShowSeasonDetails(showId, seasonNumber);
@@ -153,7 +155,7 @@ const Index = () => {
       console.error('Failed to fetch season details:', error);
       setTvEpisodeContext(null);
     }
-    
+
     setVideoState({
       isOpen: true,
       title: `${showName} - ${episodeName}`,
@@ -182,7 +184,7 @@ const Index = () => {
         console.error('Failed to fetch season details:', error);
         setTvEpisodeContext(null);
       }
-      
+
       setVideoState({
         isOpen: true,
         title: item.title,
@@ -204,15 +206,15 @@ const Index = () => {
 
   const handleNextEpisode = () => {
     if (!tvEpisodeContext || !videoState.episodeNumber) return;
-    
+
     const currentEpIndex = tvEpisodeContext.episodes.findIndex(
       ep => ep.episode_number === videoState.episodeNumber
     );
-    
+
     if (currentEpIndex === -1 || currentEpIndex >= tvEpisodeContext.episodes.length - 1) return;
-    
+
     const nextEpisode = tvEpisodeContext.episodes[currentEpIndex + 1];
-    
+
     saveToWatchHistory({
       mediaType: 'tv',
       mediaId: tvEpisodeContext.showId,
@@ -224,7 +226,7 @@ const Index = () => {
       episodeName: nextEpisode.name,
     });
     setWatchHistory(getWatchHistory());
-    
+
     setVideoState(prev => ({
       ...prev,
       title: `${tvEpisodeContext.showName} - ${nextEpisode.name}`,
@@ -235,15 +237,15 @@ const Index = () => {
 
   const handlePreviousEpisode = () => {
     if (!tvEpisodeContext || !videoState.episodeNumber) return;
-    
+
     const currentEpIndex = tvEpisodeContext.episodes.findIndex(
       ep => ep.episode_number === videoState.episodeNumber
     );
-    
+
     if (currentEpIndex <= 0) return;
-    
+
     const prevEpisode = tvEpisodeContext.episodes[currentEpIndex - 1];
-    
+
     saveToWatchHistory({
       mediaType: 'tv',
       mediaId: tvEpisodeContext.showId,
@@ -255,7 +257,7 @@ const Index = () => {
       episodeName: prevEpisode.name,
     });
     setWatchHistory(getWatchHistory());
-    
+
     setVideoState(prev => ({
       ...prev,
       title: `${tvEpisodeContext.showName} - ${prevEpisode.name}`,
@@ -300,14 +302,14 @@ const Index = () => {
                   <MovieGrid movies={searchResults.movies} onMovieClick={handleMovieClick} />
                 </div>
               ) : null}
-              
+
               {searchResults?.tvShows.length ? (
                 <ScrollableSection title="TV Shows" icon={Tv}>
                   {searchResults.tvShows.map((show) => (
-                    <MediaCard 
-                      key={show.id} 
-                      item={show} 
-                      onClick={() => handleTVShowClick(show)} 
+                    <MediaCard
+                      key={show.id}
+                      item={show}
+                      onClick={() => handleTVShowClick(show)}
                     />
                   ))}
                 </ScrollableSection>
@@ -326,8 +328,8 @@ const Index = () => {
       ) : (
         <>
           {/* Hero Banner */}
-          <HeroBanner 
-            movies={trendingMovies} 
+          <HeroBanner
+            movies={trendingMovies}
             onPlay={handleHeroPlay}
             onInfo={handleMovieClick}
           />
@@ -358,31 +360,34 @@ const Index = () => {
         </>
       )}
 
-      <MovieModal
-        movie={selectedMovie}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onPlay={handlePlayMovie}
-      />
 
-      <TVShowModal
-        show={selectedTVShow}
-        isOpen={isTVModalOpen}
-        onClose={handleCloseTVModal}
-        onPlay={handlePlayTVShow}
-      />
+      <Suspense fallback={null}>
+        <MovieModal
+          movie={selectedMovie}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onPlay={handlePlayMovie}
+        />
 
-      <VideoPlayer
-        isOpen={videoState.isOpen}
-        onClose={() => {
-          setVideoState(p => ({ ...p, isOpen: false }));
-          setTvEpisodeContext(null);
-        }}
-        {...videoState}
-        totalEpisodes={tvEpisodeContext?.episodes.length}
-        onNextEpisode={handleNextEpisode}
-        onPreviousEpisode={handlePreviousEpisode}
-      />
+        <TVShowModal
+          show={selectedTVShow}
+          isOpen={isTVModalOpen}
+          onClose={handleCloseTVModal}
+          onPlay={handlePlayTVShow}
+        />
+
+        <VideoPlayer
+          isOpen={videoState.isOpen}
+          onClose={() => {
+            setVideoState(p => ({ ...p, isOpen: false }));
+            setTvEpisodeContext(null);
+          }}
+          {...videoState}
+          totalEpisodes={tvEpisodeContext?.episodes.length}
+          onNextEpisode={handleNextEpisode}
+          onPreviousEpisode={handlePreviousEpisode}
+        />
+      </Suspense>
     </div>
   );
 };
