@@ -1,75 +1,86 @@
-import { X, Play } from 'lucide-react';
-import { WatchHistoryItem, removeFromWatchHistory } from '@/lib/watchHistory';
-import { getImageUrl } from '@/lib/tmdb';
+import { useEffect, useState } from 'react';
+import { WatchHistoryItem, getWatchHistory, removeFromHistory } from '@/lib/watchHistory';
+import MovieCard from './MovieCard';
+import TVShowCard from './TVShowCard';
+import { X } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
-interface ContinueWatchingSectionProps {
-  items: WatchHistoryItem[];
-  onItemClick: (item: WatchHistoryItem) => void;
-  onRemove: (mediaId: number, mediaType: 'movie' | 'tv') => void;
-}
+const ContinueWatchingSection = () => {
+  const [history, setHistory] = useState<WatchHistoryItem[]>([]);
 
-const ContinueWatchingSection = ({ items, onItemClick, onRemove }: ContinueWatchingSectionProps) => {
-  if (items.length === 0) return null;
+  const loadHistory = async () => {
+    const data = await getWatchHistory();
+    setHistory(data);
+  };
+
+  useEffect(() => {
+    loadHistory();
+
+    // Listen for auth changes to reload history (e.g., user signs in)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      loadHistory();
+    });
+
+    // Listen for custom event if you trigger it elsewhere
+    const handleHistoryUpdate = () => loadHistory();
+    window.addEventListener('watch-history-updated', handleHistoryUpdate);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('watch-history-updated', handleHistoryUpdate);
+    };
+  }, []);
+
+  const handleRemove = async (e: React.MouseEvent, item: WatchHistoryItem) => {
+    e.preventDefault();
+    e.stopPropagation();
+    await removeFromHistory(item.id, item.media_type);
+    loadHistory(); // Reload after delete
+  };
+
+  if (history.length === 0) return null;
 
   return (
-    <section className="mb-8">
-      <div className="flex items-center gap-2 mb-4">
-        <Play className="w-5 h-5 text-primary" />
-        <h2 className="text-xl font-semibold">Continue Watching</h2>
+    <section className="py-12 px-4 md:px-8">
+      <div className="flex items-center justify-between mb-8">
+        <h2 className="text-2xl font-bold">Continue Watching</h2>
       </div>
       
-      <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-        {items.map((item) => (
-          <div
-            key={`${item.mediaType}-${item.mediaId}`}
-            className="relative flex-shrink-0 w-40 group cursor-pointer"
-          >
-            <div
-              onClick={() => onItemClick(item)}
-              className="relative aspect-[2/3] rounded-lg overflow-hidden bg-muted"
-            >
-              {item.posterPath ? (
-                <img
-                  src={getImageUrl(item.posterPath, 'w300') || ''}
-                  alt={item.title}
-                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                  No Image
-                </div>
-              )}
-              
-              {/* Overlay on hover */}
-              <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <Play className="w-12 h-12 text-primary" fill="currentColor" />
-              </div>
-              
-              {/* Media type badge */}
-              <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-primary/90 text-primary-foreground text-xs font-medium">
-                {item.mediaType === 'tv' ? 'TV' : 'Movie'}
-              </div>
-            </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        {history.map((item) => (
+          <div key={`${item.media_type}-${item.id}`} className="relative group">
+            {item.media_type === 'movie' ? (
+              <MovieCard
+                id={item.id}
+                title={item.title}
+                poster_path={item.poster_path}
+                release_date=""
+                vote_average={0}
+              />
+            ) : (
+              <TVShowCard
+                id={item.id}
+                title={item.title}
+                poster_path={item.poster_path}
+                vote_average={0}
+              />
+            )}
             
-            {/* Remove button */}
+            {/* Remove Button */}
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onRemove(item.mediaId, item.mediaType);
-              }}
-              className="absolute top-2 right-2 p-1 rounded-full bg-background/80 hover:bg-destructive hover:text-destructive-foreground transition-colors opacity-0 group-hover:opacity-100"
+              onClick={(e) => handleRemove(e, item)}
+              className="absolute top-2 right-2 p-1.5 bg-black/60 hover:bg-red-500/80 rounded-full text-white opacity-0 group-hover:opacity-100 transition-all duration-300"
+              title="Remove from history"
             >
               <X className="w-4 h-4" />
             </button>
             
-            <div className="mt-2">
-              <p className="text-sm font-medium truncate">{item.title}</p>
-              {item.mediaType === 'tv' && item.seasonNumber && item.episodeNumber && (
-                <p className="text-xs text-muted-foreground">
-                  S{item.seasonNumber} E{item.episodeNumber}
-                </p>
-              )}
-            </div>
+            {/* Episode Badge for TV Shows */}
+            {item.media_type === 'tv' && item.season_number && (
+              <div className="absolute bottom-2 right-2 bg-primary/90 text-primary-foreground text-xs font-bold px-2 py-1 rounded">
+                S{item.season_number} E{item.episode_number}
+              </div>
+            )}
           </div>
         ))}
       </div>
