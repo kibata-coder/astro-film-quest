@@ -14,7 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      watch_history: {
+        Row: {
+          episode_number: number | null
+          id: string
+          media_id: number
+          media_type: string
+          poster_path: string | null
+          progress: number | null
+          season_number: number | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          episode_number?: number | null
+          id?: string
+          media_id: number
+          media_type: string
+          poster_path?: string | null
+          progress?: number | null
+          season_number?: number | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          episode_number?: number | null
+          id?: string
+          media_id?: number
+          media_type?: string
+          poster_path?: string | null
+          progress?: number | null
+          season_number?: number | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
