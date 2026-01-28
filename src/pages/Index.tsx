@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useSearchMedia, useTrendingMovies } from '@/hooks/use-media';
 import Header from '@/components/Header';
@@ -10,6 +10,7 @@ import Footer from '@/components/Footer';
 import ScrollableSection from '@/components/ScrollableSection';
 import MediaCard from '@/components/MediaCard';
 import { Tv } from 'lucide-react';
+import { addToHistory } from '@/lib/watchHistory';
 
 // Lazy load heavy components for better performance
 const MovieModal = lazy(() => import('@/components/MovieModal'));
@@ -26,12 +27,6 @@ import {
   TrendingMoviesSection
 } from '@/components/sections/MovieSections';
 import { Movie, TVShow, Episode, getTVShowSeasonDetails } from '@/lib/tmdb';
-import {
-  WatchHistoryItem,
-  getWatchHistory,
-  saveToWatchHistory,
-  removeFromWatchHistory
-} from '@/lib/watchHistory';
 
 interface VideoState {
   isOpen: boolean;
@@ -53,8 +48,6 @@ interface TVEpisodeContext {
 }
 
 const Index = () => {
-  // State
-  const [watchHistory, setWatchHistory] = useState<WatchHistoryItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
   const [selectedTVShow, setSelectedTVShow] = useState<TVShow | null>(null);
@@ -75,10 +68,10 @@ const Index = () => {
   const { data: trendingData } = useTrendingMovies();
   const trendingMovies = trendingData?.results || [];
 
-  // Load watch history
-  useEffect(() => {
-    setWatchHistory(getWatchHistory());
-  }, []);
+  // Helper to dispatch history update event
+  const notifyHistoryUpdate = () => {
+    window.dispatchEvent(new CustomEvent('watch-history-updated'));
+  };
 
   const handleMovieClick = (movie: Movie) => {
     setSelectedMovie(movie);
@@ -100,16 +93,15 @@ const Index = () => {
     setTimeout(() => setSelectedTVShow(null), 300);
   };
 
-  const handlePlayMovie = () => {
+  const handlePlayMovie = async () => {
     if (!selectedMovie) return;
-    saveToWatchHistory({
-      mediaType: 'movie',
-      mediaId: selectedMovie.id,
+    await addToHistory({
+      id: selectedMovie.id,
+      media_type: 'movie',
       title: selectedMovie.title,
-      posterPath: selectedMovie.poster_path,
-      backdropPath: selectedMovie.backdrop_path,
+      poster_path: selectedMovie.poster_path || '',
     });
-    setWatchHistory(getWatchHistory());
+    notifyHistoryUpdate();
     setIsModalOpen(false);
     setVideoState({
       isOpen: true,
@@ -127,17 +119,15 @@ const Index = () => {
     episodeName: string,
     posterPath: string | null
   ) => {
-    saveToWatchHistory({
-      mediaType: 'tv',
-      mediaId: showId,
+    await addToHistory({
+      id: showId,
+      media_type: 'tv',
       title: showName,
-      posterPath: posterPath,
-      backdropPath: selectedTVShow?.backdrop_path || null,
-      seasonNumber,
-      episodeNumber,
-      episodeName,
+      poster_path: posterPath || '',
+      season_number: seasonNumber,
+      episode_number: episodeNumber,
     });
-    setWatchHistory(getWatchHistory());
+    notifyHistoryUpdate();
     setIsTVModalOpen(false);
 
     // Fetch episode list for navigation
@@ -167,44 +157,7 @@ const Index = () => {
     });
   };
 
-  const handleContinueWatchingClick = async (item: WatchHistoryItem) => {
-    if (item.mediaType === 'tv' && item.seasonNumber && item.episodeNumber) {
-      // Fetch episode list for navigation
-      try {
-        const seasonDetails = await getTVShowSeasonDetails(item.mediaId, item.seasonNumber);
-        setTvEpisodeContext({
-          showId: item.mediaId,
-          showName: item.title,
-          seasonNumber: item.seasonNumber,
-          episodes: seasonDetails.episodes || [],
-          posterPath: item.posterPath,
-          backdropPath: item.backdropPath,
-        });
-      } catch (error) {
-        console.error('Failed to fetch season details:', error);
-        setTvEpisodeContext(null);
-      }
-
-      setVideoState({
-        isOpen: true,
-        title: item.title,
-        mediaId: item.mediaId,
-        mediaType: 'tv',
-        seasonNumber: item.seasonNumber,
-        episodeNumber: item.episodeNumber,
-        episodeName: item.episodeName
-      });
-    } else {
-      setVideoState({
-        isOpen: true,
-        title: item.title,
-        mediaId: item.mediaId,
-        mediaType: 'movie'
-      });
-    }
-  };
-
-  const handleNextEpisode = () => {
+  const handleNextEpisode = async () => {
     if (!tvEpisodeContext || !videoState.episodeNumber) return;
 
     const currentEpIndex = tvEpisodeContext.episodes.findIndex(
@@ -215,17 +168,15 @@ const Index = () => {
 
     const nextEpisode = tvEpisodeContext.episodes[currentEpIndex + 1];
 
-    saveToWatchHistory({
-      mediaType: 'tv',
-      mediaId: tvEpisodeContext.showId,
+    await addToHistory({
+      id: tvEpisodeContext.showId,
+      media_type: 'tv',
       title: tvEpisodeContext.showName,
-      posterPath: tvEpisodeContext.posterPath,
-      backdropPath: tvEpisodeContext.backdropPath,
-      seasonNumber: tvEpisodeContext.seasonNumber,
-      episodeNumber: nextEpisode.episode_number,
-      episodeName: nextEpisode.name,
+      poster_path: tvEpisodeContext.posterPath || '',
+      season_number: tvEpisodeContext.seasonNumber,
+      episode_number: nextEpisode.episode_number,
     });
-    setWatchHistory(getWatchHistory());
+    notifyHistoryUpdate();
 
     setVideoState(prev => ({
       ...prev,
@@ -235,7 +186,7 @@ const Index = () => {
     }));
   };
 
-  const handlePreviousEpisode = () => {
+  const handlePreviousEpisode = async () => {
     if (!tvEpisodeContext || !videoState.episodeNumber) return;
 
     const currentEpIndex = tvEpisodeContext.episodes.findIndex(
@@ -246,17 +197,15 @@ const Index = () => {
 
     const prevEpisode = tvEpisodeContext.episodes[currentEpIndex - 1];
 
-    saveToWatchHistory({
-      mediaType: 'tv',
-      mediaId: tvEpisodeContext.showId,
+    await addToHistory({
+      id: tvEpisodeContext.showId,
+      media_type: 'tv',
       title: tvEpisodeContext.showName,
-      posterPath: tvEpisodeContext.posterPath,
-      backdropPath: tvEpisodeContext.backdropPath,
-      seasonNumber: tvEpisodeContext.seasonNumber,
-      episodeNumber: prevEpisode.episode_number,
-      episodeName: prevEpisode.name,
+      poster_path: tvEpisodeContext.posterPath || '',
+      season_number: tvEpisodeContext.seasonNumber,
+      episode_number: prevEpisode.episode_number,
     });
-    setWatchHistory(getWatchHistory());
+    notifyHistoryUpdate();
 
     setVideoState(prev => ({
       ...prev,
@@ -266,15 +215,14 @@ const Index = () => {
     }));
   };
 
-  const handleHeroPlay = (movie: Movie) => {
-    saveToWatchHistory({
-      mediaType: 'movie',
-      mediaId: movie.id,
+  const handleHeroPlay = async (movie: Movie) => {
+    await addToHistory({
+      id: movie.id,
+      media_type: 'movie',
       title: movie.title,
-      posterPath: movie.poster_path,
-      backdropPath: movie.backdrop_path,
+      poster_path: movie.poster_path || '',
     });
-    setWatchHistory(getWatchHistory());
+    notifyHistoryUpdate();
     setVideoState({
       isOpen: true,
       title: movie.title,
@@ -336,14 +284,7 @@ const Index = () => {
 
           <main className="px-4 md:px-12 pb-12 -mt-24 relative z-10">
             <div className="space-y-4">
-              <ContinueWatchingSection
-                items={watchHistory}
-                onItemClick={handleContinueWatchingClick}
-                onRemove={(id, type) => {
-                  removeFromWatchHistory(id, type);
-                  setWatchHistory(getWatchHistory());
-                }}
-              />
+              <ContinueWatchingSection />
 
               <TrendingMoviesSection onMovieClick={handleMovieClick} />
               <TrendingTVSection onShowClick={handleTVShowClick} />
@@ -359,7 +300,6 @@ const Index = () => {
           <Footer />
         </>
       )}
-
 
       <Suspense fallback={null}>
         <MovieModal

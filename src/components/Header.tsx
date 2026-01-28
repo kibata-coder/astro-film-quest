@@ -1,15 +1,23 @@
 import { useState, useEffect } from 'react';
-import { Search, Bell, Menu, User, LogOut } from 'lucide-react';
+import { Search, Menu, User, LogOut, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import NavLink from './NavLink';
+import { NavLink } from './NavLink';
 import AuthModal from './AuthModal';
 import { supabase } from '@/integrations/supabase/client';
 
-const Header = () => {
+interface HeaderProps {
+  onSearch?: (query: string) => void;
+  searchQuery?: string;
+}
+
+const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [showSearch, setShowSearch] = useState(false);
+  const [localSearch, setLocalSearch] = useState(searchQuery);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 0);
@@ -47,17 +55,50 @@ const Header = () => {
           </a>
           
           <nav className="hidden md:flex items-center gap-6">
-            <NavLink href="/">Home</NavLink>
-            <NavLink href="/movies">Movies</NavLink>
-            <NavLink href="/tv">TV Shows</NavLink>
-            <NavLink href="/new">New & Popular</NavLink>
+            <NavLink to="/">Home</NavLink>
+            <NavLink to="/movies">Movies</NavLink>
+            <NavLink to="/tv">TV Shows</NavLink>
+            <NavLink to="/new">New & Popular</NavLink>
           </nav>
         </div>
 
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" className="text-foreground hover:text-primary transition-colors">
-            <Search className="w-5 h-5" />
-          </Button>
+          {onSearch && showSearch ? (
+            <div className="flex items-center gap-2">
+              <Input
+                type="text"
+                placeholder="Search movies, TV shows..."
+                value={localSearch}
+                onChange={(e) => {
+                  setLocalSearch(e.target.value);
+                  onSearch(e.target.value);
+                }}
+                className="w-48 md:w-64 h-9"
+                autoFocus
+              />
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => {
+                  setShowSearch(false);
+                  setLocalSearch('');
+                  onSearch('');
+                }}
+                className="text-foreground hover:text-primary"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
+          ) : (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => onSearch ? setShowSearch(true) : undefined}
+              className="text-foreground hover:text-primary transition-colors"
+            >
+              <Search className="w-5 h-5" />
+            </Button>
+          )}
           
           {user ? (
              <Button 
@@ -89,10 +130,10 @@ const Header = () => {
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] bg-background/95 backdrop-blur-xl border-white/10">
               <nav className="flex flex-col gap-4 mt-8">
-                <NavLink href="/">Home</NavLink>
-                <NavLink href="/movies">Movies</NavLink>
-                <NavLink href="/tv">TV Shows</NavLink>
-                <NavLink href="/new">New & Popular</NavLink>
+                <NavLink to="/">Home</NavLink>
+                <NavLink to="/movies">Movies</NavLink>
+                <NavLink to="/tv">TV Shows</NavLink>
+                <NavLink to="/new">New & Popular</NavLink>
                 {user ? (
                    <button onClick={handleSignOut} className="text-left text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                      Sign Out
