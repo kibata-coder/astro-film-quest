@@ -57,10 +57,10 @@ export default defineConfig(({ mode }) => ({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'robots.txt', 'placeholder.svg'],
       manifest: {
-        name: 'ASTRO - Stream Movies & TV',
-        short_name: 'ASTRO',
+        name: 'SoudFlex - Stream Movies & TV',
+        short_name: 'SoudFlex',
         description: 'Stream your favorite movies and TV shows',
-        theme_color: '#0f0f0f',
+        theme_color: '#2563eb',
         background_color: '#0f0f0f',
         display: 'standalone',
         orientation: 'portrait',

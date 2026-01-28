@@ -51,7 +51,7 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <div className="flex items-center gap-8">
           <a href="/" className="text-2xl font-bold text-primary tracking-tighter hover:scale-105 transition-transform">
-            ASTRO
+            SoudFlex
           </a>
           
           <nav className="hidden md:flex items-center gap-6">
