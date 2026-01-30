@@ -11,8 +11,10 @@ interface AuthModalProps {
   onClose: () => void;
 }
 
+type AuthMode = 'signin' | 'signup' | 'reset';
+
 const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [mode, setMode] = useState<AuthMode>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,7 +25,17 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     setLoading(true);
 
     try {
-      if (isSignUp) {
+      if (mode === 'reset') {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: 'https://soudflex.pages.dev/'
+        });
+        if (error) throw error;
+        toast({
+          title: "Reset email sent!",
+          description: "Check your inbox for the password reset link.",
+        });
+        setMode('signin');
+      } else if (mode === 'signup') {
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -59,11 +71,28 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     }
   };
 
+  const getTitle = () => {
+    switch (mode) {
+      case 'signup': return 'Create Account';
+      case 'reset': return 'Reset Password';
+      default: return 'Sign In';
+    }
+  };
+
+  const getButtonText = () => {
+    if (loading) return 'Loading...';
+    switch (mode) {
+      case 'signup': return 'Sign Up';
+      case 'reset': return 'Send Reset Link';
+      default: return 'Sign In';
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{isSignUp ? "Create Account" : "Sign In"}</DialogTitle>
+          <DialogTitle>{getTitle()}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleAuth} className="grid gap-4 py-4">
           <div className="grid gap-2">
@@ -77,29 +106,44 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
               required
             />
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+          {mode !== 'reset' && (
+            <div className="grid gap-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+          )}
           <Button type="submit" disabled={loading}>
-            {loading ? "Loading..." : isSignUp ? "Sign Up" : "Sign In"}
+            {getButtonText()}
           </Button>
+          
+          {mode === 'signin' && (
+            <button
+              type="button"
+              onClick={() => setMode('reset')}
+              className="text-sm text-muted-foreground hover:text-primary hover:underline"
+            >
+              Forgot your password?
+            </button>
+          )}
+          
           <div className="text-center text-sm">
             <span className="text-muted-foreground">
-              {isSignUp ? "Already have an account? " : "Don't have an account? "}
+              {mode === 'signup' ? "Already have an account? " : 
+               mode === 'reset' ? "Remember your password? " : 
+               "Don't have an account? "}
             </span>
             <button
               type="button"
-              onClick={() => setIsSignUp(!isSignUp)}
+              onClick={() => setMode(mode === 'signup' ? 'signin' : mode === 'reset' ? 'signin' : 'signup')}
               className="text-primary hover:underline font-medium"
             >
-              {isSignUp ? "Sign In" : "Sign Up"}
+              {mode === 'signup' ? 'Sign In' : mode === 'reset' ? 'Sign In' : 'Sign Up'}
             </button>
           </div>
         </form>
