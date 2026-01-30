@@ -136,7 +136,10 @@ const VideoPlayer = ({
             src={embedUrl}
             className="w-full h-full"
             allowFullScreen
-            allow="autoplay; fullscreen"
+            // Update: Added 'allow-presentation' and 'allow-top-navigation-by-user-activation'
+            // This is a relaxed sandbox that blocks most ads but allows video player features
+            sandbox="allow-forms allow-scripts allow-same-origin allow-presentation allow-top-navigation-by-user-activation"
+            allow="autoplay; fullscreen; picture-in-picture"
           />
 
           {/* Close button */}
