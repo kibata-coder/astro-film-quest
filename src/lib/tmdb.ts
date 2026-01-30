@@ -1,35 +1,15 @@
 import { supabase } from '@/integrations/supabase/client';
-import { isLowEndDevice } from './device'; // Import our new helper
 
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p';
 
-// CACHED VALUE: Run the check once so we don't lag the app checking every time
-const IS_LOW_END = isLowEndDevice();
-
 export const getImageUrl = (path: string | null, size: 'w300' | 'w500' | 'w780' | 'original' = 'w500') => {
   if (!path) return null;
-  
-  // SMART OPTIMIZATION:
-  // If it's a low-end device, force 'w300' (smaller) even if 'w500' was requested.
-  // We allow 'original' checks to pass through if absolutely necessary, but usually grids use w500.
-  const finalSize = IS_LOW_END && size === 'w500' ? 'w300' : size;
-  
-  return `${IMAGE_BASE_URL}/${finalSize}${path}`;
+  return `${IMAGE_BASE_URL}/${size}${path}`;
 };
 
 export const getBackdropUrl = (path: string | null, size: 'w780' | 'w1280' | 'original' = 'original') => {
   if (!path) return null;
-
-  // SMART OPTIMIZATION:
-  // If low-end, NEVER load 'original' (4K). Cap it at 'w1280' (HD) or even 'w780'.
-  let finalSize = size;
-  if (IS_LOW_END) {
-    if (size === 'original') finalSize = 'w1280';
-    // If you want it even faster on the projector, uncomment the line below:
-    // if (size === 'w1280') finalSize = 'w780'; 
-  }
-
-  return `${IMAGE_BASE_URL}/${finalSize}${path}`;
+  return `${IMAGE_BASE_URL}/${size}${path}`;
 };
 
 // ... keep the rest of the file exactly as it was ...
