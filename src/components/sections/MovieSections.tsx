@@ -21,14 +21,14 @@ interface SectionProps {
 
 // Skeleton for section loading
 const SectionSkeleton = () => (
-  <div className="mb-8">
-    <div className="h-7 w-48 bg-muted rounded animate-pulse mb-4" />
-    <div className="flex gap-4 overflow-hidden">
+  <div className="mb-10 md:mb-14">
+    <div className="h-7 w-48 bg-muted rounded animate-pulse mb-5 md:mb-6" />
+    <div className="flex gap-3 md:gap-5 overflow-hidden">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="flex-shrink-0 w-36 md:w-44">
+        <div key={i} className="flex-shrink-0 w-40 md:w-48">
           <div className="aspect-[2/3] rounded-lg bg-muted animate-pulse" />
-          <div className="mt-2 h-4 bg-muted rounded animate-pulse" />
-          <div className="mt-1 h-3 w-16 bg-muted rounded animate-pulse" />
+          <div className="mt-3 h-4 bg-muted rounded animate-pulse" />
+          <div className="mt-2 h-3 w-16 bg-muted rounded animate-pulse" />
         </div>
       ))}
     </div>

@@ -30,7 +30,7 @@ const MediaCard = memo(({ item, onClick, showBadge = true, className }: MediaCar
     <div
       onClick={() => onClick(item)}
       className={cn(
-        "flex-shrink-0 w-36 md:w-44 cursor-pointer group",
+        "flex-shrink-0 w-40 md:w-48 cursor-pointer group",
         className
       )}
     >
@@ -93,11 +93,11 @@ const MediaCard = memo(({ item, onClick, showBadge = true, className }: MediaCar
       </div>
 
       {/* Info */}
-      <div className="mt-2">
-        <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
+      <div className="mt-3">
+        <p className="text-sm md:text-base font-medium truncate group-hover:text-primary transition-colors">
           {title}
         </p>
-        <p className="text-xs text-muted-foreground">{year}</p>
+        <p className="text-xs md:text-sm text-muted-foreground">{year}</p>
       </div>
     </div>
   );

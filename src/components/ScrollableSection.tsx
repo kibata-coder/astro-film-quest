@@ -52,9 +52,9 @@ const ScrollableSection = memo(({
   };
 
   return (
-    <section className={cn("mb-8 relative group/section", className)}>
+    <section className={cn("mb-10 md:mb-14 relative group/section", className)}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-5 md:mb-6">
         <div className="flex items-center gap-2">
           {Icon && <Icon className="w-5 h-5 text-primary" />}
           <h2 className="text-xl md:text-2xl font-semibold">{title}</h2>
@@ -112,7 +112,7 @@ const ScrollableSection = memo(({
         {/* Scrollable Content */}
         <div
           ref={scrollRef}
-          className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide scroll-smooth"
+          className="flex gap-3 md:gap-5 overflow-x-auto pb-4 scrollbar-hide scroll-smooth"
         >
           {children}
         </div>
