@@ -136,7 +136,8 @@ const VideoPlayer = ({
             src={embedUrl}
             className="w-full h-full"
             allowFullScreen
-            allow="autoplay; fullscreen"
+            allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+            referrerPolicy="no-referrer-when-downgrade"
           />
 
           {/* Close button */}
