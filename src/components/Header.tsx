@@ -23,7 +23,6 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
     const handleScroll = () => setIsScrolled(window.scrollY > 0);
     window.addEventListener('scroll', handleScroll);
     
-    // Check auth state
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
     });
@@ -59,6 +58,8 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
             <NavLink to="/movies">Movies</NavLink>
             <NavLink to="/tv">TV Shows</NavLink>
             <NavLink to="/new">New & Popular</NavLink>
+            {/* ADDED MY LIST BUTTON HERE */}
+            {user && <NavLink to="/mylist">My List</NavLink>}
           </nav>
         </div>
 
@@ -134,6 +135,9 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
                 <NavLink to="/movies">Movies</NavLink>
                 <NavLink to="/tv">TV Shows</NavLink>
                 <NavLink to="/new">New & Popular</NavLink>
+                {/* ADDED MY LIST BUTTON TO MOBILE MENU */}
+                {user && <NavLink to="/mylist">My List</NavLink>}
+                
                 {user ? (
                    <button onClick={handleSignOut} className="text-left text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                      Sign Out
