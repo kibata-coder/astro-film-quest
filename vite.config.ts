@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
   },
   build: {
-    target: "es2015",
+    target: "esnext",
     outDir: "dist",
     minify: "terser",
     terserOptions: {
@@ -26,23 +26,23 @@ export default defineConfig(({ mode }) => ({
     sourcemap: false,
     assetsInlineLimit: 4096,
     chunkSizeWarningLimit: 1000,
+    modulePreload: {
+      polyfill: true,
+    },
     rollupOptions: {
       output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'ui-components': [
-            'lucide-react',
-            '@radix-ui/react-dialog',
-            '@radix-ui/react-slot',
-            '@radix-ui/react-toast',
-            '@radix-ui/react-tooltip',
-            '@radix-ui/react-tabs',
-            '@radix-ui/react-select',
-            '@radix-ui/react-scroll-area',
-          ],
-          'data-vendor': ['@tanstack/react-query', 'axios', '@supabase/supabase-js'],
-          'form-vendor': ['react-hook-form', '@hookform/resolvers', 'zod'],
-          'utils': ['clsx', 'tailwind-merge', 'class-variance-authority', 'date-fns'],
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+              return 'react-vendor';
+            }
+            if (id.includes('@radix-ui') || id.includes('lucide-react')) {
+              return 'ui-vendor';
+            }
+            if (id.includes('@tanstack') || id.includes('@supabase') || id.includes('axios')) {
+              return 'data-vendor';
+            }
+          }
         },
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
