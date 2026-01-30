@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Play, Info, ExternalLink } from 'lucide-react';
+import { X, Play, Info, Check, Plus } from 'lucide-react'; // Added Check, Plus
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,7 @@ import {
   getMovieVideos,
   getWatchProviders,
 } from '@/lib/tmdb';
+import { checkIsBookmarked, toggleBookmark } from '@/lib/bookmarks'; // Import our new helpers
 import LoadingSpinner from './LoadingSpinner';
 
 interface MovieModalProps {
@@ -32,10 +33,18 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay }: MovieModalProps) => {
   const [trailer, setTrailer] = useState<Video | null>(null);
   const [providers, setProviders] = useState<WatchProvider[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // New State for Bookmark
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
 
   useEffect(() => {
     if (movie && isOpen) {
       setIsLoading(true);
+      
+      // Check bookmark status
+      checkIsBookmarked(movie.id, 'movie').then(setIsBookmarked);
+
       Promise.all([
         getMovieDetails(movie.id),
         getMovieCredits(movie.id),
@@ -56,6 +65,19 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay }: MovieModalProps) => {
         .finally(() => setIsLoading(false));
     }
   }, [movie, isOpen]);
+
+  const handleBookmark = async () => {
+    if (!movie) return;
+    setIsBookmarkLoading(true);
+    const newState = await toggleBookmark(
+      movie.id,
+      'movie',
+      movie.title,
+      movie.poster_path
+    );
+    setIsBookmarked(newState);
+    setIsBookmarkLoading(false);
+  };
 
   if (!movie) return null;
 
@@ -114,13 +136,26 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay }: MovieModalProps) => {
               <Play className="w-5 h-5 mr-2 fill-current" />
               Play
             </Button>
+            
+            {/* Bookmark Button */}
             <Button
               variant="secondary"
               size="lg"
               className="bg-secondary/80 hover:bg-secondary"
+              onClick={handleBookmark}
+              disabled={isBookmarkLoading}
             >
-              <Info className="w-5 h-5 mr-2" />
-              More Info
+              {isBookmarked ? (
+                <>
+                  <Check className="w-5 h-5 mr-2" />
+                  In List
+                </>
+              ) : (
+                <>
+                  <Plus className="w-5 h-5 mr-2" />
+                  My List
+                </>
+              )}
             </Button>
           </div>
         </div>
