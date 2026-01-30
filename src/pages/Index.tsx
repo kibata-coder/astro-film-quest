@@ -82,8 +82,8 @@ const Index = () => {
             onInfo={openMovieModal}
           />
 
-          <main className="px-4 md:px-12 pb-12 -mt-24 relative z-10">
-            <div className="space-y-4">
+          <main className="px-5 md:px-16 pb-16 -mt-20 md:-mt-32 relative z-10">
+            <div className="space-y-6 md:space-y-10">
               <ContinueWatchingSection />
 
               <ErrorBoundary>

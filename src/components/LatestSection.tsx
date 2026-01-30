@@ -57,7 +57,7 @@ const fetchLatestTVShows = async (): Promise<TVShow[]> => {
 const MovieCard = memo(({ movie, onClick }: { movie: Movie; onClick: () => void }) => (
   <div
     onClick={onClick}
-    className="flex-shrink-0 w-32 md:w-40 cursor-pointer group"
+    className="flex-shrink-0 w-36 md:w-44 cursor-pointer group"
   >
     <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-muted mb-2">
       {movie.poster_path ? (
@@ -86,7 +86,7 @@ MovieCard.displayName = 'LatestMovieCard';
 const TVCard = memo(({ show, onClick }: { show: TVShow; onClick: () => void }) => (
   <div
     onClick={onClick}
-    className="flex-shrink-0 w-32 md:w-40 cursor-pointer group"
+    className="flex-shrink-0 w-36 md:w-44 cursor-pointer group"
   >
     <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-muted mb-2">
       {show.poster_path ? (
@@ -113,9 +113,9 @@ const TVCard = memo(({ show, onClick }: { show: TVShow; onClick: () => void }) =
 TVCard.displayName = 'LatestTVCard';
 
 const SkeletonCard = () => (
-  <div className="flex-shrink-0 w-32 md:w-40">
-    <Skeleton className="aspect-[2/3] rounded-lg mb-2" />
-    <Skeleton className="h-4 w-full mb-1" />
+  <div className="flex-shrink-0 w-36 md:w-44">
+    <Skeleton className="aspect-[2/3] rounded-lg mb-3" />
+    <Skeleton className="h-4 w-full mb-2" />
     <Skeleton className="h-3 w-16" />
   </div>
 );
@@ -134,14 +134,14 @@ const LatestSection = memo(({ onMovieClick, onTVShowClick }: LatestSectionProps)
   });
 
   return (
-    <div className="space-y-8 mt-12">
+    <div className="space-y-10 md:space-y-12 mt-14 md:mt-16">
       {/* Latest Movies */}
       <section>
-        <div className="flex items-center gap-2 mb-4">
+        <div className="flex items-center gap-2 mb-5 md:mb-6">
           <Film className="w-5 h-5 text-primary" />
           <h2 className="text-xl md:text-2xl font-semibold">Latest Added Movies</h2>
         </div>
-        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+        <div className="flex gap-4 md:gap-5 overflow-x-auto pb-4 scrollbar-hide">
           {isLoadingMovies ? (
             Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
           ) : latestMovies.length > 0 ? (
@@ -160,11 +160,11 @@ const LatestSection = memo(({ onMovieClick, onTVShowClick }: LatestSectionProps)
 
       {/* Latest TV Shows */}
       <section>
-        <div className="flex items-center gap-2 mb-4">
+        <div className="flex items-center gap-2 mb-5 md:mb-6">
           <Tv className="w-5 h-5 text-primary" />
           <h2 className="text-xl md:text-2xl font-semibold">Latest Added TV Shows</h2>
         </div>
-        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+        <div className="flex gap-4 md:gap-5 overflow-x-auto pb-4 scrollbar-hide">
           {isLoadingTV ? (
             Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
           ) : latestTVShows.length > 0 ? (

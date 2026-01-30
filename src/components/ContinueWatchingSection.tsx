@@ -40,17 +40,17 @@ const ContinueWatchingSection = () => {
   if (history.length === 0) return null;
 
   return (
-    <section className="py-6">
-      <h2 className="text-xl md:text-2xl font-semibold mb-4">Continue Watching</h2>
+    <section className="py-8 md:py-10">
+      <h2 className="text-xl md:text-2xl font-semibold mb-5 md:mb-6">Continue Watching</h2>
       
-      <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
+      <div className="flex gap-4 md:gap-5 overflow-x-auto pb-4 scrollbar-hide">
         {history.map((item) => {
           const posterUrl = getImageUrl(item.poster_path, 'w300');
           
           return (
             <div 
               key={`${item.media_type}-${item.id}`} 
-              className="flex-shrink-0 w-32 md:w-40 cursor-pointer group relative"
+              className="flex-shrink-0 w-36 md:w-44 cursor-pointer group relative"
             >
               <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-muted">
                 {posterUrl ? (

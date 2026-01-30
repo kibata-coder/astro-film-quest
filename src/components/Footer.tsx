@@ -5,9 +5,9 @@ const Footer = memo(() => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-border bg-card/50 mt-12">
-      <div className="px-4 md:px-12 py-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+    <footer className="border-t border-border bg-card/50 mt-16 md:mt-20">
+      <div className="px-5 md:px-16 py-10 md:py-14">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-12 mb-10">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
@@ -53,7 +53,7 @@ const Footer = memo(() => {
         </div>
 
         {/* Bottom */}
-        <div className="pt-6 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
             © {currentYear} SOUD FLIX. All rights reserved.
           </p>

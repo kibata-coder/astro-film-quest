@@ -19,8 +19,8 @@ const TVShows = () => {
 
   return (
     <Layout onSearch={setSearchQuery} searchQuery={searchQuery}>
-      <main className="container mx-auto px-4 pt-24 pb-8">
-        <h1 className="text-3xl font-bold mb-8">TV Shows</h1>
+      <main className="container mx-auto px-5 md:px-8 pt-28 pb-12">
+        <h1 className="text-3xl font-bold mb-10 md:mb-12">TV Shows</h1>
 
         {debouncedSearch ? (
           <section className="mb-8">

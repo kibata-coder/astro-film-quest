@@ -66,18 +66,18 @@ const HeroBanner = memo(({ movies, onPlay, onInfo }: HeroBannerProps) => {
       <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-transparent" />
 
       {/* Content */}
-      <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12 pb-16 md:pb-24">
+      <div className="absolute bottom-0 left-0 right-0 p-8 md:p-16 pb-20 md:pb-32">
         <div className={cn(
           "max-w-2xl transition-all duration-500",
           isTransitioning ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"
         )}>
           {/* Title */}
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-4 line-clamp-2">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-5 line-clamp-2">
             {currentMovie.title}
           </h1>
 
           {/* Meta Info */}
-          <div className="flex items-center gap-3 mb-4 text-sm md:text-base">
+          <div className="flex items-center gap-4 mb-5 text-sm md:text-base">
             {currentMovie.vote_average > 0 && (
               <span className="text-success font-semibold">
                 {Math.round(currentMovie.vote_average * 10)}% Match
@@ -89,12 +89,12 @@ const HeroBanner = memo(({ movies, onPlay, onInfo }: HeroBannerProps) => {
           </div>
 
           {/* Overview */}
-          <p className="text-sm md:text-base text-muted-foreground mb-6 line-clamp-3 max-w-xl">
+          <p className="text-sm md:text-base text-muted-foreground mb-8 line-clamp-3 max-w-xl">
             {currentMovie.overview}
           </p>
 
           {/* Buttons */}
-          <div className="flex gap-3">
+          <div className="flex gap-4">
             <Button
               size="lg"
               onClick={() => onPlay(currentMovie)}

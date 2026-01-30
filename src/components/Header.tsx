@@ -30,8 +30,8 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
         isScrolled ? 'bg-background/95 backdrop-blur-sm shadow-md' : 'bg-gradient-to-b from-background/80 to-transparent'
       }`}
     >
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-8">
+      <div className="container mx-auto px-5 md:px-8 h-[72px] flex items-center justify-between">
+        <div className="flex items-center gap-10">
           <a href="/" className="text-2xl font-bold text-primary tracking-tighter hover:scale-105 transition-transform">
             SoudFlex
           </a>
@@ -112,7 +112,7 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] bg-background/95 backdrop-blur-xl border-border">
-              <nav className="flex flex-col gap-4 mt-8">
+              <nav className="flex flex-col gap-5 mt-10">
                 <NavLink to="/">Home</NavLink>
                 <NavLink to="/movies">Movies</NavLink>
                 <NavLink to="/tv">TV Shows</NavLink>
