@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { X, Play, Star, Calendar, Tv } from 'lucide-react';
+import { X, Play, Star, Calendar, Tv, Plus, Check } from 'lucide-react'; // Added Plus, Check
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { getBackdropUrl, getImageUrl, getTVShowDetails, getTVShowSeasonDetails } from '@/lib/tmdb';
 import type { TVShow, TVShowDetails, Episode } from '@/lib/tmdb';
+import { checkIsBookmarked, toggleBookmark } from '@/lib/bookmarks'; // Import helpers
 
 interface TVShowModalProps {
   show: TVShow | null;
@@ -20,9 +21,17 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay }: TVShowModalProps) => {
   const [selectedSeason, setSelectedSeason] = useState<number>(1);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Bookmark state
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
+
   useEffect(() => {
     if (show && isOpen) {
       setIsLoading(true);
+      
+      // Check bookmark status
+      checkIsBookmarked(show.id, 'tv').then(setIsBookmarked);
+
       getTVShowDetails(show.id)
         .then((data) => {
           setDetails(data);
@@ -45,6 +54,19 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay }: TVShowModalProps) => {
         .catch(console.error);
     }
   }, [show, selectedSeason]);
+
+  const handleBookmark = async () => {
+    if (!show) return;
+    setIsBookmarkLoading(true);
+    const newState = await toggleBookmark(
+      show.id,
+      'tv',
+      show.name,
+      show.poster_path
+    );
+    setIsBookmarked(newState);
+    setIsBookmarkLoading(false);
+  };
 
   if (!show) return null;
 
@@ -94,7 +116,25 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay }: TVShowModalProps) => {
 
             {/* Info */}
             <div className="flex-1 min-w-0">
-              <h2 className="text-2xl font-bold mb-2">{show.name}</h2>
+              <div className="flex items-start justify-between">
+                <h2 className="text-2xl font-bold mb-2">{show.name}</h2>
+                
+                {/* Bookmark Button */}
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleBookmark}
+                  disabled={isBookmarkLoading}
+                  className="ml-2"
+                >
+                  {isBookmarked ? (
+                    <Check className="w-4 h-4 mr-1" />
+                  ) : (
+                    <Plus className="w-4 h-4 mr-1" />
+                  )}
+                  {isBookmarked ? 'In List' : 'My List'}
+                </Button>
+              </div>
               
               <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-4">
                 <span className="flex items-center gap-1">
