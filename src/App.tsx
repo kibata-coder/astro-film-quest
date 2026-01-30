@@ -1,11 +1,10 @@
-import { Suspense, lazy, useEffect } from "react";
+import { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LoadingSpinner from "./components/LoadingSpinner";
-import { isLowEndDevice } from "@/lib/device"; // Import the helper
 
 // Lazy load pages for performance
 const Index = lazy(() => import("./pages/Index"));
@@ -27,15 +26,6 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
-  // Performance Optimization:
-  // Detect low-end devices (like projectors or old phones) and add a class
-  // to disable heavy effects like blur.
-  useEffect(() => {
-    if (isLowEndDevice()) {
-      document.body.classList.add('low-end-device');
-      console.log('Lite Mode Enabled: Optimizing for performance');
-    }
-  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
