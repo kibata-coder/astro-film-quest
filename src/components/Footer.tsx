@@ -1,6 +1,7 @@
+import { memo } from 'react';
 import { Film } from 'lucide-react';
 
-const Footer = () => {
+const Footer = memo(() => {
   const currentYear = new Date().getFullYear();
 
   return (
@@ -63,6 +64,8 @@ const Footer = () => {
       </div>
     </footer>
   );
-};
+});
+
+Footer.displayName = 'Footer';
 
 export default Footer;

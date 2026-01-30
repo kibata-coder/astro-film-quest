@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, ReactNode } from 'react';
+import { useRef, useState, useEffect, ReactNode, memo } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { LucideIcon } from 'lucide-react';
@@ -10,7 +10,7 @@ interface ScrollableSectionProps {
   className?: string;
 }
 
-const ScrollableSection = ({ 
+const ScrollableSection = memo(({ 
   title, 
   icon: Icon, 
   children,
@@ -119,6 +119,8 @@ const ScrollableSection = ({
       </div>
     </section>
   );
-};
+});
+
+ScrollableSection.displayName = 'ScrollableSection';
 
 export default ScrollableSection;
