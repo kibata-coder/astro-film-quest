@@ -6,18 +6,18 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LoadingSpinner from "./components/LoadingSpinner";
 
-// Lazy load route components for better code splitting
 const Index = lazy(() => import("./pages/Index"));
 const Movies = lazy(() => import("./pages/Movies"));
 const TVShows = lazy(() => import("./pages/TVShows"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+// IMPORT THE NEW PAGE
+const MyList = lazy(() => import("./pages/MyList"));
 
-// Optimized React Query configuration
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+      staleTime: 5 * 60 * 1000, 
+      gcTime: 10 * 60 * 1000,
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
       retry: 1,
@@ -36,7 +36,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/movies" element={<Movies />} />
             <Route path="/tv" element={<TVShows />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            {/* ADD THE MY LIST ROUTE */}
+            <Route path="/mylist" element={<MyList />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
