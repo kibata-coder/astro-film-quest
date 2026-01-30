@@ -1,48 +1,64 @@
 
-# Remove PWA - Convert to Regular Website
+# Fix Email Verification Branding and Redirect URL
 
 ## Overview
-Remove all Progressive Web App (PWA) functionality to make SoudFlex a standard website. This eliminates service worker caching conflicts and simplifies the build process.
+Configure the signup flow so that:
+1. **Email branding** shows "SoudFlex" instead of "Cinestream Connect"
+2. **Email redirect** goes to `https://soudflex.pages.dev/` after verification
 
-## Files to Modify
+## Changes Required
 
-### 1. vite.config.ts
-Remove the VitePWA plugin import and configuration:
-- Delete `import { VitePWA } from "vite-plugin-pwa";`
-- Remove the entire `VitePWA({...})` plugin block (approximately 110 lines of caching configuration)
-- Keep all other build optimizations intact
+### Part 1: Code Change - Add Email Redirect URL
+**File:** `src/components/AuthModal.tsx`
 
-### 2. src/main.tsx
-Remove service worker registration code:
-- Delete lines 7-18 (the service worker registration block)
-- Keep only the React app mounting code (5 lines total)
+Update the `signUp` call to include the `emailRedirectTo` option pointing to your Cloudflare deployment:
 
-### 3. index.html
-Remove PWA-specific meta tags:
-- Delete `<meta name="theme-color">`
-- Delete `<meta name="apple-mobile-web-app-capable">`
-- Delete `<meta name="apple-mobile-web-app-status-bar-style">`
-- Delete `<meta name="apple-mobile-web-app-title">`
-- Delete `<link rel="apple-touch-icon">`
-- Delete `<link rel="manifest">`
-- Keep all other meta tags (Open Graph, Twitter, description, viewport, etc.)
+```typescript
+const { error } = await supabase.auth.signUp({
+  email,
+  password,
+  options: {
+    emailRedirectTo: 'https://soudflex.pages.dev/'
+  }
+});
+```
 
-### 4. package.json
-Remove the PWA dependency:
-- Delete `"vite-plugin-pwa": "^1.2.0"` from dependencies
+This ensures when users click "Verify Email", they're redirected to your Cloudflare-hosted domain.
 
-### 5. Delete PWA Icon Files
-- `public/pwa-192x192.png` - Delete
-- `public/pwa-512x512.png` - Delete
+---
 
-## Benefits
-- Simpler build process
-- No service worker caching conflicts on deployments
-- Faster initial load (no SW registration overhead)
-- Eliminates potential cause of blank screen issues
-- Easier debugging without cached assets
+### Part 2: Backend Configuration - Email Template Branding
+The email template text (showing "Cinestream Connect") is configured in Lovable Cloud's auth settings. You'll need to update this in the Cloud dashboard.
+
+**Steps:**
+1. Open the Cloud dashboard (button provided below)
+2. Navigate to **Auth Settings** → **Email Templates**
+3. Look for the email confirmation template
+4. Change instances of "Cinestream Connect" to "SoudFlex"
+5. Update any other branding (logo, links) as needed
+
+---
+
+### Part 3: Redirect URL Whitelist
+The redirect URL `https://soudflex.pages.dev/` must be added to the allowed redirect URLs in the auth settings.
+
+**In Cloud dashboard:**
+1. Go to **Auth Settings** → **URL Configuration**
+2. Add `https://soudflex.pages.dev/` to the **Redirect URLs** list
+3. Save changes
+
+---
+
+## Summary of Changes
+
+| Component | Change |
+|-----------|--------|
+| `AuthModal.tsx` | Add `emailRedirectTo: 'https://soudflex.pages.dev/'` to signUp options |
+| Cloud Dashboard | Update email templates to say "SoudFlex" |
+| Cloud Dashboard | Add `https://soudflex.pages.dev/` to allowed redirect URLs |
 
 ## After Implementation
-1. Republish on Lovable (click Publish → Update)
-2. GitHub sync will trigger Cloudflare rebuild automatically
-3. Both sites should now load properly without caching interference
+1. Republish the site on Lovable
+2. Test by signing up with a new email
+3. Verify the email shows "SoudFlex" branding
+4. Confirm clicking "Verify Email" redirects to soudflex.pages.dev
