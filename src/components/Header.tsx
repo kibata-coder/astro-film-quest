@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Search, Menu, User, LogOut, X } from 'lucide-react';
+import { Search, Menu, LogOut, X, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { NavLink } from './NavLink';
-import AuthModal from './AuthModal';
-import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
@@ -14,32 +13,16 @@ interface HeaderProps {
 
 const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [user, setUser] = useState<any>(null);
   const [showSearch, setShowSearch] = useState(false);
   const [localSearch, setLocalSearch] = useState(searchQuery);
+  
+  const { user, openAuthModal, signOut } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 0);
     window.addEventListener('scroll', handleScroll);
-    
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      subscription.unsubscribe();
-    };
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-  };
 
   return (
     <header
@@ -58,7 +41,6 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
             <NavLink to="/movies">Movies</NavLink>
             <NavLink to="/tv">TV Shows</NavLink>
             <NavLink to="/new">New & Popular</NavLink>
-            {/* ADDED MY LIST BUTTON HERE */}
             {user && <NavLink to="/mylist">My List</NavLink>}
           </nav>
         </div>
@@ -105,7 +87,7 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
              <Button 
                variant="ghost" 
                size="icon" 
-               onClick={handleSignOut}
+               onClick={signOut}
                className="text-foreground hover:text-primary transition-colors"
                title="Sign Out"
              >
@@ -115,7 +97,7 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
             <Button 
               variant="ghost" 
               size="icon" 
-              onClick={() => setIsAuthOpen(true)}
+              onClick={openAuthModal}
               className="text-foreground hover:text-primary transition-colors"
               title="Sign In"
             >
@@ -129,21 +111,20 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] bg-background/95 backdrop-blur-xl border-white/10">
+            <SheetContent side="right" className="w-[300px] bg-background/95 backdrop-blur-xl border-border">
               <nav className="flex flex-col gap-4 mt-8">
                 <NavLink to="/">Home</NavLink>
                 <NavLink to="/movies">Movies</NavLink>
                 <NavLink to="/tv">TV Shows</NavLink>
                 <NavLink to="/new">New & Popular</NavLink>
-                {/* ADDED MY LIST BUTTON TO MOBILE MENU */}
                 {user && <NavLink to="/mylist">My List</NavLink>}
                 
                 {user ? (
-                   <button onClick={handleSignOut} className="text-left text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                   <button onClick={signOut} className="text-left text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                      Sign Out
                    </button>
                 ) : (
-                   <button onClick={() => setIsAuthOpen(true)} className="text-left text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                   <button onClick={openAuthModal} className="text-left text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                      Sign In
                    </button>
                 )}
@@ -152,8 +133,6 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
           </Sheet>
         </div>
       </div>
-
-      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
     </header>
   );
 };

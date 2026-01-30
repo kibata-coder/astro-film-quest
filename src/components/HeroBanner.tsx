@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { Play, Info, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Movie, getBackdropUrl } from '@/lib/tmdb';
@@ -10,7 +10,7 @@ interface HeroBannerProps {
   onInfo: (movie: Movie) => void;
 }
 
-const HeroBanner = ({ movies, onPlay, onInfo }: HeroBannerProps) => {
+const HeroBanner = memo(({ movies, onPlay, onInfo }: HeroBannerProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
@@ -20,7 +20,6 @@ const HeroBanner = ({ movies, onPlay, onInfo }: HeroBannerProps) => {
   useEffect(() => {
     if (featuredMovies.length <= 1) return;
     
-    // Increased time to 10s to reduce frequent re-renders on weak hardware
     const timer = setInterval(() => {
       handleNext();
     }, 10000);
@@ -46,7 +45,6 @@ const HeroBanner = ({ movies, onPlay, onInfo }: HeroBannerProps) => {
 
   if (!currentMovie) return null;
 
-  // CHANGED: 'original' -> 'w1280' (Saves ~3-5MB of RAM per image)
   const backdropUrl = getBackdropUrl(currentMovie.backdrop_path, 'w1280');
 
   return (
@@ -159,6 +157,8 @@ const HeroBanner = ({ movies, onPlay, onInfo }: HeroBannerProps) => {
       )}
     </div>
   );
-};
+});
+
+HeroBanner.displayName = 'HeroBanner';
 
 export default HeroBanner;

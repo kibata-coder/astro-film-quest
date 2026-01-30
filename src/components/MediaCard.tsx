@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { Play, Star, Film, Tv } from 'lucide-react';
 import { getImageUrl, Movie, TVShow } from '@/lib/tmdb';
 import { cn } from '@/lib/utils';
@@ -16,7 +16,7 @@ const isMovie = (item: MediaItem): item is Movie => {
   return 'title' in item;
 };
 
-const MediaCard = ({ item, onClick, showBadge = true, className }: MediaCardProps) => {
+const MediaCard = memo(({ item, onClick, showBadge = true, className }: MediaCardProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
 
@@ -101,6 +101,8 @@ const MediaCard = ({ item, onClick, showBadge = true, className }: MediaCardProp
       </div>
     </div>
   );
-};
+});
+
+MediaCard.displayName = 'MediaCard';
 
 export default MediaCard;
