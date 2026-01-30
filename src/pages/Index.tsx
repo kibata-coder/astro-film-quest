@@ -291,7 +291,7 @@ const Index = () => {
               <IndianMoviesSection onMovieClick={handleMovieClick} />
               <EnglishMoviesSection onMovieClick={handleMovieClick} />
               <IndianTVSection onShowClick={handleTVShowClick} />
-              <LatestSection onMovieClick={handleMovieClick} />
+              <LatestSection onMovieClick={handleMovieClick} onTVShowClick={handleTVShowClick} />
               <OtherMoviesSection onMovieClick={handleMovieClick} />
               <EnglishTVSection onShowClick={handleTVShowClick} />
             </div>
