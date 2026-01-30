@@ -27,6 +27,9 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
         const { error } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            emailRedirectTo: 'https://soudflex.pages.dev/'
+          }
         });
         if (error) throw error;
         toast({
