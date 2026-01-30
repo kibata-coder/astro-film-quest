@@ -8,6 +8,8 @@ import LoadingSpinner from "./components/LoadingSpinner";
 
 // Lazy load route components for better code splitting
 const Index = lazy(() => import("./pages/Index"));
+const Movies = lazy(() => import("./pages/Movies"));
+const TVShows = lazy(() => import("./pages/TVShows"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Optimized React Query configuration
@@ -32,6 +34,8 @@ const App = () => (
         <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><LoadingSpinner /></div>}>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/movies" element={<Movies />} />
+            <Route path="/tv" element={<TVShows />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
