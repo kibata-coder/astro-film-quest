@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
 import { Film, Tv } from 'lucide-react';
-import { getLatestMovies, getLatestTVShows, VidsrcItem } from '@/lib/vidsrc';
-import { getMovieDetails, getImageUrl, Movie } from '@/lib/tmdb';
+import { getLatestMovies, getLatestTVShows } from '@/lib/vidsrc';
+import { getMovieDetails, getTVShowDetails, getImageUrl, Movie, TVShow } from '@/lib/tmdb';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface LatestSectionProps {
   onMovieClick: (movie: Movie) => void;
+  onTVShowClick?: (show: TVShow) => void;
 }
 
-const LatestSection = ({ onMovieClick }: LatestSectionProps) => {
+const LatestSection = ({ onMovieClick, onTVShowClick }: LatestSectionProps) => {
   const [latestMovies, setLatestMovies] = useState<Movie[]>([]);
-  const [latestTVShows, setLatestTVShows] = useState<VidsrcItem[]>([]);
+  const [latestTVShows, setLatestTVShows] = useState<TVShow[]>([]);
   const [isLoadingMovies, setIsLoadingMovies] = useState(true);
   const [isLoadingTV, setIsLoadingTV] = useState(true);
 
@@ -36,9 +37,22 @@ const LatestSection = ({ onMovieClick }: LatestSectionProps) => {
       setLatestMovies(movieDetails.filter((m): m is Movie => m !== null));
       setIsLoadingMovies(false);
 
-      // Fetch latest TV shows
-      const tvShows = await getLatestTVShows(1);
-      setLatestTVShows(tvShows.slice(0, 10));
+      // Fetch latest TV shows from Vidsrc and get TMDB details
+      const vidsrcTVShows = await getLatestTVShows(1);
+      const tvDetails = await Promise.all(
+        vidsrcTVShows.slice(0, 10).map(async (item) => {
+          try {
+            const tmdbId = parseInt(item.tmdb_id, 10);
+            if (isNaN(tmdbId)) return null;
+            const details = await getTVShowDetails(tmdbId);
+            return details as TVShow;
+          } catch {
+            return null;
+          }
+        })
+      );
+      
+      setLatestTVShows(tvDetails.filter((s): s is TVShow => s !== null));
       setIsLoadingTV(false);
     };
 
@@ -71,18 +85,29 @@ const LatestSection = ({ onMovieClick }: LatestSectionProps) => {
     </div>
   );
 
-  const TVCard = ({ item }: { item: VidsrcItem }) => (
-    <div className="flex-shrink-0 w-32 md:w-40 cursor-pointer group">
-      <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-muted mb-2 flex items-center justify-center">
-        <Tv className="w-8 h-8 text-muted-foreground" />
-        <div className="absolute bottom-2 left-2 right-2">
-          <span className="bg-primary/90 text-primary-foreground text-xs px-2 py-1 rounded">
-            TV Show
-          </span>
-        </div>
+  const TVCard = ({ show }: { show: TVShow }) => (
+    <div
+      onClick={() => onTVShowClick?.(show)}
+      className="flex-shrink-0 w-32 md:w-40 cursor-pointer group"
+    >
+      <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-muted mb-2">
+        {show.poster_path ? (
+          <img
+            src={getImageUrl(show.poster_path, 'w300') || ''}
+            alt={show.name}
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <Tv className="w-8 h-8 text-muted-foreground" />
+          </div>
+        )}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
       </div>
-      <p className="text-sm font-medium truncate">{item.title}</p>
-      <p className="text-xs text-muted-foreground">TMDB: {item.tmdb_id}</p>
+      <p className="text-sm font-medium truncate">{show.name}</p>
+      <p className="text-xs text-muted-foreground">
+        {show.first_air_date?.slice(0, 4) || 'N/A'}
+      </p>
     </div>
   );
 
@@ -125,8 +150,8 @@ const LatestSection = ({ onMovieClick }: LatestSectionProps) => {
           {isLoadingTV ? (
             Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
           ) : latestTVShows.length > 0 ? (
-            latestTVShows.map((item) => (
-              <TVCard key={item.tmdb_id} item={item} />
+            latestTVShows.map((show) => (
+              <TVCard key={show.id} show={show} />
             ))
           ) : (
             <p className="text-muted-foreground">No latest TV shows available</p>
