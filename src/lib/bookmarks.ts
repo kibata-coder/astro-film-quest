@@ -35,7 +35,6 @@ export const toggleBookmark = async (
   const isBookmarked = await checkIsBookmarked(mediaId, mediaType);
 
   if (isBookmarked) {
-    // Remove bookmark
     const { error } = await supabase
       .from('bookmarks')
       .delete()
@@ -48,13 +47,12 @@ export const toggleBookmark = async (
         description: "Failed to remove bookmark.",
         variant: "destructive",
       });
-      return true; // Still bookmarked
+      return true;
     }
     
     toast({ description: "Removed from your list" });
     return false;
   } else {
-    // Add bookmark
     const { error } = await supabase
       .from('bookmarks')
       .insert({
@@ -71,10 +69,28 @@ export const toggleBookmark = async (
         description: "Failed to add bookmark.",
         variant: "destructive",
       });
-      return false; // Failed to add
+      return false;
     }
 
     toast({ description: "Added to your list" });
     return true;
   }
+};
+
+// ADD THIS NEW FUNCTION
+export const getBookmarks = async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return [];
+
+  const { data, error } = await supabase
+    .from('bookmarks')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching bookmarks:', error);
+    return [];
+  }
+
+  return data || [];
 };
