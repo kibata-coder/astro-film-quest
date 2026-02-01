@@ -12,9 +12,6 @@ export const getBackdropUrl = (path: string | null, size: 'w780' | 'w1280' | 'or
   return `${IMAGE_BASE_URL}/${size}${path}`;
 };
 
-// ... keep the rest of the file exactly as it was ...
-// (Copy the rest of the file content from your previous version or the upload)
-// ...
 interface TMDBResponse<T> {
   results?: T[];
   page?: number;
@@ -205,4 +202,66 @@ export const getOtherTVShows = async (page = 1) => {
     without_original_language: 'en,hi,ta,te,ml,kn',
     sort_by: 'popularity.desc'
   });
+};
+
+// --- CORE NARRATIVE GENRE FETCHERS ---
+
+// 1. Action (28)
+export const getActionMovies = async (page = 1) => {
+  return callTMDB<Movie>('/discover/movie', { page, with_genres: '28', sort_by: 'popularity.desc' });
+};
+
+// 2. Adventure (12)
+export const getAdventureMovies = async (page = 1) => {
+  return callTMDB<Movie>('/discover/movie', { page, with_genres: '12', sort_by: 'popularity.desc' });
+};
+
+// 3. Comedy (35)
+export const getComedyMovies = async (page = 1) => {
+  return callTMDB<Movie>('/discover/movie', { page, with_genres: '35', sort_by: 'popularity.desc' });
+};
+
+// 4. Drama (18)
+export const getDramaMovies = async (page = 1) => {
+  return callTMDB<Movie>('/discover/movie', { page, with_genres: '18', sort_by: 'popularity.desc' });
+};
+
+// 5. Horror (27)
+export const getHorrorMovies = async (page = 1) => {
+  return callTMDB<Movie>('/discover/movie', { page, with_genres: '27', sort_by: 'popularity.desc' });
+};
+
+// 6. Science Fiction (878)
+export const getSciFiMovies = async (page = 1) => {
+  return callTMDB<Movie>('/discover/movie', { page, with_genres: '878', sort_by: 'popularity.desc' });
+};
+
+// 7. Fantasy (14)
+export const getFantasyMovies = async (page = 1) => {
+  return callTMDB<Movie>('/discover/movie', { page, with_genres: '14', sort_by: 'popularity.desc' });
+};
+
+// 8. Romance (10749)
+export const getRomanceMovies = async (page = 1) => {
+  return callTMDB<Movie>('/discover/movie', { page, with_genres: '10749', sort_by: 'popularity.desc' });
+};
+
+// 9. Thriller (53)
+export const getThrillerMovies = async (page = 1) => {
+  return callTMDB<Movie>('/discover/movie', { page, with_genres: '53', sort_by: 'popularity.desc' });
+};
+
+// 10. Western (37)
+export const getWesternMovies = async (page = 1) => {
+  return callTMDB<Movie>('/discover/movie', { page, with_genres: '37', sort_by: 'popularity.desc' });
+};
+
+// 11. Crime (80)
+export const getCrimeMovies = async (page = 1) => {
+  return callTMDB<Movie>('/discover/movie', { page, with_genres: '80', sort_by: 'popularity.desc' });
+};
+
+// 12. War (10752)
+export const getWarMovies = async (page = 1) => {
+  return callTMDB<Movie>('/discover/movie', { page, with_genres: '10752', sort_by: 'popularity.desc' });
 };
