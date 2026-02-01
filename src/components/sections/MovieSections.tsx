@@ -97,7 +97,7 @@ export const TrendingTVSection = ({ onShowClick }: TVSectionProps) => (
   <DynamicSection title="Trending TV Shows" icon={Tv} useDataHook={useTrendingTVShows} onItemClick={onShowClick} isTrending={true} />
 );
 
-// 2. Language Sections (Keep these just in case)
+// 2. Language Sections (Movies)
 export const IndianMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
   <DynamicSection title="Indian Movies" icon={Film} useDataHook={useIndianMovies} onItemClick={onMovieClick} />
 );
@@ -108,7 +108,15 @@ export const OtherMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
   <DynamicSection title="International Movies" icon={Globe} useDataHook={useOtherMovies} onItemClick={onMovieClick} />
 );
 
-// 3. Genre Sections
+// 3. Language Sections (TV Shows) - Restored!
+export const IndianTVSection = ({ onShowClick }: TVSectionProps) => (
+  <DynamicSection title="Indian TV Shows" icon={Tv} useDataHook={useIndianTVShows} onItemClick={onShowClick} />
+);
+export const EnglishTVSection = ({ onShowClick }: TVSectionProps) => (
+  <DynamicSection title="English TV Shows" icon={Tv} useDataHook={useEnglishTVShows} onItemClick={onShowClick} />
+);
+
+// 4. Genre Sections
 export const ActionMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
   <DynamicSection title="Action" icon={Sword} useDataHook={useActionMovies} onItemClick={onMovieClick} />
 );
@@ -146,4 +154,5 @@ export const WarMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
   <DynamicSection title="War" icon={Siren} useDataHook={useWarMovies} onItemClick={onMovieClick} />
 );
 
+// Export LatestSection which is a default import in some places, or named import in others
 export { LatestSection };
