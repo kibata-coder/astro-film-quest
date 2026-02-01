@@ -1,4 +1,8 @@
-import { Film, Globe, Clapperboard, Sparkles, Tv } from 'lucide-react';
+import { 
+  Film, Globe, Clapperboard, Sparkles, Tv, LucideIcon,
+  Sword, Compass, Laugh, Theater, Ghost, Rocket, 
+  Heart, Eye, Siren, Briefcase, ShieldAlert 
+} from 'lucide-react';
 import MediaCard from '@/components/MediaCard';
 import ScrollableSection from '@/components/ScrollableSection';
 import LazySection from '@/components/LazySection';
@@ -10,16 +14,24 @@ import {
   useOtherMovies,
   useTrendingTVShows,
   useIndianTVShows,
-  useEnglishTVShows 
+  useEnglishTVShows,
+  // Genres
+  useActionMovies, useAdventureMovies, useComedyMovies, useDramaMovies, 
+  useHorrorMovies, useSciFiMovies, useFantasyMovies, useRomanceMovies, 
+  useThrillerMovies, useWesternMovies, useCrimeMovies, useWarMovies 
 } from '@/hooks/use-media';
 import { Movie, TVShow } from '@/lib/tmdb';
 
-interface SectionProps {
-  onMovieClick?: (movie: Movie) => void;
-  onShowClick?: (show: TVShow) => void;
+// --- Generic Component ---
+
+interface DynamicSectionProps {
+  title: string;
+  icon: LucideIcon;
+  useDataHook: () => { data: any; isLoading: boolean };
+  onItemClick?: (item: any) => void;
+  isTrending?: boolean;
 }
 
-// Skeleton for section loading
 const SectionSkeleton = () => (
   <div className="mb-10 md:mb-14">
     <div className="h-7 w-48 bg-muted rounded animate-pulse mb-5 md:mb-6" />
@@ -35,164 +47,103 @@ const SectionSkeleton = () => (
   </div>
 );
 
-// --- Movie Sections ---
+const DynamicSection = ({ title, icon, useDataHook, onItemClick, isTrending = false }: DynamicSectionProps) => {
+  const { data, isLoading } = useDataHook();
+  const items = data?.results?.slice(0, 15) || [];
 
-export const TrendingMoviesSection = ({ onMovieClick }: SectionProps) => {
-  const { data, isLoading } = useTrendingMovies();
-  const movies = data?.results?.slice(0, 15) || [];
-
-  if (isLoading) return <SectionSkeleton />;
-  if (!movies.length) return null;
-
-  return (
-    <ScrollableSection title="Trending Now" icon={Sparkles}>
-      {movies.map((movie) => (
+  const Content = (
+    <ScrollableSection title={title} icon={icon}>
+      {items.map((item: any) => (
         <MediaCard 
-          key={movie.id} 
-          item={movie} 
-          onClick={() => onMovieClick?.(movie)} 
+          key={item.id} 
+          item={item} 
+          onClick={() => onItemClick?.(item)} 
         />
       ))}
     </ScrollableSection>
   );
-};
 
-export const IndianMoviesSection = ({ onMovieClick }: SectionProps) => {
-  const { data, isLoading } = useIndianMovies();
-  const movies = data?.results?.slice(0, 15) || [];
-
-  return (
-    <LazySection>
-      {isLoading ? (
-        <SectionSkeleton />
-      ) : movies.length ? (
-        <ScrollableSection title="Indian Movies" icon={Film}>
-          {movies.map((movie) => (
-            <MediaCard 
-              key={movie.id} 
-              item={movie} 
-              onClick={() => onMovieClick?.(movie)} 
-            />
-          ))}
-        </ScrollableSection>
-      ) : null}
-    </LazySection>
-  );
-};
-
-export const EnglishMoviesSection = ({ onMovieClick }: SectionProps) => {
-  const { data, isLoading } = useEnglishMovies();
-  const movies = data?.results?.slice(0, 15) || [];
+  if (isTrending) {
+    if (isLoading) return <SectionSkeleton />;
+    if (!items.length) return null;
+    return Content;
+  }
 
   return (
     <LazySection>
       {isLoading ? (
         <SectionSkeleton />
-      ) : movies.length ? (
-        <ScrollableSection title="English Movies" icon={Clapperboard}>
-          {movies.map((movie) => (
-            <MediaCard 
-              key={movie.id} 
-              item={movie} 
-              onClick={() => onMovieClick?.(movie)} 
-            />
-          ))}
-        </ScrollableSection>
+      ) : items.length ? (
+        Content
       ) : null}
     </LazySection>
   );
 };
 
-export const OtherMoviesSection = ({ onMovieClick }: SectionProps) => {
-  const { data, isLoading } = useOtherMovies();
-  const movies = data?.results?.slice(0, 15) || [];
+// --- Exported Sections ---
 
-  return (
-    <LazySection>
-      {isLoading ? (
-        <SectionSkeleton />
-      ) : movies.length ? (
-        <ScrollableSection title="International Movies" icon={Globe}>
-          {movies.map((movie) => (
-            <MediaCard 
-              key={movie.id} 
-              item={movie} 
-              onClick={() => onMovieClick?.(movie)} 
-            />
-          ))}
-        </ScrollableSection>
-      ) : null}
-    </LazySection>
-  );
-};
+interface MovieSectionProps {
+  onMovieClick?: (movie: Movie) => void;
+}
+interface TVSectionProps {
+  onShowClick?: (show: TVShow) => void;
+}
 
-// --- TV Show Sections ---
+// 1. Core Sections
+export const TrendingMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
+  <DynamicSection title="Trending Now" icon={Sparkles} useDataHook={useTrendingMovies} onItemClick={onMovieClick} isTrending={true} />
+);
+export const TrendingTVSection = ({ onShowClick }: TVSectionProps) => (
+  <DynamicSection title="Trending TV Shows" icon={Tv} useDataHook={useTrendingTVShows} onItemClick={onShowClick} isTrending={true} />
+);
 
-export const TrendingTVSection = ({ onShowClick }: SectionProps) => {
-  const { data, isLoading } = useTrendingTVShows();
-  const shows = data?.results?.slice(0, 15) || [];
+// 2. Language Sections (Keep these just in case)
+export const IndianMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
+  <DynamicSection title="Indian Movies" icon={Film} useDataHook={useIndianMovies} onItemClick={onMovieClick} />
+);
+export const EnglishMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
+  <DynamicSection title="English Movies" icon={Clapperboard} useDataHook={useEnglishMovies} onItemClick={onMovieClick} />
+);
+export const OtherMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
+  <DynamicSection title="International Movies" icon={Globe} useDataHook={useOtherMovies} onItemClick={onMovieClick} />
+);
 
-  if (isLoading) return <SectionSkeleton />;
-  if (!shows.length) return null;
+// 3. Genre Sections
+export const ActionMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
+  <DynamicSection title="Action" icon={Sword} useDataHook={useActionMovies} onItemClick={onMovieClick} />
+);
+export const AdventureMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
+  <DynamicSection title="Adventure" icon={Compass} useDataHook={useAdventureMovies} onItemClick={onMovieClick} />
+);
+export const ComedyMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
+  <DynamicSection title="Comedy" icon={Laugh} useDataHook={useComedyMovies} onItemClick={onMovieClick} />
+);
+export const DramaMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
+  <DynamicSection title="Drama" icon={Theater} useDataHook={useDramaMovies} onItemClick={onMovieClick} />
+);
+export const HorrorMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
+  <DynamicSection title="Horror" icon={Ghost} useDataHook={useHorrorMovies} onItemClick={onMovieClick} />
+);
+export const SciFiMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
+  <DynamicSection title="Science Fiction" icon={Rocket} useDataHook={useSciFiMovies} onItemClick={onMovieClick} />
+);
+export const FantasyMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
+  <DynamicSection title="Fantasy" icon={Sparkles} useDataHook={useFantasyMovies} onItemClick={onMovieClick} />
+);
+export const RomanceMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
+  <DynamicSection title="Romance" icon={Heart} useDataHook={useRomanceMovies} onItemClick={onMovieClick} />
+);
+export const ThrillerMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
+  <DynamicSection title="Thriller & Suspense" icon={Eye} useDataHook={useThrillerMovies} onItemClick={onMovieClick} />
+);
+export const WesternMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
+  <DynamicSection title="Western" icon={ShieldAlert} useDataHook={useWesternMovies} onItemClick={onMovieClick} />
+);
+export const CrimeMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
+  <DynamicSection title="Crime" icon={Briefcase} useDataHook={useCrimeMovies} onItemClick={onMovieClick} />
+);
+export const WarMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
+  <DynamicSection title="War" icon={Siren} useDataHook={useWarMovies} onItemClick={onMovieClick} />
+);
 
-  return (
-    <ScrollableSection title="Trending TV Shows" icon={Tv}>
-      {shows.map((show) => (
-        <MediaCard 
-          key={show.id} 
-          item={show} 
-          onClick={() => onShowClick?.(show)} 
-        />
-      ))}
-    </ScrollableSection>
-  );
-};
-
-export const IndianTVSection = ({ onShowClick }: SectionProps) => {
-  const { data, isLoading } = useIndianTVShows();
-  const shows = data?.results?.slice(0, 15) || [];
-
-  return (
-    <LazySection>
-      {isLoading ? (
-        <SectionSkeleton />
-      ) : shows.length ? (
-        <ScrollableSection title="Indian TV Shows" icon={Tv}>
-          {shows.map((show) => (
-            <MediaCard 
-              key={show.id} 
-              item={show} 
-              onClick={() => onShowClick?.(show)} 
-            />
-          ))}
-        </ScrollableSection>
-      ) : null}
-    </LazySection>
-  );
-};
-
-export const EnglishTVSection = ({ onShowClick }: SectionProps) => {
-  const { data, isLoading } = useEnglishTVShows();
-  const shows = data?.results?.slice(0, 15) || [];
-
-  return (
-    <LazySection>
-      {isLoading ? (
-        <SectionSkeleton />
-      ) : shows.length ? (
-        <ScrollableSection title="English TV Shows" icon={Tv}>
-          {shows.map((show) => (
-            <MediaCard 
-              key={show.id} 
-              item={show} 
-              onClick={() => onShowClick?.(show)} 
-            />
-          ))}
-        </ScrollableSection>
-      ) : null}
-    </LazySection>
-  );
-};
-
-// Re-export LatestSection
 export { LatestSection };
