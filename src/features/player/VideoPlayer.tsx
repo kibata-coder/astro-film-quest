@@ -156,12 +156,22 @@ const VideoPlayer = ({
           <iframe 
             src={embedUrl} 
             className="w-full h-full border-0" 
-            // REMOVED: allowFullScreen 
-            // REMOVED: "fullscreen" from allow list
             allow="autoplay; picture-in-picture; encrypted-media" 
             referrerPolicy="no-referrer-when-downgrade" 
           />
           
+          {/* Top Left: Title & Episode Info (MOVED HERE to clear bottom for subtitles) */}
+          <div className={`absolute top-4 left-4 z-50 transition-all duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+             <div className="bg-black/40 backdrop-blur-md px-4 py-2 rounded-lg border border-white/10 max-w-[80vw] text-left">
+                <h2 className="text-white font-bold text-sm md:text-base truncate">{title}</h2>
+                {isTVShow && (
+                  <p className="text-white/70 text-xs md:text-sm truncate">
+                    S{seasonNumber} E{episodeNumber}: {episodeName}
+                  </p>
+                )}
+             </div>
+          </div>
+
           {/* Top Right Controls: Fullscreen + Close */}
           <div className={`absolute top-4 right-4 flex items-center gap-3 z-50 transition-all duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
             <Button 
@@ -182,43 +192,38 @@ const VideoPlayer = ({
             </Button>
           </div>
           
-          {/* Server Switcher - Positioned above native controls (~60px from bottom) */}
-          <div className={`absolute left-0 right-0 flex justify-center gap-4 transition-all duration-300 pointer-events-none ${showControls ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'} ${isTVShow && totalEpisodes ? 'bottom-40' : 'bottom-24'}`}>
+          {/* Server Switcher - Positioned above controls */}
+          <div className={`absolute left-0 right-0 flex justify-center gap-4 transition-all duration-300 pointer-events-none ${showControls ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'} ${isTVShow && totalEpisodes ? 'bottom-24' : 'bottom-16'}`}>
             <div className={`bg-black/60 backdrop-blur-sm p-1.5 rounded-full flex gap-2 border border-white/10 ${showControls ? 'pointer-events-auto' : 'pointer-events-none'}`}>
               <Button variant={server === 'vidsrc' ? "default" : "ghost"} size="sm" onClick={() => setServer('vidsrc')} className="h-8 rounded-full px-4 text-xs font-medium"><Server className="w-3 h-3 mr-2" />Server 1</Button>
               <Button variant={server === 'superembed' ? "default" : "ghost"} size="sm" onClick={() => setServer('superembed')} className="h-8 rounded-full px-4 text-xs font-medium"><Server className="w-3 h-3 mr-2" />Server 2</Button>
             </div>
           </div>
 
-          {/* Episode Navigation - Positioned above native controls with safe margin */}
+          {/* Episode Navigation - Bottom Corners Only (Clean Center for Subtitles) */}
           {isTVShow && totalEpisodes && (
-            <div className={`absolute bottom-16 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent pt-8 pb-4 px-4 transition-all duration-300 pointer-events-none ${showControls ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              <div className="flex items-center justify-between max-w-4xl mx-auto">
+            <div className={`absolute bottom-0 left-0 right-0 p-6 transition-all duration-300 pointer-events-none z-30 flex justify-between items-end ${showControls ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                {/* Previous Button */}
                 <Button 
                   variant="ghost" 
                   size="lg" 
                   onClick={onPreviousEpisode} 
                   disabled={isFirstEpisode} 
-                  className={`flex items-center gap-2 text-white hover:bg-white/10 disabled:opacity-30 h-12 px-6 ${showControls ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                  className={`flex items-center gap-2 text-white bg-black/40 hover:bg-black/60 backdrop-blur-sm border border-white/10 rounded-full px-6 ${showControls ? 'pointer-events-auto' : 'pointer-events-none'}`}
                 >
                   <ChevronLeft className="w-6 h-6" /><span className="hidden sm:inline font-medium">Previous</span>
                 </Button>
                 
-                <div className="text-center flex-1 px-4 text-white pointer-events-none">
-                  <p className="text-xs sm:text-sm text-white/60 font-medium uppercase tracking-wider mb-1">Season {seasonNumber} • Episode {episodeNumber}</p>
-                  <p className="font-bold text-base sm:text-lg truncate max-w-[200px] sm:max-w-md mx-auto leading-tight">{episodeName}</p>
-                </div>
-                
+                {/* Next Button */}
                 <Button 
                   variant="ghost" 
                   size="lg" 
                   onClick={onNextEpisode} 
                   disabled={isLastEpisode} 
-                  className={`flex items-center gap-2 text-white hover:bg-white/10 disabled:opacity-30 h-12 px-6 ${showControls ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                  className={`flex items-center gap-2 text-white bg-black/40 hover:bg-black/60 backdrop-blur-sm border border-white/10 rounded-full px-6 ${showControls ? 'pointer-events-auto' : 'pointer-events-none'}`}
                 >
                   <span className="hidden sm:inline font-medium">Next</span><ChevronRight className="w-6 h-6" />
                 </Button>
-              </div>
             </div>
           )}
         </>
