@@ -181,17 +181,17 @@ const VideoPlayer = ({
             </Button>
           </div>
           
-          {/* Server Switcher - Lifted up to avoid bottom collision */}
-          <div className={`absolute left-0 right-0 flex justify-center gap-4 transition-all duration-300 z-40 pointer-events-none ${showControls ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'} ${isTVShow && totalEpisodes ? 'bottom-32' : 'bottom-20'}`}>
+          {/* Server Switcher - Positioned above native controls (~60px from bottom) */}
+          <div className={`absolute left-0 right-0 flex justify-center gap-4 transition-all duration-300 pointer-events-none ${showControls ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'} ${isTVShow && totalEpisodes ? 'bottom-40' : 'bottom-24'}`}>
             <div className={`bg-black/60 backdrop-blur-sm p-1.5 rounded-full flex gap-2 border border-white/10 ${showControls ? 'pointer-events-auto' : 'pointer-events-none'}`}>
               <Button variant={server === 'vidsrc' ? "default" : "ghost"} size="sm" onClick={() => setServer('vidsrc')} className="h-8 rounded-full px-4 text-xs font-medium"><Server className="w-3 h-3 mr-2" />Server 1</Button>
               <Button variant={server === 'superembed' ? "default" : "ghost"} size="sm" onClick={() => setServer('superembed')} className="h-8 rounded-full px-4 text-xs font-medium"><Server className="w-3 h-3 mr-2" />Server 2</Button>
             </div>
           </div>
 
-          {/* Episode Navigation Overlay - Lifted with pb-16 to reveal native controls */}
+          {/* Episode Navigation - Positioned above native controls with safe margin */}
           {isTVShow && totalEpisodes && (
-            <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent pb-16 pt-20 px-4 transition-all duration-300 pointer-events-none z-30 ${showControls ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <div className={`absolute bottom-16 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent pt-8 pb-4 px-4 transition-all duration-300 pointer-events-none ${showControls ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               <div className="flex items-center justify-between max-w-4xl mx-auto">
                 <Button 
                   variant="ghost" 
@@ -203,7 +203,7 @@ const VideoPlayer = ({
                   <ChevronLeft className="w-6 h-6" /><span className="hidden sm:inline font-medium">Previous</span>
                 </Button>
                 
-                <div className="text-center flex-1 px-4 text-white">
+                <div className="text-center flex-1 px-4 text-white pointer-events-none">
                   <p className="text-xs sm:text-sm text-white/60 font-medium uppercase tracking-wider mb-1">Season {seasonNumber} • Episode {episodeNumber}</p>
                   <p className="font-bold text-base sm:text-lg truncate max-w-[200px] sm:max-w-md mx-auto leading-tight">{episodeName}</p>
                 </div>
