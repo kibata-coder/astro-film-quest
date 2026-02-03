@@ -7,12 +7,14 @@ export interface WatchHistoryItem {
   poster_path: string;
   season_number?: number;
   episode_number?: number;
-  last_watched: number; // timestamp
+  last_watched: number;
+  progress: number; // 0 to 1 (percentage)
+  duration: number; // Seconds
+  completed: boolean; // True if > 80%
 }
 
 const LOCAL_STORAGE_KEY = 'watch-history';
 
-// Helper to get local history
 const getLocalHistory = (): WatchHistoryItem[] => {
   const history = localStorage.getItem(LOCAL_STORAGE_KEY);
   return history ? JSON.parse(history) : [];
@@ -22,7 +24,6 @@ export const getWatchHistory = async (): Promise<WatchHistoryItem[]> => {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (user) {
-    // Fetch from Supabase
     const { data, error } = await supabase
       .from('watch_history')
       .select('*')
@@ -33,7 +34,6 @@ export const getWatchHistory = async (): Promise<WatchHistoryItem[]> => {
       return [];
     }
 
-    // Map Supabase format to App format
     return data.map(item => ({
       id: item.media_id,
       media_type: item.media_type as 'movie' | 'tv',
@@ -42,18 +42,35 @@ export const getWatchHistory = async (): Promise<WatchHistoryItem[]> => {
       season_number: item.season_number || undefined,
       episode_number: item.episode_number || undefined,
       last_watched: new Date(item.updated_at).getTime(),
+      progress: item.progress || 0,
+      duration: item.duration || 0,
+      completed: (item.progress || 0) > 0.8
     }));
   }
-
-  // Fallback to LocalStorage
   return getLocalHistory();
 };
 
-export const addToHistory = async (item: Omit<WatchHistoryItem, 'last_watched'>) => {
+// THE OTT SIGNAL COLLECTOR
+export const saveWatchProgress = async (
+  item: {
+    id: number;
+    media_type: 'movie' | 'tv';
+    title: string;
+    poster_path: string;
+    season_number?: number;
+    episode_number?: number;
+  },
+  secondsWatched: number,
+  totalDuration: number
+) => {
   const { data: { user } } = await supabase.auth.getUser();
+  
+  // Calculate Progress (0.0 - 1.0)
+  const progress = totalDuration > 0 ? Math.min(secondsWatched / totalDuration, 1) : 0;
+  const isCompleted = progress > 0.8; // THE 80% RULE
 
   if (user) {
-    // Save to Supabase
+    // Save to Cloud
     const { error } = await supabase
       .from('watch_history')
       .upsert({
@@ -64,38 +81,39 @@ export const addToHistory = async (item: Omit<WatchHistoryItem, 'last_watched'>)
         poster_path: item.poster_path,
         season_number: item.season_number,
         episode_number: item.episode_number,
+        progress: progress,
+        duration: totalDuration,
         updated_at: new Date().toISOString(),
       }, {
         onConflict: 'user_id, media_id, media_type'
       });
-
-    if (error) console.error('Error saving history to cloud:', error);
+      
+    if (error) console.error('Error saving progress:', error);
   } else {
     // Save to LocalStorage
     const history = getLocalHistory();
-    const newHistory = [
-      { ...item, last_watched: Date.now() },
-      ...history.filter((i) => i.id !== item.id || i.media_type !== item.media_type),
-    ].slice(0, 20); // Keep last 20 items
+    // Remove existing entry for this movie
+    const filtered = history.filter((i) => i.id !== item.id || i.media_type !== item.media_type);
+    
+    const newItem: WatchHistoryItem = {
+      ...item,
+      last_watched: Date.now(),
+      progress,
+      duration: totalDuration,
+      completed: isCompleted
+    };
 
+    const newHistory = [newItem, ...filtered].slice(0, 20);
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newHistory));
   }
 };
 
-export const removeFromHistory = async (id: number, mediaType: 'movie' | 'tv') => {
-  const { data: { user } } = await supabase.auth.getUser();
+export const addToHistory = async (item: Omit<WatchHistoryItem, 'last_watched' | 'progress' | 'duration' | 'completed'>) => {
+  // Backwards compatibility wrapper
+  return saveWatchProgress(item, 0, 0); 
+};
 
-  if (user) {
-    await supabase
-      .from('watch_history')
-      .delete()
-      .eq('media_id', id)
-      .eq('media_type', mediaType);
-  } else {
-    const history = getLocalHistory();
-    const newHistory = history.filter(
-      (item) => !(item.id === id && item.media_type === mediaType)
-    );
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newHistory));
-  }
+// HELPER FOR RECOMMENDER ENGINE
+export const getUserSignals = async () => {
+  return getWatchHistory();
 };
