@@ -265,3 +265,13 @@ export const getCrimeMovies = async (page = 1) => {
 export const getWarMovies = async (page = 1) => {
   return callTMDB<Movie>('/discover/movie', { page, with_genres: '10752', sort_by: 'popularity.desc' });
 };
+
+// --- RECOMMENDATIONS ---
+
+export const getMovieRecommendations = async (movieId: number) => {
+  return callTMDB<Movie>(`/movie/${movieId}/recommendations`);
+};
+
+export const getTVShowRecommendations = async (tvId: number) => {
+  return callTMDB<TVShow>(`/tv/${tvId}/recommendations`);
+};
