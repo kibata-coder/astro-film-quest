@@ -31,12 +31,8 @@ const ForYouSection = ({ onMovieClick }: ForYouSectionProps) => {
   };
 
   useEffect(() => {
-    // Only fetch if user is logged in
-    if (user) {
-      fetchRecommendations();
-    } else {
-      setIsLoading(false);
-    }
+    if (user) fetchRecommendations();
+    else setIsLoading(false);
   }, [user]);
 
   if (!user) return null;
@@ -50,19 +46,11 @@ const ForYouSection = ({ onMovieClick }: ForYouSectionProps) => {
             Top Picks For You
           </h2>
         </div>
-        
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={fetchRecommendations}
-          disabled={isRefreshing}
-          className="text-muted-foreground hover:text-white"
-        >
+        <Button variant="ghost" size="sm" onClick={fetchRecommendations} disabled={isRefreshing} className="text-muted-foreground hover:text-white">
           <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
       </div>
-
       {isLoading ? (
         <div className="flex gap-4 overflow-hidden">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -74,10 +62,7 @@ const ForYouSection = ({ onMovieClick }: ForYouSectionProps) => {
           <div className="flex space-x-4">
             {movies.map((movie) => (
               <div key={movie.id} className="w-[150px] md:w-[200px] flex-none">
-                <MovieCard 
-                  movie={movie} 
-                  onClick={onMovieClick} 
-                />
+                <MovieCard movie={movie} onClick={onMovieClick} />
               </div>
             ))}
           </div>
@@ -85,13 +70,10 @@ const ForYouSection = ({ onMovieClick }: ForYouSectionProps) => {
         </ScrollArea>
       ) : (
         <div className="text-center py-8 bg-muted/10 rounded-xl border border-white/5">
-          <p className="text-muted-foreground">
-            Watch a few movies to help us learn what you like!
-          </p>
+          <p className="text-muted-foreground">Watch a few movies to help us learn what you like!</p>
         </div>
       )}
     </section>
   );
 };
-
 export default ForYouSection;
