@@ -45,7 +45,6 @@ export interface Movie {
   genre_ids?: number[];
   genres?: { id: number; name: string }[];
   runtime?: number;
-  // Added for smart recommendations
   belongs_to_collection?: {
     id: number;
     name: string;
@@ -80,7 +79,6 @@ export interface WatchProvider {
   provider_name: string;
 }
 
-// TV Show types
 export interface TVShow {
   id: number;
   name: string;
@@ -147,7 +145,6 @@ export const getWatchProviders = async (movieId: number) => {
   return data.results?.US || null;
 };
 
-// Indian movies (Hindi, Tamil, Telugu, Malayalam, Kannada)
 export const getIndianMovies = async (page = 1) => {
   return callTMDB<Movie>('/discover/movie', {
     page,
@@ -156,7 +153,6 @@ export const getIndianMovies = async (page = 1) => {
   });
 };
 
-// English movies
 export const getEnglishMovies = async (page = 1) => {
   return callTMDB<Movie>('/discover/movie', {
     page,
@@ -165,7 +161,6 @@ export const getEnglishMovies = async (page = 1) => {
   });
 };
 
-// Other languages (excluding Indian and English)
 export const getOtherMovies = async (page = 1) => {
   return callTMDB<Movie>('/discover/movie', {
     page,
@@ -174,7 +169,6 @@ export const getOtherMovies = async (page = 1) => {
   });
 };
 
-// TV Show API functions
 export const getTrendingTVShows = async (page = 1) => {
   return callTMDB<TVShow>('/trending/tv/week', { page });
 };
@@ -191,7 +185,6 @@ export const getTVShowSeasonDetails = async (tvId: number, seasonNumber: number)
   return callTMDB<{ episodes: Episode[] }>(`/tv/${tvId}/season/${seasonNumber}`);
 };
 
-// Indian TV shows
 export const getIndianTVShows = async (page = 1) => {
   return callTMDB<TVShow>('/discover/tv', {
     page,
@@ -200,7 +193,6 @@ export const getIndianTVShows = async (page = 1) => {
   });
 };
 
-// English TV shows
 export const getEnglishTVShows = async (page = 1) => {
   return callTMDB<TVShow>('/discover/tv', {
     page,
@@ -209,7 +201,6 @@ export const getEnglishTVShows = async (page = 1) => {
   });
 };
 
-// Other TV shows
 export const getOtherTVShows = async (page = 1) => {
   return callTMDB<TVShow>('/discover/tv', {
     page,
@@ -218,152 +209,65 @@ export const getOtherTVShows = async (page = 1) => {
   });
 };
 
-// --- CORE NARRATIVE GENRE FETCHERS ---
+// --- GENRE FETCHERS ---
 
-// 1. Action (28)
-export const getActionMovies = async (page = 1) => {
-  return callTMDB<Movie>('/discover/movie', { page, with_genres: '28', sort_by: 'popularity.desc' });
-};
-
-// 2. Adventure (12)
-export const getAdventureMovies = async (page = 1) => {
-  return callTMDB<Movie>('/discover/movie', { page, with_genres: '12', sort_by: 'popularity.desc' });
-};
-
-// 3. Comedy (35)
-export const getComedyMovies = async (page = 1) => {
-  return callTMDB<Movie>('/discover/movie', { page, with_genres: '35', sort_by: 'popularity.desc' });
-};
-
-// 4. Drama (18)
-export const getDramaMovies = async (page = 1) => {
-  return callTMDB<Movie>('/discover/movie', { page, with_genres: '18', sort_by: 'popularity.desc' });
-};
-
-// 5. Horror (27)
-export const getHorrorMovies = async (page = 1) => {
-  return callTMDB<Movie>('/discover/movie', { page, with_genres: '27', sort_by: 'popularity.desc' });
-};
-
-// 6. Science Fiction (878)
-export const getSciFiMovies = async (page = 1) => {
-  return callTMDB<Movie>('/discover/movie', { page, with_genres: '878', sort_by: 'popularity.desc' });
-};
-
-// 7. Fantasy (14)
-export const getFantasyMovies = async (page = 1) => {
-  return callTMDB<Movie>('/discover/movie', { page, with_genres: '14', sort_by: 'popularity.desc' });
-};
-
-// 8. Romance (10749)
-export const getRomanceMovies = async (page = 1) => {
-  return callTMDB<Movie>('/discover/movie', { page, with_genres: '10749', sort_by: 'popularity.desc' });
-};
-
-// 9. Thriller (53)
-export const getThrillerMovies = async (page = 1) => {
-  return callTMDB<Movie>('/discover/movie', { page, with_genres: '53', sort_by: 'popularity.desc' });
-};
-
-// 10. Western (37)
-export const getWesternMovies = async (page = 1) => {
-  return callTMDB<Movie>('/discover/movie', { page, with_genres: '37', sort_by: 'popularity.desc' });
-};
-
-// 11. Crime (80)
-export const getCrimeMovies = async (page = 1) => {
-  return callTMDB<Movie>('/discover/movie', { page, with_genres: '80', sort_by: 'popularity.desc' });
-};
-
-// 12. War (10752)
-export const getWarMovies = async (page = 1) => {
-  return callTMDB<Movie>('/discover/movie', { page, with_genres: '10752', sort_by: 'popularity.desc' });
-};
+export const getActionMovies = async (page = 1) => callTMDB<Movie>('/discover/movie', { page, with_genres: '28', sort_by: 'popularity.desc' });
+export const getAdventureMovies = async (page = 1) => callTMDB<Movie>('/discover/movie', { page, with_genres: '12', sort_by: 'popularity.desc' });
+export const getComedyMovies = async (page = 1) => callTMDB<Movie>('/discover/movie', { page, with_genres: '35', sort_by: 'popularity.desc' });
+export const getDramaMovies = async (page = 1) => callTMDB<Movie>('/discover/movie', { page, with_genres: '18', sort_by: 'popularity.desc' });
+export const getHorrorMovies = async (page = 1) => callTMDB<Movie>('/discover/movie', { page, with_genres: '27', sort_by: 'popularity.desc' });
+export const getSciFiMovies = async (page = 1) => callTMDB<Movie>('/discover/movie', { page, with_genres: '878', sort_by: 'popularity.desc' });
+export const getFantasyMovies = async (page = 1) => callTMDB<Movie>('/discover/movie', { page, with_genres: '14', sort_by: 'popularity.desc' });
+export const getRomanceMovies = async (page = 1) => callTMDB<Movie>('/discover/movie', { page, with_genres: '10749', sort_by: 'popularity.desc' });
+export const getThrillerMovies = async (page = 1) => callTMDB<Movie>('/discover/movie', { page, with_genres: '53', sort_by: 'popularity.desc' });
+export const getWesternMovies = async (page = 1) => callTMDB<Movie>('/discover/movie', { page, with_genres: '37', sort_by: 'popularity.desc' });
+export const getCrimeMovies = async (page = 1) => callTMDB<Movie>('/discover/movie', { page, with_genres: '80', sort_by: 'popularity.desc' });
+export const getWarMovies = async (page = 1) => callTMDB<Movie>('/discover/movie', { page, with_genres: '10752', sort_by: 'popularity.desc' });
 
 // --- SMART RECOMMENDATION ENGINE ---
 
 export const getMovieRecommendations = async (movieId: number) => {
   try {
     let results: Movie[] = [];
-
-    // Step 1: Fetch Movie Details to check for Collections
-    // (We do this fetch again here to be independent and ensure we have the collection ID)
     const movie = await callTMDB<Movie>(`/movie/${movieId}`);
 
-    // Step 2: Priority - Collection (Sequels/Prequels)
-    // If the movie belongs to a collection (e.g., Avengers), show those first.
     if (movie.belongs_to_collection) {
       const collection = await callTMDB<Collection>(`/collection/${movie.belongs_to_collection.id}`);
       if (collection.parts && collection.parts.length > 0) {
-        // Filter out the movie we are currently watching
         results = collection.parts.filter(p => p.id !== movieId);
       }
     }
 
-    // Step 3: Fallback - Similar Movies (Content Matching)
-    // If no collection (or collection fetch failed), get Similar movies
     if (results.length === 0) {
       const similar = await callTMDB<Movie>(`/movie/${movieId}/similar`);
       results = similar.results || [];
     }
 
-    // Step 4: Quality Filter
-    // Filter out movies that:
-    // - Have no poster (usually indicates bad metadata)
-    // - Have a very low rating (unless it's a brand new movie with 0 votes)
-    results = results.filter(m => 
-      m.poster_path && 
-      (m.vote_average > 5.0 || m.vote_count === 0) 
-    );
+    results = results.filter(m => m.poster_path && (m.vote_average > 5.0 || m.vote_count === 0));
 
-    // Step 5: Final Backup - "Recommendations" Endpoint
-    // If our filtering killed everything, fallback to TMDB's algorithm
     if (results.length === 0) {
       const recs = await callTMDB<Movie>(`/movie/${movieId}/recommendations`);
-      return recs; // Return raw recommendations as last resort
+      return recs;
     }
 
-    // Return in TMDB format so components don't break
-    return {
-      results: results,
-      page: 1,
-      total_pages: 1,
-      total_results: results.length
-    };
-
+    return { results: results, page: 1, total_pages: 1, total_results: results.length };
   } catch (error) {
     console.error("Smart recommendation error:", error);
-    // Ultimate fallback if logic crashes
     return callTMDB<Movie>(`/movie/${movieId}/recommendations`);
   }
 };
 
 export const getTVShowRecommendations = async (tvId: number) => {
   try {
-    // 1. Get Similar Shows
     const similar = await callTMDB<TVShow>(`/tv/${tvId}/similar`);
     let results = similar.results || [];
+    results = results.filter(show => show.poster_path && (show.vote_average > 5.0 || show.vote_count === 0));
 
-    // 2. Apply Quality Filter
-    results = results.filter(show => 
-      show.poster_path && 
-      (show.vote_average > 5.0 || show.vote_count === 0)
-    );
+    if (results.length === 0) return callTMDB<TVShow>(`/tv/${tvId}/recommendations`);
 
-    // 3. Fallback if empty
-    if (results.length === 0) {
-       return callTMDB<TVShow>(`/tv/${tvId}/recommendations`);
-    }
-
-    return {
-      results: results,
-      page: 1,
-      total_pages: 1,
-      total_results: results.length
-    };
-
+    return { results: results, page: 1, total_pages: 1, total_results: results.length };
   } catch (e) {
-    console.warn('Failed to fetch similar shows, falling back to recommendations', e);
+    console.warn('Failed to fetch similar shows', e);
     return callTMDB<TVShow>(`/tv/${tvId}/recommendations`);
   }
 };
