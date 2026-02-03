@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import { WatchHistoryItem, getWatchHistory, removeFromHistory } from '@/lib/watchHistory';
 import { X, Play } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { getImageUrl } from '@/lib/tmdb';
+import { getImageUrl, Movie, TVShow } from '@/lib/tmdb';
+import { useMedia } from '@/features/shared';
 
 const ContinueWatchingSection = () => {
   const [history, setHistory] = useState<WatchHistoryItem[]>([]);
+  const { openMovieModal, openTVModal } = useMedia();
 
   const loadHistory = async () => {
     const data = await getWatchHistory();
@@ -37,6 +39,51 @@ const ContinueWatchingSection = () => {
     loadHistory(); // Reload after delete
   };
 
+  const handleItemClick = (item: WatchHistoryItem) => {
+    if (item.media_type === 'movie') {
+      // Create a compatible Movie object from the history item
+      const movie: Movie = {
+        id: item.id,
+        title: item.title,
+        poster_path: item.poster_path,
+        // Provide defaults for fields missing in history but required by Movie type
+        backdrop_path: '',
+        overview: '',
+        release_date: '',
+        vote_average: 0,
+        vote_count: 0,
+        popularity: 0,
+        original_language: 'en',
+        original_title: item.title,
+        video: false,
+        adult: false,
+        genre_ids: []
+      } as unknown as Movie;
+      
+      openMovieModal(movie);
+    } else {
+      // Create a compatible TVShow object from the history item
+      const show: TVShow = {
+        id: item.id,
+        name: item.title, // History stores 'title', TVShow uses 'name'
+        poster_path: item.poster_path,
+        // Provide defaults for fields missing in history but required by TVShow type
+        backdrop_path: '',
+        overview: '',
+        first_air_date: '',
+        vote_average: 0,
+        vote_count: 0,
+        popularity: 0,
+        original_language: 'en',
+        original_name: item.title,
+        origin_country: [],
+        genre_ids: []
+      } as unknown as TVShow;
+
+      openTVModal(show);
+    }
+  };
+
   if (history.length === 0) return null;
 
   return (
@@ -51,6 +98,7 @@ const ContinueWatchingSection = () => {
             <div 
               key={`${item.media_type}-${item.id}`} 
               className="flex-shrink-0 w-36 md:w-44 cursor-pointer group relative"
+              onClick={() => handleItemClick(item)}
             >
               <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-muted">
                 {posterUrl ? (
