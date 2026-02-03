@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/features/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -47,13 +47,15 @@ export function useUserPreferences() {
 
     const loadPreferences = async () => {
       try {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from('profiles')
           .select('preferences')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
-        if (data?.preferences) {
+        if (error) throw error;
+        
+        if (data?.preferences && typeof data.preferences === 'object') {
           setPreferences({ ...DEFAULT_PREFERENCES, ...(data.preferences as object) });
         }
       } catch (err) {
@@ -73,7 +75,11 @@ export function useUserPreferences() {
     try {
       const { error } = await supabase
         .from('profiles')
-        .upsert({ id: user.id, preferences: newPrefs as any, updated_at: new Date().toISOString() });
+        .upsert({ 
+          id: user.id, 
+          preferences: newPrefs, 
+          updated_at: new Date().toISOString() 
+        });
       if (error) throw error;
     } catch (err) {
       toast.error("Failed to save setting");

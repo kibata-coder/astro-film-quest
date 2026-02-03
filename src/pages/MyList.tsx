@@ -3,8 +3,8 @@ import { getBookmarks } from '@/lib/bookmarks';
 import Layout from '@/components/Layout';
 import MediaCard from '@/components/MediaCard';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { useAuth } from '@/contexts/AuthContext';
-import { useMedia } from '@/contexts/MediaContext';
+import { useAuth } from '@/features/auth';
+import { useMedia } from '@/features/shared';
 import type { Movie, TVShow } from '@/lib/tmdb';
 
 const MyList = () => {

@@ -4,17 +4,17 @@ import { useSearchMedia, useTrendingMovies } from '@/hooks/use-media';
 import { useUserPreferences } from '@/hooks/use-user-preferences';
 import Layout from '@/components/Layout';
 import HeroBanner from '@/components/HeroBanner';
-import MovieGrid from '@/components/MovieGrid';
+import { MovieGrid } from '@/features/movies';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ContinueWatchingSection from '@/components/ContinueWatchingSection';
 import ScrollableSection from '@/components/ScrollableSection';
 import MediaCard from '@/components/MediaCard';
-import ErrorBoundary from '@/components/ErrorBoundary';
-import ForYouSection from '@/components/ForYouSection'; // Import this!
+import SectionErrorBoundary from '@/components/SectionErrorBoundary';
+import ForYouSection from '@/components/ForYouSection';
 import { Tv } from 'lucide-react';
-import { useMedia } from '@/contexts/MediaContext';
-import { useVideoPlayer } from '@/contexts/VideoPlayerContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { useMedia } from '@/features/shared';
+import { useVideoPlayer } from '@/features/player';
+import { useAuth } from '@/features/auth';
 import { FeedCustomizer } from '@/components/FeedCustomizer';
 import {
   TrendingMoviesSection, TrendingTVSection, LatestSection,
@@ -56,37 +56,41 @@ const Index = () => {
           <main className="px-5 md:px-16 pb-16 -mt-20 md:-mt-32 relative z-10">
             <div className="space-y-6 md:space-y-10">
               <div className="flex items-center justify-between mb-4">
-                {/* 1. Continue Watching (History) */}
                 <ContinueWatchingSection />
                 {user && <div className="hidden md:block pt-8"><FeedCustomizer preferences={preferences} onToggle={toggleSection} /></div>}
               </div>
               
               {user && <div className="md:hidden flex justify-end -mt-4 mb-4"><FeedCustomizer preferences={preferences} onToggle={toggleSection} /></div>}
 
-              {/* 2. HYBRID RECOMMENDER (New Section) */}
-              <ErrorBoundary>
+              <SectionErrorBoundary sectionName="For You">
                 <ForYouSection onMovieClick={openMovieModal} />
-              </ErrorBoundary>
+              </SectionErrorBoundary>
 
-              <ErrorBoundary><TrendingMoviesSection onMovieClick={openMovieModal} /></ErrorBoundary>
+              <SectionErrorBoundary sectionName="Trending Movies">
+                <TrendingMoviesSection onMovieClick={openMovieModal} />
+              </SectionErrorBoundary>
 
               {!prefsLoading && (
                 <>
-                  {preferences.action && <ErrorBoundary><ActionMoviesSection onMovieClick={openMovieModal} /></ErrorBoundary>}
-                  {preferences.adventure && <ErrorBoundary><AdventureMoviesSection onMovieClick={openMovieModal} /></ErrorBoundary>}
-                  {preferences.comedy && <ErrorBoundary><ComedyMoviesSection onMovieClick={openMovieModal} /></ErrorBoundary>}
-                  {preferences.drama && <ErrorBoundary><DramaMoviesSection onMovieClick={openMovieModal} /></ErrorBoundary>}
-                  {preferences.scifi && <ErrorBoundary><SciFiMoviesSection onMovieClick={openMovieModal} /></ErrorBoundary>}
-                  {preferences.fantasy && <ErrorBoundary><FantasyMoviesSection onMovieClick={openMovieModal} /></ErrorBoundary>}
-                  {preferences.horror && <ErrorBoundary><HorrorMoviesSection onMovieClick={openMovieModal} /></ErrorBoundary>}
-                  {preferences.thriller && <ErrorBoundary><ThrillerMoviesSection onMovieClick={openMovieModal} /></ErrorBoundary>}
-                  {preferences.romance && <ErrorBoundary><RomanceMoviesSection onMovieClick={openMovieModal} /></ErrorBoundary>}
-                  {preferences.crime && <ErrorBoundary><CrimeMoviesSection onMovieClick={openMovieModal} /></ErrorBoundary>}
-                  {preferences.western && <ErrorBoundary><WesternMoviesSection onMovieClick={openMovieModal} /></ErrorBoundary>}
-                  {preferences.war && <ErrorBoundary><WarMoviesSection onMovieClick={openMovieModal} /></ErrorBoundary>}
+                  {preferences.action && <SectionErrorBoundary sectionName="Action"><ActionMoviesSection onMovieClick={openMovieModal} /></SectionErrorBoundary>}
+                  {preferences.adventure && <SectionErrorBoundary sectionName="Adventure"><AdventureMoviesSection onMovieClick={openMovieModal} /></SectionErrorBoundary>}
+                  {preferences.comedy && <SectionErrorBoundary sectionName="Comedy"><ComedyMoviesSection onMovieClick={openMovieModal} /></SectionErrorBoundary>}
+                  {preferences.drama && <SectionErrorBoundary sectionName="Drama"><DramaMoviesSection onMovieClick={openMovieModal} /></SectionErrorBoundary>}
+                  {preferences.scifi && <SectionErrorBoundary sectionName="Sci-Fi"><SciFiMoviesSection onMovieClick={openMovieModal} /></SectionErrorBoundary>}
+                  {preferences.fantasy && <SectionErrorBoundary sectionName="Fantasy"><FantasyMoviesSection onMovieClick={openMovieModal} /></SectionErrorBoundary>}
+                  {preferences.horror && <SectionErrorBoundary sectionName="Horror"><HorrorMoviesSection onMovieClick={openMovieModal} /></SectionErrorBoundary>}
+                  {preferences.thriller && <SectionErrorBoundary sectionName="Thriller"><ThrillerMoviesSection onMovieClick={openMovieModal} /></SectionErrorBoundary>}
+                  {preferences.romance && <SectionErrorBoundary sectionName="Romance"><RomanceMoviesSection onMovieClick={openMovieModal} /></SectionErrorBoundary>}
+                  {preferences.crime && <SectionErrorBoundary sectionName="Crime"><CrimeMoviesSection onMovieClick={openMovieModal} /></SectionErrorBoundary>}
+                  {preferences.western && <SectionErrorBoundary sectionName="Western"><WesternMoviesSection onMovieClick={openMovieModal} /></SectionErrorBoundary>}
+                  {preferences.war && <SectionErrorBoundary sectionName="War"><WarMoviesSection onMovieClick={openMovieModal} /></SectionErrorBoundary>}
                   
-                  <ErrorBoundary><LatestSection onMovieClick={openMovieModal} onTVShowClick={openTVModal} /></ErrorBoundary>
-                  <ErrorBoundary><TrendingTVSection onShowClick={openTVModal} /></ErrorBoundary>
+                  <SectionErrorBoundary sectionName="Latest">
+                    <LatestSection onMovieClick={openMovieModal} onTVShowClick={openTVModal} />
+                  </SectionErrorBoundary>
+                  <SectionErrorBoundary sectionName="Trending TV">
+                    <TrendingTVSection onShowClick={openTVModal} />
+                  </SectionErrorBoundary>
                 </>
               )}
             </div>

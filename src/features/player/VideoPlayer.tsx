@@ -137,4 +137,5 @@ const VideoPlayer = ({
     </div>
   );
 };
+
 export default VideoPlayer;

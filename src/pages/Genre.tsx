@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
-import MovieGrid from '@/components/MovieGrid';
+import { MovieGrid } from '@/features/movies';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { useMedia } from '@/contexts/MediaContext';
+import { useMedia } from '@/features/shared';
 import { 
   Movie, getActionMovies, getAdventureMovies, getComedyMovies, getDramaMovies, getHorrorMovies, 
   getSciFiMovies, getThrillerMovies, getFantasyMovies, getRomanceMovies, getCrimeMovies, getWesternMovies, getWarMovies 
@@ -56,4 +56,5 @@ const Genre = () => {
     </Layout>
   );
 };
+
 export default Genre;

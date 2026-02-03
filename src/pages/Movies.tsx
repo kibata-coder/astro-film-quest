@@ -3,8 +3,8 @@ import Layout from '@/components/Layout';
 import { useSearchMedia } from '@/hooks/use-media';
 import { useDebounce } from '@/hooks/use-debounce';
 import MediaCard from '@/components/MediaCard';
-import ErrorBoundary from '@/components/ErrorBoundary';
-import { useMedia } from '@/contexts/MediaContext';
+import SectionErrorBoundary from '@/components/SectionErrorBoundary';
+import { useMedia } from '@/features/shared';
 import {
   TrendingMoviesSection,
   IndianMoviesSection,
@@ -52,18 +52,18 @@ const Movies = () => {
           </section>
         ) : (
           <>
-            <ErrorBoundary>
+            <SectionErrorBoundary sectionName="Trending Movies">
               <TrendingMoviesSection onMovieClick={openMovieModal} />
-            </ErrorBoundary>
-            <ErrorBoundary>
+            </SectionErrorBoundary>
+            <SectionErrorBoundary sectionName="Indian Movies">
               <IndianMoviesSection onMovieClick={openMovieModal} />
-            </ErrorBoundary>
-            <ErrorBoundary>
+            </SectionErrorBoundary>
+            <SectionErrorBoundary sectionName="English Movies">
               <EnglishMoviesSection onMovieClick={openMovieModal} />
-            </ErrorBoundary>
-            <ErrorBoundary>
+            </SectionErrorBoundary>
+            <SectionErrorBoundary sectionName="International Movies">
               <OtherMoviesSection onMovieClick={openMovieModal} />
-            </ErrorBoundary>
+            </SectionErrorBoundary>
           </>
         )}
       </main>

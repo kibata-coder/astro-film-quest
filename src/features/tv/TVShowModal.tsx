@@ -26,7 +26,6 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow }: TVShowModa
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
 
-  // Reset scroll when show changes
   useEffect(() => {
      const scrollContainer = document.querySelector('[data-radix-scroll-area-viewport]');
      if (scrollContainer) scrollContainer.scrollTop = 0;
@@ -88,7 +87,6 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow }: TVShowModa
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl p-0 overflow-hidden bg-background border-border max-h-[90vh]">
         <ScrollArea className="h-[90vh]">
-          {/* Backdrop */}
           <div className="relative h-48 md:h-64">
             {backdropUrl ? (
               <img
@@ -111,7 +109,6 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow }: TVShowModa
 
           <div className="p-6 -mt-20 relative">
             <div className="flex gap-6">
-              {/* Poster */}
               <div className="hidden md:block flex-shrink-0 w-32">
                 {posterUrl ? (
                   <img
@@ -124,7 +121,6 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow }: TVShowModa
                 )}
               </div>
 
-              {/* Info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between">
                   <h2 className="text-2xl font-bold mb-2">{show.name}</h2>
@@ -189,7 +185,6 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow }: TVShowModa
               </div>
             </div>
 
-            {/* Episodes */}
             <div className="mt-6 mb-8">
               <h3 className="text-lg font-semibold mb-3">Episodes</h3>
               <ScrollArea className="h-64 rounded-md border border-border/50 bg-muted/20">
@@ -247,7 +242,6 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow }: TVShowModa
               </ScrollArea>
             </div>
 
-            {/* --- More Like This Section --- */}
             {recommendations.length > 0 && (
               <div className="pt-6 border-t border-border/50 pb-8">
                 <h3 className="text-lg font-semibold mb-4">More Like This</h3>

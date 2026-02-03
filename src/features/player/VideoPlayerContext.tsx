@@ -69,7 +69,6 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
     });
     notifyHistoryUpdate();
 
-    // Fetch episode list for navigation
     try {
       const seasonDetails = await getTVShowSeasonDetails(show.id, seasonNumber);
       setEpisodeContext({

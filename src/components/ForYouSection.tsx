@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { Sparkles, RefreshCw } from 'lucide-react';
 import { Movie } from '@/lib/tmdb';
 import { getHybridRecommendations } from '@/lib/recommendations';
-import MovieCard from './MovieCard';
+import { MovieCard } from '@/features/movies';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/features/auth';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 interface ForYouSectionProps {
@@ -62,7 +62,7 @@ const ForYouSection = ({ onMovieClick }: ForYouSectionProps) => {
           <div className="flex space-x-4">
             {movies.map((movie) => (
               <div key={movie.id} className="w-[150px] md:w-[200px] flex-none">
-                <MovieCard movie={movie} onClick={onMovieClick} />
+                <MovieCard movie={movie} onClick={() => onMovieClick(movie)} />
               </div>
             ))}
           </div>

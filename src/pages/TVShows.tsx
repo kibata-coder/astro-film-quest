@@ -3,8 +3,8 @@ import Layout from '@/components/Layout';
 import { useSearchMedia } from '@/hooks/use-media';
 import { useDebounce } from '@/hooks/use-debounce';
 import MediaCard from '@/components/MediaCard';
-import ErrorBoundary from '@/components/ErrorBoundary';
-import { useMedia } from '@/contexts/MediaContext';
+import SectionErrorBoundary from '@/components/SectionErrorBoundary';
+import { useMedia } from '@/features/shared';
 import {
   TrendingTVSection,
   IndianTVSection,
@@ -51,15 +51,15 @@ const TVShows = () => {
           </section>
         ) : (
           <>
-            <ErrorBoundary>
+            <SectionErrorBoundary sectionName="Trending TV">
               <TrendingTVSection onShowClick={openTVModal} />
-            </ErrorBoundary>
-            <ErrorBoundary>
+            </SectionErrorBoundary>
+            <SectionErrorBoundary sectionName="Indian TV">
               <IndianTVSection onShowClick={openTVModal} />
-            </ErrorBoundary>
-            <ErrorBoundary>
+            </SectionErrorBoundary>
+            <SectionErrorBoundary sectionName="English TV">
               <EnglishTVSection onShowClick={openTVModal} />
-            </ErrorBoundary>
+            </SectionErrorBoundary>
           </>
         )}
       </main>
