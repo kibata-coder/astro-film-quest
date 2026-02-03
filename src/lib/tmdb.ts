@@ -266,12 +266,34 @@ export const getWarMovies = async (page = 1) => {
   return callTMDB<Movie>('/discover/movie', { page, with_genres: '10752', sort_by: 'popularity.desc' });
 };
 
-// --- RECOMMENDATIONS ---
+// --- SMART RECOMMENDATIONS ---
 
 export const getMovieRecommendations = async (movieId: number) => {
+  // 1. Try 'Similar' (Content-based: Matches genre, keywords, etc.) - BEST FOR "MORE LIKE THIS"
+  try {
+    const similar = await callTMDB<Movie>(`/movie/${movieId}/similar`);
+    if (similar.results && similar.results.length > 0) {
+      return similar;
+    }
+  } catch (e) {
+    console.warn('Failed to fetch similar movies, falling back to recommendations', e);
+  }
+
+  // 2. Fallback to 'Recommendations' (User-behavior based)
   return callTMDB<Movie>(`/movie/${movieId}/recommendations`);
 };
 
 export const getTVShowRecommendations = async (tvId: number) => {
+  // 1. Try 'Similar'
+  try {
+    const similar = await callTMDB<TVShow>(`/tv/${tvId}/similar`);
+    if (similar.results && similar.results.length > 0) {
+      return similar;
+    }
+  } catch (e) {
+    console.warn('Failed to fetch similar shows, falling back to recommendations', e);
+  }
+
+  // 2. Fallback to 'Recommendations'
   return callTMDB<TVShow>(`/tv/${tvId}/recommendations`);
 };
