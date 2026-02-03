@@ -108,6 +108,25 @@ export const saveWatchProgress = async (
   }
 };
 
+// RESTORED: This function is required by ContinueWatchingSection.tsx
+export const removeFromHistory = async (id: number, mediaType: 'movie' | 'tv') => {
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (user) {
+    await supabase
+      .from('watch_history')
+      .delete()
+      .eq('media_id', id)
+      .eq('media_type', mediaType);
+  } else {
+    const history = getLocalHistory();
+    const newHistory = history.filter(
+      (item) => !(item.id === id && item.media_type === mediaType)
+    );
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newHistory));
+  }
+};
+
 export const addToHistory = async (item: Omit<WatchHistoryItem, 'last_watched' | 'progress' | 'duration' | 'completed'>) => {
   // Backwards compatibility wrapper
   return saveWatchProgress(item, 0, 0); 
