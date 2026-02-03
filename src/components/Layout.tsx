@@ -22,6 +22,8 @@ const Layout = memo(({ children, onSearch, searchQuery, showFooter = true }: Lay
   const {
     selectedMovie,
     isMovieModalOpen,
+    openMovieModal,
+    openTVModal,
     closeMovieModal,
     selectedShow,
     isTVModalOpen,
@@ -76,6 +78,7 @@ const Layout = memo(({ children, onSearch, searchQuery, showFooter = true }: Lay
           isOpen={isMovieModalOpen}
           onClose={closeMovieModal}
           onPlay={handlePlayMovie}
+          onSelectMovie={openMovieModal}
         />
 
         <TVShowModal
@@ -83,6 +86,7 @@ const Layout = memo(({ children, onSearch, searchQuery, showFooter = true }: Lay
           isOpen={isTVModalOpen}
           onClose={closeTVModal}
           onPlay={handlePlayTVShow}
+          onSelectShow={openTVModal}
         />
 
         <VideoPlayer
