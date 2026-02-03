@@ -45,6 +45,18 @@ export interface Movie {
   genre_ids?: number[];
   genres?: { id: number; name: string }[];
   runtime?: number;
+  // Added for smart recommendations
+  belongs_to_collection?: {
+    id: number;
+    name: string;
+    poster_path: string | null;
+  } | null;
+}
+
+export interface Collection {
+  id: number;
+  name: string;
+  parts: Movie[];
 }
 
 export interface Cast {
@@ -106,6 +118,8 @@ export interface TVShowDetails extends TVShow {
   number_of_episodes: number;
   genres: { id: number; name: string }[];
 }
+
+// --- BASIC FETCHERS ---
 
 export const getTrendingMovies = async (page = 1) => {
   return callTMDB<Movie>('/trending/movie/week', { page });
@@ -266,34 +280,90 @@ export const getWarMovies = async (page = 1) => {
   return callTMDB<Movie>('/discover/movie', { page, with_genres: '10752', sort_by: 'popularity.desc' });
 };
 
-// --- SMART RECOMMENDATIONS ---
+// --- SMART RECOMMENDATION ENGINE ---
 
 export const getMovieRecommendations = async (movieId: number) => {
-  // 1. Try 'Similar' (Content-based: Matches genre, keywords, etc.) - BEST FOR "MORE LIKE THIS"
   try {
-    const similar = await callTMDB<Movie>(`/movie/${movieId}/similar`);
-    if (similar.results && similar.results.length > 0) {
-      return similar;
-    }
-  } catch (e) {
-    console.warn('Failed to fetch similar movies, falling back to recommendations', e);
-  }
+    let results: Movie[] = [];
 
-  // 2. Fallback to 'Recommendations' (User-behavior based)
-  return callTMDB<Movie>(`/movie/${movieId}/recommendations`);
+    // Step 1: Fetch Movie Details to check for Collections
+    // (We do this fetch again here to be independent and ensure we have the collection ID)
+    const movie = await callTMDB<Movie>(`/movie/${movieId}`);
+
+    // Step 2: Priority - Collection (Sequels/Prequels)
+    // If the movie belongs to a collection (e.g., Avengers), show those first.
+    if (movie.belongs_to_collection) {
+      const collection = await callTMDB<Collection>(`/collection/${movie.belongs_to_collection.id}`);
+      if (collection.parts && collection.parts.length > 0) {
+        // Filter out the movie we are currently watching
+        results = collection.parts.filter(p => p.id !== movieId);
+      }
+    }
+
+    // Step 3: Fallback - Similar Movies (Content Matching)
+    // If no collection (or collection fetch failed), get Similar movies
+    if (results.length === 0) {
+      const similar = await callTMDB<Movie>(`/movie/${movieId}/similar`);
+      results = similar.results || [];
+    }
+
+    // Step 4: Quality Filter
+    // Filter out movies that:
+    // - Have no poster (usually indicates bad metadata)
+    // - Have a very low rating (unless it's a brand new movie with 0 votes)
+    results = results.filter(m => 
+      m.poster_path && 
+      (m.vote_average > 5.0 || m.vote_count === 0) 
+    );
+
+    // Step 5: Final Backup - "Recommendations" Endpoint
+    // If our filtering killed everything, fallback to TMDB's algorithm
+    if (results.length === 0) {
+      const recs = await callTMDB<Movie>(`/movie/${movieId}/recommendations`);
+      return recs; // Return raw recommendations as last resort
+    }
+
+    // Return in TMDB format so components don't break
+    return {
+      results: results,
+      page: 1,
+      total_pages: 1,
+      total_results: results.length
+    };
+
+  } catch (error) {
+    console.error("Smart recommendation error:", error);
+    // Ultimate fallback if logic crashes
+    return callTMDB<Movie>(`/movie/${movieId}/recommendations`);
+  }
 };
 
 export const getTVShowRecommendations = async (tvId: number) => {
-  // 1. Try 'Similar'
   try {
+    // 1. Get Similar Shows
     const similar = await callTMDB<TVShow>(`/tv/${tvId}/similar`);
-    if (similar.results && similar.results.length > 0) {
-      return similar;
+    let results = similar.results || [];
+
+    // 2. Apply Quality Filter
+    results = results.filter(show => 
+      show.poster_path && 
+      (show.vote_average > 5.0 || show.vote_count === 0)
+    );
+
+    // 3. Fallback if empty
+    if (results.length === 0) {
+       return callTMDB<TVShow>(`/tv/${tvId}/recommendations`);
     }
+
+    return {
+      results: results,
+      page: 1,
+      total_pages: 1,
+      total_results: results.length
+    };
+
   } catch (e) {
     console.warn('Failed to fetch similar shows, falling back to recommendations', e);
+    return callTMDB<TVShow>(`/tv/${tvId}/recommendations`);
   }
-
-  // 2. Fallback to 'Recommendations'
-  return callTMDB<TVShow>(`/tv/${tvId}/recommendations`);
 };
