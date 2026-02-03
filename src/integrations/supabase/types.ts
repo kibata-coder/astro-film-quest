@@ -44,6 +44,24 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          id: string
+          preferences: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          id: string
+          preferences?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          preferences?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       watch_history: {
         Row: {
           episode_number: number | null

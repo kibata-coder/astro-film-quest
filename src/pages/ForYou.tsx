@@ -1,7 +1,7 @@
 import Layout from '@/components/Layout';
 import ForYouSection from '@/components/ForYouSection';
-import { useMedia } from '@/contexts/MediaContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { useMedia } from '@/features/shared';
+import { useAuth } from '@/features/auth';
 import { Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -37,4 +37,5 @@ const ForYou = () => {
     </Layout>
   );
 };
+
 export default ForYou;

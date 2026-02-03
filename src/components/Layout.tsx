@@ -1,14 +1,13 @@
 import { Suspense, lazy, ReactNode, memo } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { useMedia } from '@/contexts/MediaContext';
-import { useVideoPlayer } from '@/contexts/VideoPlayerContext';
-import { useAuth } from '@/contexts/AuthContext';
-import AuthModal from '@/components/AuthModal';
+import { useMedia } from '@/features/shared';
+import { useVideoPlayer } from '@/features/player';
+import { useAuth, AuthModal } from '@/features/auth';
 
-const MovieModal = lazy(() => import('@/components/MovieModal'));
-const TVShowModal = lazy(() => import('@/components/TVShowModal'));
-const VideoPlayer = lazy(() => import('@/components/VideoPlayer'));
+const MovieModal = lazy(() => import('@/features/movies/MovieModal'));
+const TVShowModal = lazy(() => import('@/features/tv/TVShowModal'));
+const VideoPlayer = lazy(() => import('@/features/player/VideoPlayer'));
 
 interface LayoutProps {
   children: ReactNode;

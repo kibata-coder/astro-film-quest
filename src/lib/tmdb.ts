@@ -115,6 +115,7 @@ export interface TVShowDetails extends TVShow {
   seasons: Season[];
   number_of_episodes: number;
   genres: { id: number; name: string }[];
+  episode_run_time?: number[];
 }
 
 // --- BASIC FETCHERS ---

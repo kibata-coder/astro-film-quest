@@ -40,7 +40,7 @@ export const getWatchHistory = async (): Promise<WatchHistoryItem[]> => {
       episode_number: item.episode_number || undefined,
       last_watched: new Date(item.updated_at).getTime(),
       progress: item.progress || 0,
-      duration: item.duration || 0,
+      duration: 0,
       completed: (item.progress || 0) > 0.8
     }));
   }
@@ -66,7 +66,6 @@ export const saveWatchProgress = async (
       season_number: item.season_number,
       episode_number: item.episode_number,
       progress: progress,
-      duration: totalDuration,
       updated_at: new Date().toISOString(),
     }, { onConflict: 'user_id, media_id, media_type' });
   } else {

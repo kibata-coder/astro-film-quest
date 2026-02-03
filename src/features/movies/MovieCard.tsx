@@ -1,5 +1,4 @@
 import { Movie, getImageUrl } from '@/lib/tmdb';
-import { cn } from '@/lib/utils';
 
 interface MovieCardProps {
   movie: Movie;
@@ -7,7 +6,6 @@ interface MovieCardProps {
 }
 
 const MovieCard = ({ movie, onClick }: MovieCardProps) => {
-  // CHANGED: 'w500' -> 'w300' (Faster loading for grids)
   const posterUrl = getImageUrl(movie.poster_path, 'w300');
 
   return (
@@ -21,7 +19,7 @@ const MovieCard = ({ movie, onClick }: MovieCardProps) => {
           alt={movie.title}
           className="w-full h-full object-cover rounded-md"
           loading="lazy"
-          decoding="async" // ADDED: Helps prevent UI blocking while image loads
+          decoding="async"
         />
       ) : (
         <div className="w-full h-full flex items-center justify-center bg-muted rounded-md">

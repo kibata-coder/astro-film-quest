@@ -29,14 +29,12 @@ const TVShowCard = ({ show, onClick }: TVShowCardProps) => {
           </div>
         )}
         
-        {/* Rating badge */}
         {show.vote_average > 0 && (
           <div className="absolute top-2 right-2 px-2 py-0.5 rounded bg-primary/90 text-primary-foreground text-xs font-medium">
             ★ {show.vote_average.toFixed(1)}
           </div>
         )}
         
-        {/* Hover overlay */}
         <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
           <span className="text-sm font-medium">View Details</span>
         </div>

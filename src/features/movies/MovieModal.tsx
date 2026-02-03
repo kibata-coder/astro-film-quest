@@ -19,7 +19,7 @@ import {
   getMovieRecommendations,
 } from '@/lib/tmdb';
 import { checkIsBookmarked, toggleBookmark } from '@/lib/bookmarks';
-import LoadingSpinner from './LoadingSpinner';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 interface MovieModalProps {
   movie: Movie | null;
@@ -41,7 +41,6 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
 
-  // Reset scroll position when movie changes
   useEffect(() => {
     const scrollContainer = document.querySelector('[data-radix-scroll-area-viewport]');
     if (scrollContainer) scrollContainer.scrollTop = 0;
@@ -108,7 +107,6 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
         <X className="w-5 h-5" />
       </button>
 
-      {/* Hero Section */}
       <div className="relative aspect-video w-full">
         {trailer ? (
           <iframe
@@ -215,7 +213,6 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
               </div>
             </div>
 
-            {/* --- More Like This Section --- */}
             {recommendations.length > 0 && (
               <div className="pt-4 border-t border-border/50">
                 <h3 className="text-lg font-semibold mb-4">More Like This</h3>
