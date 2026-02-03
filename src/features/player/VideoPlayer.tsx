@@ -156,8 +156,9 @@ const VideoPlayer = ({
           <iframe 
             src={embedUrl} 
             className="w-full h-full border-0" 
-            allowFullScreen 
-            allow="autoplay; fullscreen; picture-in-picture; encrypted-media" 
+            // REMOVED: allowFullScreen 
+            // REMOVED: "fullscreen" from allow list
+            allow="autoplay; picture-in-picture; encrypted-media" 
             referrerPolicy="no-referrer-when-downgrade" 
           />
           
