@@ -10,9 +10,13 @@ interface LatestSectionProps {
   onTVShowClick?: (show: TVShow) => void;
 }
 
+// Only show content from current year and previous year
+const getMinYear = () => new Date().getFullYear() - 1;
+
 // Fetch and transform latest movies with TMDB details
 const fetchLatestMovies = async (): Promise<Movie[]> => {
   const vidsrcMovies = await getLatestMovies(1);
+  const minYear = getMinYear();
   
   const results = await Promise.allSettled(
     vidsrcMovies.slice(0, 10).map(async (item) => {
@@ -25,12 +29,17 @@ const fetchLatestMovies = async (): Promise<Movie[]> => {
 
   return results
     .filter((r): r is PromiseFulfilledResult<Movie> => r.status === 'fulfilled')
-    .map(r => r.value);
+    .map(r => r.value)
+    .filter(movie => {
+      const year = parseInt(movie.release_date?.slice(0, 4) || '0', 10);
+      return year >= minYear;
+    });
 };
 
 // Fetch and transform latest TV shows with TMDB details
 const fetchLatestTVShows = async (): Promise<TVShow[]> => {
   const vidsrcTVShows = await getLatestTVShows(1);
+  const minYear = getMinYear();
   
   const results = await Promise.allSettled(
     vidsrcTVShows.slice(0, 10).map(async (item) => {
@@ -51,7 +60,11 @@ const fetchLatestTVShows = async (): Promise<TVShow[]> => {
 
   return results
     .filter((r): r is PromiseFulfilledResult<TVShow> => r.status === 'fulfilled')
-    .map(r => r.value);
+    .map(r => r.value)
+    .filter(show => {
+      const year = parseInt(show.first_air_date?.slice(0, 4) || '0', 10);
+      return year >= minYear;
+    });
 };
 
 const MovieCard = memo(({ movie, onClick }: { movie: Movie; onClick: () => void }) => (
