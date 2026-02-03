@@ -10,6 +10,7 @@ import ContinueWatchingSection from '@/components/ContinueWatchingSection';
 import ScrollableSection from '@/components/ScrollableSection';
 import MediaCard from '@/components/MediaCard';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import ForYouSection from '@/components/ForYouSection'; // Import this!
 import { Tv } from 'lucide-react';
 import { useMedia } from '@/contexts/MediaContext';
 import { useVideoPlayer } from '@/contexts/VideoPlayerContext';
@@ -55,11 +56,17 @@ const Index = () => {
           <main className="px-5 md:px-16 pb-16 -mt-20 md:-mt-32 relative z-10">
             <div className="space-y-6 md:space-y-10">
               <div className="flex items-center justify-between mb-4">
+                {/* 1. Continue Watching (History) */}
                 <ContinueWatchingSection />
                 {user && <div className="hidden md:block pt-8"><FeedCustomizer preferences={preferences} onToggle={toggleSection} /></div>}
               </div>
               
               {user && <div className="md:hidden flex justify-end -mt-4 mb-4"><FeedCustomizer preferences={preferences} onToggle={toggleSection} /></div>}
+
+              {/* 2. HYBRID RECOMMENDER (New Section) */}
+              <ErrorBoundary>
+                <ForYouSection onMovieClick={openMovieModal} />
+              </ErrorBoundary>
 
               <ErrorBoundary><TrendingMoviesSection onMovieClick={openMovieModal} /></ErrorBoundary>
 
