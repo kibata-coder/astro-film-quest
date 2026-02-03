@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { X, ChevronLeft, ChevronRight, Server } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getMovieEmbedUrl, getTVShowEmbedUrl, type StreamingServer } from '@/lib/vidsrc';
-import { addToHistory } from '@/lib/watchHistory';
+import { saveWatchProgress } from '@/lib/watchHistory';
+import { getMovieDetails, getTVShowDetails } from '@/lib/tmdb';
 
 interface VideoPlayerProps {
   isOpen: boolean;
@@ -36,7 +37,57 @@ const VideoPlayer = ({
   const [server, setServer] = useState<StreamingServer>('vidsrc');
   const hideControlsTimer = useRef<NodeJS.Timeout | null>(null);
 
-  // Generate URL based on media type and selected server
+  // Watch Time Tracking Refs
+  const startTimeRef = useRef<number>(0);
+  const durationRef = useRef<number>(0); // Duration in seconds
+
+  // Fetch duration when player opens
+  useEffect(() => {
+    if (isOpen && mediaId) {
+      const fetchDuration = async () => {
+        try {
+          if (mediaType === 'movie') {
+            const details = await getMovieDetails(mediaId);
+            // runtime is in minutes, convert to seconds
+            durationRef.current = (details.runtime || 0) * 60;
+          } else if (mediaType === 'tv') {
+            // TV Shows usually ~45 mins per ep, but let's try to be accurate
+            const details = await getTVShowDetails(mediaId);
+            const epRuntime = details.episode_run_time?.[0] || 45;
+            durationRef.current = epRuntime * 60;
+          }
+        } catch (e) {
+          console.error("Could not fetch runtime", e);
+          durationRef.current = 7200; // Default 2 hours fallback
+        }
+      };
+      fetchDuration();
+      startTimeRef.current = Date.now();
+    }
+  }, [isOpen, mediaId, mediaType]);
+
+  // Handle closing: Save Progress
+  const handleClose = () => {
+    if (startTimeRef.current > 0 && durationRef.current > 0) {
+      const timeSpentSeconds = (Date.now() - startTimeRef.current) / 1000;
+      
+      saveWatchProgress(
+        {
+          id: mediaId,
+          media_type: mediaType,
+          title: title,
+          poster_path: "", // Poster not critical for history logic, fetching it is expensive here
+          season_number: seasonNumber,
+          episode_number: episodeNumber
+        },
+        timeSpentSeconds,
+        durationRef.current
+      );
+    }
+    onClose();
+  };
+
+  // Generate URL
   const embedUrl = mediaType === 'tv' && seasonNumber && episodeNumber
     ? getTVShowEmbedUrl(mediaId, seasonNumber, episodeNumber, server)
     : getMovieEmbedUrl(mediaId, server);
@@ -44,67 +95,37 @@ const VideoPlayer = ({
   const isFirstEpisode = episodeNumber === 1;
   const isLastEpisode = episodeNumber === totalEpisodes;
 
-  // Reset to default server when opening a new media
   useEffect(() => {
     if (!isOpen) {
       setServer('vidsrc');
+      startTimeRef.current = 0;
     }
-  }, [isOpen, mediaId]);
+  }, [isOpen]);
 
-  // Handle loading state and History saving when opening or switching servers
   useEffect(() => {
     if (isOpen) {
-      // 1. Existing connection logic
       setIsConnecting(true);
-      const timer = setTimeout(() => {
-        setIsConnecting(false);
-      }, 1500);
-
-      // 2. Save to history (Cloud or Local)
-      // Note: We pass an empty string for poster_path as it's not available in this component's props yet
-      addToHistory({
-        id: mediaId,
-        media_type: mediaType,
-        title: title,
-        poster_path: "", 
-        season_number: seasonNumber,
-        episode_number: episodeNumber
-      });
-
+      const timer = setTimeout(() => setIsConnecting(false), 1500);
       return () => clearTimeout(timer);
     }
-  }, [isOpen, mediaId, seasonNumber, episodeNumber, server, title, mediaType]);
+  }, [isOpen, mediaId, seasonNumber, episodeNumber, server]);
 
-  // Auto-hide controls after 3 seconds
   useEffect(() => {
     if (!isOpen || isConnecting) return;
-
     const startHideTimer = () => {
-      if (hideControlsTimer.current) {
-        clearTimeout(hideControlsTimer.current);
-      }
-      hideControlsTimer.current = setTimeout(() => {
-        setShowControls(false);
-      }, 3000);
+      if (hideControlsTimer.current) clearTimeout(hideControlsTimer.current);
+      hideControlsTimer.current = setTimeout(() => setShowControls(false), 3000);
     };
-
     startHideTimer();
-
     return () => {
-      if (hideControlsTimer.current) {
-        clearTimeout(hideControlsTimer.current);
-      }
+      if (hideControlsTimer.current) clearTimeout(hideControlsTimer.current);
     };
   }, [isOpen, isConnecting, showControls]);
 
   const handleMouseMove = () => {
     setShowControls(true);
-    if (hideControlsTimer.current) {
-      clearTimeout(hideControlsTimer.current);
-    }
-    hideControlsTimer.current = setTimeout(() => {
-      setShowControls(false);
-    }, 3000);
+    if (hideControlsTimer.current) clearTimeout(hideControlsTimer.current);
+    hideControlsTimer.current = setTimeout(() => setShowControls(false), 3000);
   };
 
   if (!isOpen) return null;
@@ -125,9 +146,6 @@ const VideoPlayer = ({
               Connecting to {server === 'vidsrc' ? 'Server 1' : 'Server 2'}...
             </p>
             <p className="text-muted-foreground">{title}</p>
-            {isTVShow && (
-              <p className="text-sm text-muted-foreground">S{seasonNumber} E{episodeNumber}</p>
-            )}
           </div>
         </div>
       ) : (
@@ -140,9 +158,9 @@ const VideoPlayer = ({
             referrerPolicy="no-referrer-when-downgrade"
           />
 
-          {/* Close button */}
+          {/* CLOSE BUTTON - NOW CALLS handleClose */}
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className={`absolute top-4 right-4 p-2 rounded-full bg-background/50 hover:bg-background/80 transition-all z-10 ${
               showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'
             }`}
@@ -150,8 +168,7 @@ const VideoPlayer = ({
             <X className="w-6 h-6" />
           </button>
 
-          {/* Server Selection Controls */}
-          {/* Positioned above episode nav if TV show, otherwise at bottom */}
+          {/* Server Controls */}
           <div 
             className={`absolute left-0 right-0 flex justify-center gap-4 transition-all duration-300 z-20 ${
               showControls ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
@@ -179,7 +196,7 @@ const VideoPlayer = ({
             </div>
           </div>
 
-          {/* Episode Navigation Controls - Only for TV shows */}
+          {/* Episode Controls */}
           {isTVShow && totalEpisodes && (
             <div 
               className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background/90 to-transparent px-4 py-6 transition-all duration-300 ${
@@ -202,11 +219,9 @@ const VideoPlayer = ({
                   <p className="text-sm text-muted-foreground">
                     Season {seasonNumber} • Episode {episodeNumber} of {totalEpisodes}
                   </p>
-                  {episodeName && (
-                    <p className="text-foreground font-medium truncate max-w-xs sm:max-w-md mx-auto">
-                      {episodeName}
-                    </p>
-                  )}
+                  <p className="text-foreground font-medium truncate max-w-xs sm:max-w-md mx-auto">
+                    {episodeName}
+                  </p>
                 </div>
 
                 <Button
