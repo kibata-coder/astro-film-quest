@@ -1,11 +1,10 @@
 import { z } from 'zod';
 
+// Documentation specifies these domains: vidsrc-embed.ru , vidsrc-embed.su , vidsrcme.su , vsrc.su
+// We will use vidsrc-embed.ru as the primary based on your examples.
 const VIDSRC_BASE_URL = 'https://vidsrc-embed.ru';
 
-// 1. Define the Server Type
-export type StreamingServer = 'vidsrc' | 'superembed';
-
-// Zod schema for validating individual items from the API
+// Schema definitions remain useful for the "Latest" API
 const VidsrcItemSchema = z.object({
   tmdb_id: z.string(),
   imdb_id: z.string(),
@@ -13,7 +12,6 @@ const VidsrcItemSchema = z.object({
   type: z.enum(['movie', 'tv']).optional(),
 });
 
-// Schema for the API response (can be array directly or wrapped in result)
 const VidsrcResponseSchema = z.union([
   z.object({ result: z.array(VidsrcItemSchema) }),
   z.array(VidsrcItemSchema),
@@ -26,7 +24,6 @@ export interface VidsrcItem {
   type?: 'movie' | 'tv';
 }
 
-// Helper function to safely validate and extract items from API response
 const validateAndExtractItems = (data: unknown, mediaType: 'movie' | 'tv'): VidsrcItem[] => {
   try {
     const validated = VidsrcResponseSchema.parse(data);
@@ -43,8 +40,11 @@ const validateAndExtractItems = (data: unknown, mediaType: 'movie' | 'tv'): Vids
   }
 };
 
+// --- API: Latest Listings ---
+
 export const getLatestMovies = async (page = 1): Promise<VidsrcItem[]> => {
   try {
+    // Endpoint: https://vidsrc-embed.ru/movies/latest/page-PAGE_NUMBER.json
     const response = await fetch(`${VIDSRC_BASE_URL}/movies/latest/page-${page}.json`);
     if (!response.ok) throw new Error('Failed to fetch latest movies');
     const data = await response.json();
@@ -57,6 +57,7 @@ export const getLatestMovies = async (page = 1): Promise<VidsrcItem[]> => {
 
 export const getLatestTVShows = async (page = 1): Promise<VidsrcItem[]> => {
   try {
+    // Endpoint: https://vidsrc-embed.ru/tvshows/latest/page-PAGE_NUMBER.json
     const response = await fetch(`${VIDSRC_BASE_URL}/tvshows/latest/page-${page}.json`);
     if (!response.ok) throw new Error('Failed to fetch latest TV shows');
     const data = await response.json();
@@ -67,26 +68,19 @@ export const getLatestTVShows = async (page = 1): Promise<VidsrcItem[]> => {
   }
 };
 
-// 2. Updated URL Generators with Server Support
-export const getMovieEmbedUrl = (tmdbId: number, server: StreamingServer = 'vidsrc'): string => {
-  if (server === 'superembed') {
-    return `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1`;
-  }
-  // Default to VidSrc
-  return `https://vidsrc.net/embed/movie?tmdb=${tmdbId}`;
+// --- API: Embed URLs ---
+
+export const getMovieEmbedUrl = (tmdbId: number): string => {
+  // Endpoint: https://vidsrc-embed.ru/embed/movie?tmdb={id}
+  // Autoplay enabled by default per docs (autoplay=1 is default)
+  return `${VIDSRC_BASE_URL}/embed/movie?tmdb=${tmdbId}`;
 };
 
-export const getTVShowEmbedUrl = (tmdbId: number, season?: number, episode?: number, server: StreamingServer = 'vidsrc'): string => {
-  if (server === 'superembed') {
-    if (season !== undefined && episode !== undefined) {
-      return `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`;
-    }
-    return `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1`;
-  }
-  
-  // Default to VidSrc
+export const getTVShowEmbedUrl = (tmdbId: number, season?: number, episode?: number): string => {
+  // Endpoint: https://vidsrc-embed.ru/embed/tv?tmdb={id}&season={s}&episode={e}
   if (season !== undefined && episode !== undefined) {
-    return `https://vidsrc.net/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
+    return `${VIDSRC_BASE_URL}/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
   }
-  return `https://vidsrc.net/embed/tv?tmdb=${tmdbId}`;
+  // Fallback if season/episode missing (Show landing page)
+  return `${VIDSRC_BASE_URL}/embed/tv?tmdb=${tmdbId}`;
 };
