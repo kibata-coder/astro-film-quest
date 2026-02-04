@@ -156,14 +156,13 @@ const VideoPlayer = ({
           <iframe 
             src={embedUrl} 
             className="w-full h-full border-0" 
-            // UPDATED: Added "fullscreen" to allow list
+            allowFullScreen={true}
             allow="autoplay; fullscreen; picture-in-picture; encrypted-media" 
             referrerPolicy="no-referrer-when-downgrade" 
           />
           
           {/* Top Left: Title, Info & Server Switcher */}
           <div className={`absolute top-4 left-4 z-50 flex flex-col gap-2 transition-all duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-             {/* Info Box */}
              <div className="bg-black/60 backdrop-blur-md px-4 py-2 rounded-lg border border-white/10 max-w-[80vw] text-left">
                 <h2 className="text-white font-bold text-sm md:text-base truncate">{title}</h2>
                 {isTVShow && (
@@ -173,7 +172,6 @@ const VideoPlayer = ({
                 )}
              </div>
 
-             {/* Server Switcher - Moved Here (Below Title) to clear bottom */}
              <div className="flex gap-2 pointer-events-auto self-start">
                <div className="bg-black/60 backdrop-blur-sm p-1 rounded-full flex gap-1 border border-white/10">
                  <Button 
@@ -216,29 +214,30 @@ const VideoPlayer = ({
             </Button>
           </div>
 
-          {/* Episode Navigation - Bottom Corners Only (ABSOLUTELY NO CENTER ELEMENTS) */}
+          {/* SIDE Navigation Buttons - MOVED FROM BOTTOM TO CENTER SIDES */}
+          {/* This keeps the bottom 100% clear for subtitles */}
           {isTVShow && totalEpisodes && (
-            <div className={`absolute bottom-0 left-0 right-0 p-4 md:p-8 transition-all duration-300 pointer-events-none z-30 flex justify-between items-end ${showControls ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-                {/* Previous Button */}
+            <div className={`absolute inset-0 flex items-center justify-between px-4 transition-all duration-300 pointer-events-none z-30 ${showControls ? 'opacity-100' : 'opacity-0'}`}>
+                {/* Previous Button (Left Center) */}
                 <Button 
                   variant="ghost" 
-                  size="lg" 
+                  size="icon"
                   onClick={onPreviousEpisode} 
                   disabled={isFirstEpisode} 
-                  className={`flex items-center gap-2 text-white bg-black/40 hover:bg-black/60 backdrop-blur-sm border border-white/10 rounded-full px-4 md:px-6 ${showControls ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                  className={`rounded-full w-12 h-12 bg-black/40 hover:bg-black/60 backdrop-blur-sm border border-white/10 text-white ${showControls ? 'pointer-events-auto' : 'pointer-events-none'} disabled:opacity-0`}
                 >
-                  <ChevronLeft className="w-6 h-6" /><span className="hidden sm:inline font-medium">Previous</span>
+                  <ChevronLeft className="w-8 h-8" />
                 </Button>
                 
-                {/* Next Button */}
+                {/* Next Button (Right Center) */}
                 <Button 
                   variant="ghost" 
-                  size="lg" 
+                  size="icon"
                   onClick={onNextEpisode} 
                   disabled={isLastEpisode} 
-                  className={`flex items-center gap-2 text-white bg-black/40 hover:bg-black/60 backdrop-blur-sm border border-white/10 rounded-full px-4 md:px-6 ${showControls ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                  className={`rounded-full w-12 h-12 bg-black/40 hover:bg-black/60 backdrop-blur-sm border border-white/10 text-white ${showControls ? 'pointer-events-auto' : 'pointer-events-none'} disabled:opacity-0`}
                 >
-                  <span className="hidden sm:inline font-medium">Next</span><ChevronRight className="w-6 h-6" />
+                  <ChevronRight className="w-8 h-8" />
                 </Button>
             </div>
           )}
