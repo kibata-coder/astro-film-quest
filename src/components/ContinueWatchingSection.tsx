@@ -128,10 +128,20 @@ const ContinueWatchingSection = () => {
                   <X className="w-4 h-4" />
                 </button>
                 
-                {/* Episode Badge for TV Shows */}
+              {/* Episode Badge for TV Shows */}
                 {item.media_type === 'tv' && item.season_number && (
                   <div className="absolute bottom-2 right-2 bg-primary/90 text-primary-foreground text-xs font-bold px-2 py-1 rounded">
                     S{item.season_number} E{item.episode_number}
+                  </div>
+                )}
+                
+                {/* Progress Bar */}
+                {item.progress > 0 && (
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted/50">
+                    <div 
+                      className="h-full bg-primary transition-all"
+                      style={{ width: `${Math.min(item.progress * 100, 100)}%` }}
+                    />
                   </div>
                 )}
               </div>
