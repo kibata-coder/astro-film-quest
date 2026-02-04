@@ -1,6 +1,8 @@
 import type { Movie, TVShow, Episode } from '@/lib/tmdb';
+import type { ServerType } from '@/lib/vidsrc';
 
 export type { Movie, TVShow, Episode };
+export type { ServerType };
 
 export interface VideoState {
   isOpen: boolean;
@@ -10,6 +12,7 @@ export interface VideoState {
   seasonNumber?: number;
   episodeNumber?: number;
   episodeName?: string;
+  server: ServerType;
 }
 
 export interface TVEpisodeContext {

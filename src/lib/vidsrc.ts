@@ -1,10 +1,14 @@
 import { z } from 'zod';
 
-// Documentation specifies these domains: vidsrc-embed.ru , vidsrc-embed.su , vidsrcme.su , vsrc.su
-// We will use vidsrc-embed.ru as the primary based on your examples.
+// Server 1: Vidsrc - vidsrc-embed.ru
 const VIDSRC_BASE_URL = 'https://vidsrc-embed.ru';
 
-// Schema definitions remain useful for the "Latest" API
+// Server 2: SuperEmbed/MultiEmbed - multiembed.mov
+const SUPEREMBED_BASE_URL = 'https://multiembed.mov';
+
+export type ServerType = 'vidsrc' | 'superembed';
+
+// Schema definitions for the "Latest" API
 const VidsrcItemSchema = z.object({
   tmdb_id: z.string(),
   imdb_id: z.string(),
@@ -40,11 +44,10 @@ const validateAndExtractItems = (data: unknown, mediaType: 'movie' | 'tv'): Vids
   }
 };
 
-// --- API: Latest Listings ---
+// --- API: Latest Listings (Vidsrc only) ---
 
 export const getLatestMovies = async (page = 1): Promise<VidsrcItem[]> => {
   try {
-    // Endpoint: https://vidsrc-embed.ru/movies/latest/page-PAGE_NUMBER.json
     const response = await fetch(`${VIDSRC_BASE_URL}/movies/latest/page-${page}.json`);
     if (!response.ok) throw new Error('Failed to fetch latest movies');
     const data = await response.json();
@@ -57,7 +60,6 @@ export const getLatestMovies = async (page = 1): Promise<VidsrcItem[]> => {
 
 export const getLatestTVShows = async (page = 1): Promise<VidsrcItem[]> => {
   try {
-    // Endpoint: https://vidsrc-embed.ru/tvshows/latest/page-PAGE_NUMBER.json
     const response = await fetch(`${VIDSRC_BASE_URL}/tvshows/latest/page-${page}.json`);
     if (!response.ok) throw new Error('Failed to fetch latest TV shows');
     const data = await response.json();
@@ -68,19 +70,67 @@ export const getLatestTVShows = async (page = 1): Promise<VidsrcItem[]> => {
   }
 };
 
-// --- API: Embed URLs ---
+// --- Server 1: Vidsrc Embed URLs ---
 
-export const getMovieEmbedUrl = (tmdbId: number): string => {
+const getVidsrcMovieUrl = (tmdbId: number): string => {
   // Endpoint: https://vidsrc-embed.ru/embed/movie?tmdb={id}
-  // Autoplay enabled by default per docs (autoplay=1 is default)
-  return `${VIDSRC_BASE_URL}/embed/movie?tmdb=${tmdbId}`;
+  return `${VIDSRC_BASE_URL}/embed/movie?tmdb=${tmdbId}&autoplay=1`;
 };
 
-export const getTVShowEmbedUrl = (tmdbId: number, season?: number, episode?: number): string => {
-  // Endpoint: https://vidsrc-embed.ru/embed/tv?tmdb={id}&season={s}&episode={e}
+const getVidsrcTVShowUrl = (tmdbId: number, season?: number, episode?: number): string => {
+  // Episode: https://vidsrc-embed.ru/embed/tv?tmdb={id}&season={s}&episode={e}
   if (season !== undefined && episode !== undefined) {
-    return `${VIDSRC_BASE_URL}/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
+    return `${VIDSRC_BASE_URL}/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}&autoplay=1&autonext=0`;
   }
-  // Fallback if season/episode missing (Show landing page)
+  // Show landing: https://vidsrc-embed.ru/embed/tv?tmdb={id}
   return `${VIDSRC_BASE_URL}/embed/tv?tmdb=${tmdbId}`;
 };
+
+// --- Server 2: SuperEmbed/MultiEmbed Embed URLs ---
+
+const getSuperembedMovieUrl = (tmdbId: number): string => {
+  // Endpoint: https://multiembed.mov/?video_id={tmdb_id}&tmdb=1
+  return `${SUPEREMBED_BASE_URL}/?video_id=${tmdbId}&tmdb=1`;
+};
+
+const getSuperembedTVShowUrl = (tmdbId: number, season?: number, episode?: number): string => {
+  // Episode: https://multiembed.mov/?video_id={tmdb_id}&tmdb=1&s={season}&e={episode}
+  if (season !== undefined && episode !== undefined) {
+    return `${SUPEREMBED_BASE_URL}/?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`;
+  }
+  // Show landing (default to S1E1)
+  return `${SUPEREMBED_BASE_URL}/?video_id=${tmdbId}&tmdb=1&s=1&e=1`;
+};
+
+// --- Public API: Get Embed URLs based on Server Selection ---
+
+export const getMovieEmbedUrl = (tmdbId: number, server: ServerType = 'vidsrc'): string => {
+  switch (server) {
+    case 'superembed':
+      return getSuperembedMovieUrl(tmdbId);
+    case 'vidsrc':
+    default:
+      return getVidsrcMovieUrl(tmdbId);
+  }
+};
+
+export const getTVShowEmbedUrl = (
+  tmdbId: number, 
+  season?: number, 
+  episode?: number, 
+  server: ServerType = 'vidsrc'
+): string => {
+  switch (server) {
+    case 'superembed':
+      return getSuperembedTVShowUrl(tmdbId, season, episode);
+    case 'vidsrc':
+    default:
+      return getVidsrcTVShowUrl(tmdbId, season, episode);
+  }
+};
+
+// Server display names
+export const SERVER_OPTIONS: { value: ServerType; label: string }[] = [
+  { value: 'vidsrc', label: 'Server 1' },
+  { value: 'superembed', label: 'Server 2' },
+];
