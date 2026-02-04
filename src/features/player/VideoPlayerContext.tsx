@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useCallback, ReactNode } from 'rea
 import { getTVShowSeasonDetails } from '@/lib/tmdb';
 import { addToHistory } from '@/lib/watchHistory';
 import type { Movie, TVShow } from '@/lib/tmdb';
-import type { VideoState, TVEpisodeContext } from '@/types/media';
+import type { VideoState, TVEpisodeContext, ServerType } from '@/types/media';
 
 interface VideoPlayerContextType {
   videoState: VideoState;
@@ -17,6 +17,7 @@ interface VideoPlayerContextType {
   nextEpisode: () => Promise<void>;
   previousEpisode: () => Promise<void>;
   closePlayer: () => void;
+  changeServer: (server: ServerType) => void;
 }
 
 const initialVideoState: VideoState = {
@@ -24,6 +25,7 @@ const initialVideoState: VideoState = {
   title: '',
   mediaId: 0,
   mediaType: 'movie',
+  server: 'vidsrc',
 };
 
 const VideoPlayerContext = createContext<VideoPlayerContextType | undefined>(undefined);
@@ -45,12 +47,13 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
     });
     notifyHistoryUpdate();
 
-    setVideoState({
+    setVideoState(prev => ({
+      ...prev,
       isOpen: true,
       title: movie.title,
       mediaId: movie.id,
       mediaType: 'movie',
-    });
+    }));
   }, []);
 
   const playEpisode = useCallback(async (
@@ -84,7 +87,8 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
       setEpisodeContext(null);
     }
 
-    setVideoState({
+    setVideoState(prev => ({
+      ...prev,
       isOpen: true,
       title: `${show.name} - ${episodeName}`,
       mediaId: show.id,
@@ -92,7 +96,7 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
       seasonNumber,
       episodeNumber,
       episodeName,
-    });
+    }));
   }, []);
 
   const nextEpisode = useCallback(async () => {
@@ -158,6 +162,10 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
     setEpisodeContext(null);
   }, []);
 
+  const changeServer = useCallback((server: ServerType) => {
+    setVideoState(prev => ({ ...prev, server }));
+  }, []);
+
   return (
     <VideoPlayerContext.Provider value={{
       videoState,
@@ -167,6 +175,7 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
       nextEpisode,
       previousEpisode,
       closePlayer,
+      changeServer,
     }}>
       {children}
     </VideoPlayerContext.Provider>
