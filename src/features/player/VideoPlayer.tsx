@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, ChevronLeft, ChevronRight, Server, Maximize, Minimize } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Server } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getMovieEmbedUrl, getTVShowEmbedUrl, type StreamingServer } from '@/lib/vidsrc';
 import { saveWatchProgress } from '@/lib/watchHistory';
@@ -26,7 +26,6 @@ const VideoPlayer = ({
   const [isConnecting, setIsConnecting] = useState(true);
   const [showControls, setShowControls] = useState(true);
   const [server, setServer] = useState<StreamingServer>('vidsrc');
-  const [isFullscreen, setIsFullscreen] = useState(false);
   
   const containerRef = useRef<HTMLDivElement>(null);
   const hideControlsTimer = useRef<NodeJS.Timeout | null>(null);
@@ -42,26 +41,6 @@ const VideoPlayer = ({
     }
     return () => { document.body.style.overflow = 'unset'; };
   }, [isOpen]);
-
-  // Handle Fullscreen events
-  useEffect(() => {
-    const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, []);
-
-  const toggleFullscreen = async () => {
-    if (!containerRef.current) return;
-    try {
-      if (!document.fullscreenElement) {
-        await containerRef.current.requestFullscreen();
-      } else {
-        await document.exitFullscreen();
-      }
-    } catch (err) {
-      console.error("Fullscreen error:", err);
-    }
-  };
 
   useEffect(() => {
     if (isOpen && mediaId) {
@@ -86,8 +65,6 @@ const VideoPlayer = ({
   }, [isOpen, mediaId, mediaType]);
 
   const handleClose = () => {
-    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
-    
     if (startTimeRef.current > 0 && durationRef.current > 0) {
       const timeSpentSeconds = (Date.now() - startTimeRef.current) / 1000;
       saveWatchProgress(
@@ -155,15 +132,17 @@ const VideoPlayer = ({
         <>
           <iframe 
             src={embedUrl} 
-            className="w-full h-full border-0" 
+            className="w-full h-full border-0 absolute inset-0 z-0" 
             allowFullScreen={true}
             allow="autoplay; fullscreen; picture-in-picture; encrypted-media" 
             referrerPolicy="no-referrer-when-downgrade" 
           />
           
-          {/* Top Left: Title, Info & Server Switcher */}
-          <div className={`absolute top-4 left-4 z-50 flex flex-col gap-2 transition-all duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-             <div className="bg-black/60 backdrop-blur-md px-4 py-2 rounded-lg border border-white/10 max-w-[80vw] text-left">
+          {/* TOP LEFT: Title & Server Switcher 
+            (Moved to the top so the bottom is 100% clear)
+          */}
+          <div className={`absolute top-4 left-4 z-50 flex flex-col gap-3 transition-all duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+             <div className="bg-black/60 backdrop-blur-md px-4 py-2 rounded-lg border border-white/10 max-w-[80vw] text-left pointer-events-auto">
                 <h2 className="text-white font-bold text-sm md:text-base truncate">{title}</h2>
                 {isTVShow && (
                   <p className="text-white/70 text-xs md:text-sm truncate">
@@ -194,52 +173,49 @@ const VideoPlayer = ({
              </div>
           </div>
 
-          {/* Top Right Controls: Fullscreen + Close */}
-          <div className={`absolute top-4 right-4 flex items-center gap-3 z-50 transition-all duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={toggleFullscreen}
-              className="rounded-full w-10 h-10 bg-black/40 hover:bg-black/60 text-white hover:text-white backdrop-blur-sm border border-white/10"
-              title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
-            >
-              {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
-            </Button>
-
+          {/* TOP RIGHT: Close Button Only 
+            (Removed custom fullscreen button so you use the native one)
+          */}
+          <div className={`absolute top-4 right-4 z-50 transition-all duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
             <Button 
               onClick={handleClose} 
-              className="rounded-full w-10 h-10 p-0 bg-black/40 hover:bg-red-500/80 text-white border border-white/10 backdrop-blur-sm transition-colors"
+              className="rounded-full w-10 h-10 p-0 bg-black/40 hover:bg-red-500/80 text-white border border-white/10 backdrop-blur-sm transition-colors pointer-events-auto"
             >
               <X className="w-5 h-5" />
             </Button>
           </div>
 
-          {/* SIDE Navigation Buttons - MOVED FROM BOTTOM TO CENTER SIDES */}
-          {/* This keeps the bottom 100% clear for subtitles */}
+          {/* CENTER SIDES: Navigation 
+            (Absolutely positioned individually to avoid any container blocking the bottom)
+          */}
           {isTVShow && totalEpisodes && (
-            <div className={`absolute inset-0 flex items-center justify-between px-4 transition-all duration-300 pointer-events-none z-30 ${showControls ? 'opacity-100' : 'opacity-0'}`}>
-                {/* Previous Button (Left Center) */}
+            <>
+              {/* Previous Button - Left Center */}
+              <div className={`absolute top-1/2 left-4 -translate-y-1/2 z-40 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                 <Button 
                   variant="ghost" 
                   size="icon"
                   onClick={onPreviousEpisode} 
                   disabled={isFirstEpisode} 
-                  className={`rounded-full w-12 h-12 bg-black/40 hover:bg-black/60 backdrop-blur-sm border border-white/10 text-white ${showControls ? 'pointer-events-auto' : 'pointer-events-none'} disabled:opacity-0`}
+                  className="rounded-full w-12 h-12 bg-black/40 hover:bg-black/60 backdrop-blur-sm border border-white/10 text-white disabled:opacity-0 pointer-events-auto"
                 >
                   <ChevronLeft className="w-8 h-8" />
                 </Button>
-                
-                {/* Next Button (Right Center) */}
+              </div>
+
+              {/* Next Button - Right Center */}
+              <div className={`absolute top-1/2 right-4 -translate-y-1/2 z-40 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                 <Button 
                   variant="ghost" 
                   size="icon"
                   onClick={onNextEpisode} 
                   disabled={isLastEpisode} 
-                  className={`rounded-full w-12 h-12 bg-black/40 hover:bg-black/60 backdrop-blur-sm border border-white/10 text-white ${showControls ? 'pointer-events-auto' : 'pointer-events-none'} disabled:opacity-0`}
+                  className="rounded-full w-12 h-12 bg-black/40 hover:bg-black/60 backdrop-blur-sm border border-white/10 text-white disabled:opacity-0 pointer-events-auto"
                 >
                   <ChevronRight className="w-8 h-8" />
                 </Button>
-            </div>
+              </div>
+            </>
           )}
         </>
       )}
