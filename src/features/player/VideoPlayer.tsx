@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, ChevronLeft, ChevronRight, Server } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { getMovieEmbedUrl, getTVShowEmbedUrl, type StreamingServer } from '@/lib/vidsrc';
+import { getMovieEmbedUrl, getTVShowEmbedUrl } from '@/lib/vidsrc';
 import { saveWatchProgress } from '@/lib/watchHistory';
 import { getMovieDetails, getTVShowDetails } from '@/lib/tmdb';
 
@@ -25,7 +25,6 @@ const VideoPlayer = ({
 }: VideoPlayerProps) => {
   const [isConnecting, setIsConnecting] = useState(true);
   const [showControls, setShowControls] = useState(true);
-  const [server, setServer] = useState<StreamingServer>('vidsrc');
   
   const containerRef = useRef<HTMLDivElement>(null);
   const hideControlsTimer = useRef<NodeJS.Timeout | null>(null);
@@ -76,14 +75,14 @@ const VideoPlayer = ({
   };
 
   const embedUrl = mediaType === 'tv' && seasonNumber && episodeNumber
-    ? getTVShowEmbedUrl(mediaId, seasonNumber, episodeNumber, server)
-    : getMovieEmbedUrl(mediaId, server);
+    ? getTVShowEmbedUrl(mediaId, seasonNumber, episodeNumber)
+    : getMovieEmbedUrl(mediaId);
 
   const isFirstEpisode = episodeNumber === 1;
   const isLastEpisode = episodeNumber === totalEpisodes;
 
   useEffect(() => {
-    if (!isOpen) { setServer('vidsrc'); startTimeRef.current = 0; }
+    if (!isOpen) { startTimeRef.current = 0; }
   }, [isOpen]);
 
   useEffect(() => {
@@ -92,7 +91,7 @@ const VideoPlayer = ({
       const timer = setTimeout(() => setIsConnecting(false), 1500);
       return () => clearTimeout(timer);
     }
-  }, [isOpen, mediaId, seasonNumber, episodeNumber, server]);
+  }, [isOpen, mediaId, seasonNumber, episodeNumber]);
 
   useEffect(() => {
     if (!isOpen || isConnecting) return;
@@ -124,7 +123,7 @@ const VideoPlayer = ({
         <div className="flex flex-col items-center justify-center h-full gap-6 text-white">
           <div className="loading-spinner w-16 h-16" />
           <div className="text-center">
-            <p className="text-xl font-medium mb-2">Connecting to {server === 'vidsrc' ? 'Server 1' : 'Server 2'}...</p>
+            <p className="text-xl font-medium mb-2">Connecting to Server...</p>
             <p className="text-white/60">{title}</p>
           </div>
         </div>
@@ -135,12 +134,10 @@ const VideoPlayer = ({
             className="w-full h-full border-0 absolute inset-0 z-0" 
             allowFullScreen={true}
             allow="autoplay; fullscreen; picture-in-picture; encrypted-media" 
-            referrerPolicy="no-referrer-when-downgrade" 
+            referrerPolicy="origin" 
           />
           
-          {/* TOP LEFT: Title & Server Switcher 
-            (Moved to the top so the bottom is 100% clear)
-          */}
+          {/* TOP LEFT: Title Info */}
           <div className={`absolute top-4 left-4 z-50 flex flex-col gap-3 transition-all duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
              <div className="bg-black/60 backdrop-blur-md px-4 py-2 rounded-lg border border-white/10 max-w-[80vw] text-left pointer-events-auto">
                 <h2 className="text-white font-bold text-sm md:text-base truncate">{title}</h2>
@@ -150,32 +147,9 @@ const VideoPlayer = ({
                   </p>
                 )}
              </div>
-
-             <div className="flex gap-2 pointer-events-auto self-start">
-               <div className="bg-black/60 backdrop-blur-sm p-1 rounded-full flex gap-1 border border-white/10">
-                 <Button 
-                    variant={server === 'vidsrc' ? "default" : "ghost"} 
-                    size="sm" 
-                    onClick={() => setServer('vidsrc')} 
-                    className="h-7 rounded-full px-3 text-[10px] md:text-xs font-medium"
-                 >
-                   <Server className="w-3 h-3 mr-1.5" />Server 1
-                 </Button>
-                 <Button 
-                    variant={server === 'superembed' ? "default" : "ghost"} 
-                    size="sm" 
-                    onClick={() => setServer('superembed')} 
-                    className="h-7 rounded-full px-3 text-[10px] md:text-xs font-medium"
-                 >
-                   <Server className="w-3 h-3 mr-1.5" />Server 2
-                 </Button>
-               </div>
-             </div>
           </div>
 
-          {/* TOP RIGHT: Close Button Only 
-            (Removed custom fullscreen button so you use the native one)
-          */}
+          {/* TOP RIGHT: Close Button */}
           <div className={`absolute top-4 right-4 z-50 transition-all duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
             <Button 
               onClick={handleClose} 
@@ -185,12 +159,10 @@ const VideoPlayer = ({
             </Button>
           </div>
 
-          {/* CENTER SIDES: Navigation 
-            (Absolutely positioned individually to avoid any container blocking the bottom)
-          */}
+          {/* CENTER SIDES: Navigation */}
           {isTVShow && totalEpisodes && (
             <>
-              {/* Previous Button - Left Center */}
+              {/* Previous Button */}
               <div className={`absolute top-1/2 left-4 -translate-y-1/2 z-40 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                 <Button 
                   variant="ghost" 
@@ -203,7 +175,7 @@ const VideoPlayer = ({
                 </Button>
               </div>
 
-              {/* Next Button - Right Center */}
+              {/* Next Button */}
               <div className={`absolute top-1/2 right-4 -translate-y-1/2 z-40 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                 <Button 
                   variant="ghost" 
