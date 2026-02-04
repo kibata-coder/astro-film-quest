@@ -156,19 +156,43 @@ const VideoPlayer = ({
           <iframe 
             src={embedUrl} 
             className="w-full h-full border-0" 
-            allow="autoplay; picture-in-picture; encrypted-media" 
+            // UPDATED: Added "fullscreen" to allow list
+            allow="autoplay; fullscreen; picture-in-picture; encrypted-media" 
             referrerPolicy="no-referrer-when-downgrade" 
           />
           
-          {/* Top Left: Title & Episode Info (MOVED HERE to clear bottom for subtitles) */}
-          <div className={`absolute top-4 left-4 z-50 transition-all duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-             <div className="bg-black/40 backdrop-blur-md px-4 py-2 rounded-lg border border-white/10 max-w-[80vw] text-left">
+          {/* Top Left: Title, Info & Server Switcher */}
+          <div className={`absolute top-4 left-4 z-50 flex flex-col gap-2 transition-all duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+             {/* Info Box */}
+             <div className="bg-black/60 backdrop-blur-md px-4 py-2 rounded-lg border border-white/10 max-w-[80vw] text-left">
                 <h2 className="text-white font-bold text-sm md:text-base truncate">{title}</h2>
                 {isTVShow && (
                   <p className="text-white/70 text-xs md:text-sm truncate">
                     S{seasonNumber} E{episodeNumber}: {episodeName}
                   </p>
                 )}
+             </div>
+
+             {/* Server Switcher - Moved Here (Below Title) to clear bottom */}
+             <div className="flex gap-2 pointer-events-auto self-start">
+               <div className="bg-black/60 backdrop-blur-sm p-1 rounded-full flex gap-1 border border-white/10">
+                 <Button 
+                    variant={server === 'vidsrc' ? "default" : "ghost"} 
+                    size="sm" 
+                    onClick={() => setServer('vidsrc')} 
+                    className="h-7 rounded-full px-3 text-[10px] md:text-xs font-medium"
+                 >
+                   <Server className="w-3 h-3 mr-1.5" />Server 1
+                 </Button>
+                 <Button 
+                    variant={server === 'superembed' ? "default" : "ghost"} 
+                    size="sm" 
+                    onClick={() => setServer('superembed')} 
+                    className="h-7 rounded-full px-3 text-[10px] md:text-xs font-medium"
+                 >
+                   <Server className="w-3 h-3 mr-1.5" />Server 2
+                 </Button>
+               </div>
              </div>
           </div>
 
@@ -191,25 +215,17 @@ const VideoPlayer = ({
               <X className="w-5 h-5" />
             </Button>
           </div>
-          
-          {/* Server Switcher - Positioned above controls */}
-          <div className={`absolute left-0 right-0 flex justify-center gap-4 transition-all duration-300 pointer-events-none ${showControls ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'} ${isTVShow && totalEpisodes ? 'bottom-24' : 'bottom-16'}`}>
-            <div className={`bg-black/60 backdrop-blur-sm p-1.5 rounded-full flex gap-2 border border-white/10 ${showControls ? 'pointer-events-auto' : 'pointer-events-none'}`}>
-              <Button variant={server === 'vidsrc' ? "default" : "ghost"} size="sm" onClick={() => setServer('vidsrc')} className="h-8 rounded-full px-4 text-xs font-medium"><Server className="w-3 h-3 mr-2" />Server 1</Button>
-              <Button variant={server === 'superembed' ? "default" : "ghost"} size="sm" onClick={() => setServer('superembed')} className="h-8 rounded-full px-4 text-xs font-medium"><Server className="w-3 h-3 mr-2" />Server 2</Button>
-            </div>
-          </div>
 
-          {/* Episode Navigation - Bottom Corners Only (Clean Center for Subtitles) */}
+          {/* Episode Navigation - Bottom Corners Only (ABSOLUTELY NO CENTER ELEMENTS) */}
           {isTVShow && totalEpisodes && (
-            <div className={`absolute bottom-0 left-0 right-0 p-6 transition-all duration-300 pointer-events-none z-30 flex justify-between items-end ${showControls ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <div className={`absolute bottom-0 left-0 right-0 p-4 md:p-8 transition-all duration-300 pointer-events-none z-30 flex justify-between items-end ${showControls ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
                 {/* Previous Button */}
                 <Button 
                   variant="ghost" 
                   size="lg" 
                   onClick={onPreviousEpisode} 
                   disabled={isFirstEpisode} 
-                  className={`flex items-center gap-2 text-white bg-black/40 hover:bg-black/60 backdrop-blur-sm border border-white/10 rounded-full px-6 ${showControls ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                  className={`flex items-center gap-2 text-white bg-black/40 hover:bg-black/60 backdrop-blur-sm border border-white/10 rounded-full px-4 md:px-6 ${showControls ? 'pointer-events-auto' : 'pointer-events-none'}`}
                 >
                   <ChevronLeft className="w-6 h-6" /><span className="hidden sm:inline font-medium">Previous</span>
                 </Button>
@@ -220,7 +236,7 @@ const VideoPlayer = ({
                   size="lg" 
                   onClick={onNextEpisode} 
                   disabled={isLastEpisode} 
-                  className={`flex items-center gap-2 text-white bg-black/40 hover:bg-black/60 backdrop-blur-sm border border-white/10 rounded-full px-6 ${showControls ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                  className={`flex items-center gap-2 text-white bg-black/40 hover:bg-black/60 backdrop-blur-sm border border-white/10 rounded-full px-4 md:px-6 ${showControls ? 'pointer-events-auto' : 'pointer-events-none'}`}
                 >
                   <span className="hidden sm:inline font-medium">Next</span><ChevronRight className="w-6 h-6" />
                 </Button>
