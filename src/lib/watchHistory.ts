@@ -137,4 +137,21 @@ export const addToHistory = async (item: Omit<WatchHistoryItem, 'last_watched' |
   }
 };
 
+export const getProgressForMedia = async (mediaId: number, mediaType: 'movie' | 'tv'): Promise<number> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    const { data } = await supabase
+      .from('watch_history')
+      .select('progress')
+      .eq('user_id', user.id)
+      .eq('media_id', mediaId)
+      .eq('media_type', mediaType)
+      .maybeSingle();
+    return data?.progress || 0;
+  }
+  const history = getLocalHistory();
+  const item = history.find(i => i.id === mediaId && i.media_type === mediaType);
+  return item?.progress || 0;
+};
+
 export const getUserSignals = async () => getWatchHistory();

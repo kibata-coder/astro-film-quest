@@ -135,6 +135,13 @@ const ContinueWatchingSection = () => {
                   </div>
                 )}
                 
+                {/* Progress percentage label */}
+                {item.progress > 0 && (
+                  <div className="absolute top-2 left-2 bg-background/80 backdrop-blur-sm text-foreground text-xs font-semibold px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                    {Math.round(item.progress * 100)}% watched
+                  </div>
+                )}
+
                 {/* Progress Bar */}
                 {item.progress > 0 && (
                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted/50">
