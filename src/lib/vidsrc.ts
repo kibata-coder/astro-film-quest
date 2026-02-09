@@ -6,10 +6,7 @@ const VIDSRC_BASE_URL = 'https://vidsrc-embed.ru';
 // Server 2: SuperEmbed/MultiEmbed - multiembed.mov
 const SUPEREMBED_BASE_URL = 'https://multiembed.mov';
 
-// Server 3: VikingEmbed - vembed.stream
-const VIKINGEMBED_BASE_URL = 'https://vembed.stream';
-
-export type ServerType = 'vidsrc' | 'superembed' | 'vikingembed';
+export type ServerType = 'vidsrc' | 'superembed';
 
 // Schema definitions for the "Latest" API
 const VidsrcItemSchema = z.object({
@@ -105,28 +102,12 @@ const getSuperembedTVShowUrl = (tmdbId: number, season?: number, episode?: numbe
   return `${SUPEREMBED_BASE_URL}/?video_id=${tmdbId}&tmdb=1&s=1&e=1`;
 };
 
-// --- Server 3: VikingEmbed Embed URLs ---
-
-const getVikingEmbedMovieUrl = (tmdbId: number): string => {
-  return `${VIKINGEMBED_BASE_URL}/play/${tmdbId}`;
-};
-
-const getVikingEmbedTVShowUrl = (tmdbId: number, season?: number, episode?: number): string => {
-  // VikingEmbed uses _s{season} suffix format for series
-  if (season !== undefined) {
-    return `${VIKINGEMBED_BASE_URL}/play/${tmdbId}_s${season}`;
-  }
-  return `${VIKINGEMBED_BASE_URL}/play/${tmdbId}_s1`;
-};
-
 // --- Public API: Get Embed URLs based on Server Selection ---
 
 export const getMovieEmbedUrl = (tmdbId: number, server: ServerType = 'vidsrc'): string => {
   switch (server) {
     case 'superembed':
       return getSuperembedMovieUrl(tmdbId);
-    case 'vikingembed':
-      return getVikingEmbedMovieUrl(tmdbId);
     case 'vidsrc':
     default:
       return getVidsrcMovieUrl(tmdbId);
@@ -142,8 +123,6 @@ export const getTVShowEmbedUrl = (
   switch (server) {
     case 'superembed':
       return getSuperembedTVShowUrl(tmdbId, season, episode);
-    case 'vikingembed':
-      return getVikingEmbedTVShowUrl(tmdbId, season, episode);
     case 'vidsrc':
     default:
       return getVidsrcTVShowUrl(tmdbId, season, episode);
@@ -154,5 +133,4 @@ export const getTVShowEmbedUrl = (
 export const SERVER_OPTIONS: { value: ServerType; label: string }[] = [
   { value: 'vidsrc', label: 'Server 1' },
   { value: 'superembed', label: 'Server 2' },
-  { value: 'vikingembed', label: 'Server 3' },
 ];
