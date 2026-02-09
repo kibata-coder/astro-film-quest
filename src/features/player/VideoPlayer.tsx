@@ -22,14 +22,14 @@ interface VideoPlayerProps {
   onChangeServer?: (server: ServerType) => void;
 }
 
-const VideoPlayer = ({ 
-  isOpen, onClose, title, mediaId, mediaType, seasonNumber, episodeNumber, 
+const VideoPlayer = ({
+  isOpen, onClose, title, mediaId, mediaType, seasonNumber, episodeNumber,
   totalEpisodes, episodeName, server, onNextEpisode, onPreviousEpisode, onChangeServer
 }: VideoPlayerProps) => {
   const [isConnecting, setIsConnecting] = useState(true);
   const [showControls, setShowControls] = useState(true);
   const [showServerMenu, setShowServerMenu] = useState(false);
-  
+
   const containerRef = useRef<HTMLDivElement>(null);
   const hideControlsTimer = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
@@ -117,10 +117,10 @@ const VideoPlayer = ({
   const isTVShow = mediaType === 'tv' && seasonNumber && episodeNumber;
 
   return (
-    <div 
+    <div
       ref={containerRef}
-      className="fixed inset-0 z-[100] bg-black" 
-      onMouseMove={handleMouseMove} 
+      className="fixed inset-0 z-[100] bg-black"
+      onMouseMove={handleMouseMove}
       onTouchStart={() => setShowControls(true)}
     >
       {isConnecting ? (
@@ -133,40 +133,39 @@ const VideoPlayer = ({
         </div>
       ) : (
         <>
-          <iframe 
-            src={embedUrl} 
-            className="w-full h-full border-0 absolute inset-0 z-0" 
+          <iframe
+            src={embedUrl}
+            className="w-full h-full border-0 absolute inset-0 z-0"
             allowFullScreen
-            allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope" 
+            allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope"
             referrerPolicy="origin"
-            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation"
             style={{ width: '100%', height: '100%' }}
           />
-          
+
           {/* TOP LEFT: Title Info */}
           <div className={`absolute top-4 left-4 z-50 flex flex-col gap-3 transition-all duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-             <div className="bg-black/60 backdrop-blur-md px-4 py-2 rounded-lg border border-white/10 max-w-[80vw] text-left pointer-events-auto">
-                <h2 className="text-white font-bold text-sm md:text-base truncate">{title}</h2>
-                {isTVShow && (
-                  <p className="text-white/70 text-xs md:text-sm truncate">
-                    S{seasonNumber} E{episodeNumber}: {episodeName}
-                  </p>
-                )}
-             </div>
+            <div className="bg-black/60 backdrop-blur-md px-4 py-2 rounded-lg border border-white/10 max-w-[80vw] text-left pointer-events-auto">
+              <h2 className="text-white font-bold text-sm md:text-base truncate">{title}</h2>
+              {isTVShow && (
+                <p className="text-white/70 text-xs md:text-sm truncate">
+                  S{seasonNumber} E{episodeNumber}: {episodeName}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* TOP RIGHT: Server Selector & Close Button */}
           <div className={`absolute top-4 right-4 z-50 flex items-center gap-2 transition-all duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
             {/* Server Selector */}
             <div className="relative">
-              <Button 
-                onClick={() => setShowServerMenu(!showServerMenu)} 
+              <Button
+                onClick={() => setShowServerMenu(!showServerMenu)}
                 className="rounded-full px-3 h-10 bg-black/40 hover:bg-black/60 text-white border border-white/10 backdrop-blur-sm transition-colors pointer-events-auto flex items-center gap-2"
               >
                 <MonitorPlay className="w-4 h-4" />
                 <span className="text-sm">{SERVER_OPTIONS.find(s => s.value === server)?.label}</span>
               </Button>
-              
+
               {showServerMenu && (
                 <div className="absolute top-12 right-0 bg-black/90 backdrop-blur-md rounded-lg border border-white/10 overflow-hidden pointer-events-auto">
                   {SERVER_OPTIONS.map((option) => (
@@ -176,9 +175,8 @@ const VideoPlayer = ({
                         onChangeServer?.(option.value);
                         setShowServerMenu(false);
                       }}
-                      className={`w-full px-4 py-2 text-left text-sm hover:bg-white/10 transition-colors ${
-                        server === option.value ? 'text-primary bg-white/5' : 'text-white'
-                      }`}
+                      className={`w-full px-4 py-2 text-left text-sm hover:bg-white/10 transition-colors ${server === option.value ? 'text-primary bg-white/5' : 'text-white'
+                        }`}
                     >
                       {option.label}
                     </button>
@@ -188,8 +186,8 @@ const VideoPlayer = ({
             </div>
 
             {/* Close Button */}
-            <Button 
-              onClick={handleClose} 
+            <Button
+              onClick={handleClose}
               className="rounded-full w-10 h-10 p-0 bg-black/40 hover:bg-red-500/80 text-white border border-white/10 backdrop-blur-sm transition-colors pointer-events-auto"
             >
               <X className="w-5 h-5" />
@@ -201,11 +199,11 @@ const VideoPlayer = ({
             <>
               {/* Previous Button */}
               <div className={`absolute top-1/2 left-4 -translate-y-1/2 z-40 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="icon"
-                  onClick={onPreviousEpisode} 
-                  disabled={isFirstEpisode} 
+                  onClick={onPreviousEpisode}
+                  disabled={isFirstEpisode}
                   className="rounded-full w-12 h-12 bg-black/40 hover:bg-black/60 backdrop-blur-sm border border-white/10 text-white disabled:opacity-0 pointer-events-auto"
                 >
                   <ChevronLeft className="w-8 h-8" />
@@ -214,11 +212,11 @@ const VideoPlayer = ({
 
               {/* Next Button */}
               <div className={`absolute top-1/2 right-4 -translate-y-1/2 z-40 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="icon"
-                  onClick={onNextEpisode} 
-                  disabled={isLastEpisode} 
+                  onClick={onNextEpisode}
+                  disabled={isLastEpisode}
                   className="rounded-full w-12 h-12 bg-black/40 hover:bg-black/60 backdrop-blur-sm border border-white/10 text-white disabled:opacity-0 pointer-events-auto"
                 >
                   <ChevronRight className="w-8 h-8" />
