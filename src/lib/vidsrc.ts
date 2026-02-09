@@ -73,33 +73,27 @@ export const getLatestTVShows = async (page = 1): Promise<VidsrcItem[]> => {
 // --- Server 1: Vidsrc Embed URLs ---
 
 const getVidsrcMovieUrl = (tmdbId: number): string => {
-  // Endpoint: https://vidsrc-embed.ru/embed/movie?tmdb={id}
   return `${VIDSRC_BASE_URL}/embed/movie?tmdb=${tmdbId}&autoplay=1`;
 };
 
 const getVidsrcTVShowUrl = (tmdbId: number, season?: number, episode?: number): string => {
-  // Episode: https://vidsrc-embed.ru/embed/tv?tmdb={id}&season={s}&episode={e}
   if (season !== undefined && episode !== undefined) {
     return `${VIDSRC_BASE_URL}/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}&autoplay=1&autonext=0`;
   }
-  // Show landing: https://vidsrc-embed.ru/embed/tv?tmdb={id}
   return `${VIDSRC_BASE_URL}/embed/tv?tmdb=${tmdbId}`;
 };
 
-// --- Server 2: SuperEmbed/MultiEmbed Embed URLs ---
+// --- Server 2: SuperEmbed/MultiEmbed Embed URLs (VIP directstream) ---
 
 const getSuperembedMovieUrl = (tmdbId: number): string => {
-  // Endpoint: https://multiembed.mov/?video_id={tmdb_id}&tmdb=1
-  return `${SUPEREMBED_BASE_URL}/?video_id=${tmdbId}&tmdb=1`;
+  return `${SUPEREMBED_BASE_URL}/directstream.php?video_id=${tmdbId}&tmdb=1`;
 };
 
 const getSuperembedTVShowUrl = (tmdbId: number, season?: number, episode?: number): string => {
-  // Episode: https://multiembed.mov/?video_id={tmdb_id}&tmdb=1&s={season}&e={episode}
   if (season !== undefined && episode !== undefined) {
-    return `${SUPEREMBED_BASE_URL}/?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`;
+    return `${SUPEREMBED_BASE_URL}/directstream.php?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`;
   }
-  // Show landing (default to S1E1)
-  return `${SUPEREMBED_BASE_URL}/?video_id=${tmdbId}&tmdb=1&s=1&e=1`;
+  return `${SUPEREMBED_BASE_URL}/directstream.php?video_id=${tmdbId}&tmdb=1&s=1&e=1`;
 };
 
 // --- Public API: Get Embed URLs based on Server Selection ---
