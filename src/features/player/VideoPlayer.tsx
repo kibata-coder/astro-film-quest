@@ -136,9 +136,11 @@ const VideoPlayer = ({
           <iframe 
             src={embedUrl} 
             className="w-full h-full border-0 absolute inset-0 z-0" 
-            allowFullScreen={true}
-            allow="autoplay; fullscreen; picture-in-picture; encrypted-media" 
-            referrerPolicy="origin" 
+            allowFullScreen
+            allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope" 
+            referrerPolicy="origin"
+            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation"
+            style={{ width: '100%', height: '100%' }}
           />
           
           {/* TOP LEFT: Title Info */}
