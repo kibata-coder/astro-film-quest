@@ -135,10 +135,15 @@ const ContinueWatchingSection = () => {
                   </div>
                 )}
                 
-                {/* Progress percentage label */}
-                {item.progress > 0 && (
+                {/* Time reached label */}
+                {item.progress > 0 && item.duration > 0 && (
                   <div className="absolute top-2 left-2 bg-background/80 backdrop-blur-sm text-foreground text-xs font-semibold px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                    {Math.round(item.progress * 100)}% watched
+                    Stopped at {(() => {
+                      const s = Math.floor(item.progress * item.duration);
+                      const h = Math.floor(s / 3600);
+                      const m = Math.floor((s % 3600) / 60);
+                      return h > 0 ? `${h}h ${m}m` : `${m}m`;
+                    })()}
                   </div>
                 )}
 

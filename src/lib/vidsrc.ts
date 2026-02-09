@@ -112,10 +112,11 @@ const getVikingEmbedMovieUrl = (tmdbId: number): string => {
 };
 
 const getVikingEmbedTVShowUrl = (tmdbId: number, season?: number, episode?: number): string => {
-  if (season !== undefined && episode !== undefined) {
-    return `${VIKINGEMBED_BASE_URL}/play/${tmdbId}/${season}/${episode}`;
+  // VikingEmbed uses _s{season} suffix format for series
+  if (season !== undefined) {
+    return `${VIKINGEMBED_BASE_URL}/play/${tmdbId}_s${season}`;
   }
-  return `${VIKINGEMBED_BASE_URL}/play/${tmdbId}/1/1`;
+  return `${VIKINGEMBED_BASE_URL}/play/${tmdbId}_s1`;
 };
 
 // --- Public API: Get Embed URLs based on Server Selection ---

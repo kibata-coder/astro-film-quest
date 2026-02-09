@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Clock } from 'lucide-react';
 import { getProgressForMedia } from '@/lib/watchHistory';
+import { getMovieDetails, getTVShowDetails } from '@/lib/tmdb';
 
 interface ResumeOverlayProps {
   mediaId: number;
@@ -8,8 +9,17 @@ interface ResumeOverlayProps {
   isVisible: boolean;
 }
 
+const formatTime = (seconds: number): string => {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
+  if (h > 0) return `${h}h ${m}m ${s}s`;
+  if (m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
+};
+
 const ResumeOverlay = ({ mediaId, mediaType, isVisible }: ResumeOverlayProps) => {
-  const [progress, setProgress] = useState<number>(0);
+  const [timeReached, setTimeReached] = useState<string>('');
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -21,16 +31,30 @@ const ResumeOverlay = ({ mediaId, mediaType, isVisible }: ResumeOverlayProps) =>
     const loadProgress = async () => {
       const p = await getProgressForMedia(mediaId, mediaType);
       if (p > 0.01 && p < 0.95) {
-        setProgress(p);
+        try {
+          let durationMin = 0;
+          if (mediaType === 'movie') {
+            const details = await getMovieDetails(mediaId);
+            durationMin = details.runtime || 0;
+          } else {
+            const details = await getTVShowDetails(mediaId);
+            durationMin = details.episode_run_time?.[0] || 45;
+          }
+          const totalSeconds = durationMin * 60;
+          const watchedSeconds = p * totalSeconds;
+          setTimeReached(formatTime(watchedSeconds));
+        } catch {
+          setTimeReached(`${Math.round(p * 100)}%`);
+        }
         setShow(true);
-        const timer = setTimeout(() => setShow(false), 5000);
+        const timer = setTimeout(() => setShow(false), 10000);
         return () => clearTimeout(timer);
       }
     };
     loadProgress();
   }, [mediaId, mediaType, isVisible]);
 
-  if (!show || progress === 0) return null;
+  if (!show || !timeReached) return null;
 
   return (
     <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -38,7 +62,7 @@ const ResumeOverlay = ({ mediaId, mediaType, isVisible }: ResumeOverlayProps) =>
         <Clock className="w-5 h-5 text-primary shrink-0" />
         <div className="text-sm">
           <p className="text-foreground font-medium">
-            You were at <span className="text-primary font-bold">{Math.round(progress * 100)}%</span>
+            You stopped at <span className="text-primary font-bold">{timeReached}</span>
           </p>
           <p className="text-muted-foreground text-xs">Use the player's seek bar to jump ahead</p>
         </div>
