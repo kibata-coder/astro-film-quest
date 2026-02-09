@@ -78,7 +78,7 @@ const getVidsrcMovieUrl = (tmdbId: number): string => {
 
 const getVidsrcTVShowUrl = (tmdbId: number, season?: number, episode?: number): string => {
   if (season !== undefined && episode !== undefined) {
-    return `${VIDSRC_BASE_URL}/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}&autoplay=1&autonext=0`;
+    return `${VIDSRC_BASE_URL}/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}&autoplay=1`;
   }
   return `${VIDSRC_BASE_URL}/embed/tv?tmdb=${tmdbId}`;
 };
@@ -109,9 +109,9 @@ export const getMovieEmbedUrl = (tmdbId: number, server: ServerType = 'vidsrc'):
 };
 
 export const getTVShowEmbedUrl = (
-  tmdbId: number, 
-  season?: number, 
-  episode?: number, 
+  tmdbId: number,
+  season?: number,
+  episode?: number,
   server: ServerType = 'vidsrc'
 ): string => {
   switch (server) {
