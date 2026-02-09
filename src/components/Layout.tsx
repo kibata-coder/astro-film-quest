@@ -23,12 +23,12 @@ const Layout = memo(({ children, onSearch, searchQuery, showFooter = true }: Lay
     isMovieModalOpen,
     openMovieModal,
     openTVModal,
-    // closeMovieModal, // No longer needed here
+    closeMovieModal,
+    forceCloseMovieModal,
     selectedShow,
     isTVModalOpen,
-    // closeTVModal, // No longer needed here
-    closeTVModal, // Needed for SelectShow
-    closeMovieModal // Needed for SelectMovie
+    closeTVModal,
+    forceCloseTVModal,
   } = useMedia();
   const {
     videoState,
@@ -43,9 +43,7 @@ const Layout = memo(({ children, onSearch, searchQuery, showFooter = true }: Lay
 
   const handlePlayMovie = async () => {
     if (selectedMovie) {
-      // Do NOT close modal explicitly. 
-      // This keeps it in history so "Back" from player returns to details.
-      // closeMovieModal(); 
+      forceCloseMovieModal();
       await playMovie(selectedMovie);
     }
   };
@@ -59,8 +57,7 @@ const Layout = memo(({ children, onSearch, searchQuery, showFooter = true }: Lay
     posterPath: string | null
   ) => {
     if (selectedShow) {
-      // Do NOT close modal explicitly.
-      // closeTVModal();
+      forceCloseTVModal();
       await playEpisode(selectedShow, seasonNumber, episodeNumber, episodeName);
     }
   };
@@ -73,14 +70,12 @@ const Layout = memo(({ children, onSearch, searchQuery, showFooter = true }: Lay
       
       {showFooter && <Footer />}
 
-      {/* Global Auth Modal */}
       <AuthModal isOpen={isAuthModalOpen} onClose={closeAuthModal} />
 
-      {/* Global Modals */}
       <Suspense fallback={null}>
         <MovieModal
           movie={selectedMovie}
-          isOpen={isMovieModalOpen}
+          isOpen={isMovieModalOpen && !videoState.isOpen}
           onClose={closeMovieModal}
           onPlay={handlePlayMovie}
           onSelectMovie={openMovieModal}
@@ -88,7 +83,7 @@ const Layout = memo(({ children, onSearch, searchQuery, showFooter = true }: Lay
 
         <TVShowModal
           show={selectedShow}
-          isOpen={isTVModalOpen}
+          isOpen={isTVModalOpen && !videoState.isOpen}
           onClose={closeTVModal}
           onPlay={handlePlayTVShow}
           onSelectShow={openTVModal}
