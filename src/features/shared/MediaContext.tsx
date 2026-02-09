@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useState, useCallback, ReactNode, useEffect, useRef } from 'react';
 import type { Movie, TVShow } from '@/lib/tmdb';
 
 interface MediaContextType {
@@ -7,12 +7,14 @@ interface MediaContextType {
   isMovieModalOpen: boolean;
   openMovieModal: (movie: Movie) => void;
   closeMovieModal: () => void;
+  forceCloseMovieModal: () => void;
   
   // TV modal
   selectedShow: TVShow | null;
   isTVModalOpen: boolean;
   openTVModal: (show: TVShow) => void;
   closeTVModal: () => void;
+  forceCloseTVModal: () => void;
   
   // Close all modals
   closeAllModals: () => void;
@@ -26,35 +28,51 @@ export function MediaProvider({ children }: { children: ReactNode }) {
   const [selectedShow, setSelectedShow] = useState<TVShow | null>(null);
   const [isTVModalOpen, setIsTVModalOpen] = useState(false);
 
-  // Handle Browser Back Button
+  // Refs to avoid stale closures in popstate handler
+  const isMovieOpenRef = useRef(false);
+  const isTVOpenRef = useRef(false);
+
+  useEffect(() => { isMovieOpenRef.current = isMovieModalOpen; }, [isMovieModalOpen]);
+  useEffect(() => { isTVOpenRef.current = isTVModalOpen; }, [isTVModalOpen]);
+
+  // Single popstate handler registered once
   useEffect(() => {
-    const handlePopState = (event: PopStateEvent) => {
-      // If the state is not 'modal', close any open modals
-      if (!event.state || !event.state.modal) {
-        if (isMovieModalOpen) setIsMovieModalOpen(false);
-        if (isTVModalOpen) setIsTVModalOpen(false);
+    const handler = () => {
+      if (isMovieOpenRef.current) {
+        setIsMovieModalOpen(false);
+        setTimeout(() => setSelectedMovie(null), 300);
+      }
+      if (isTVOpenRef.current) {
+        setIsTVModalOpen(false);
+        setTimeout(() => setSelectedShow(null), 300);
       }
     };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, [isMovieModalOpen, isTVModalOpen]);
+    window.addEventListener('popstate', handler);
+    return () => window.removeEventListener('popstate', handler);
+  }, []);
 
   const openMovieModal = useCallback((movie: Movie) => {
     setSelectedMovie(movie);
     setIsMovieModalOpen(true);
-    // Push state so back button works
     window.history.pushState({ modal: 'movie' }, '', window.location.pathname);
   }, []);
 
   const closeMovieModal = useCallback(() => {
-    // If we are currently in a modal state, go back
     if (window.history.state?.modal === 'movie') {
       window.history.back();
     } else {
-      // Fallback for direct closure
       setIsMovieModalOpen(false);
       setTimeout(() => setSelectedMovie(null), 300);
+    }
+  }, []);
+
+  // Force close without history.back race conditions (for play transitions)
+  const forceCloseMovieModal = useCallback(() => {
+    setIsMovieModalOpen(false);
+    setTimeout(() => setSelectedMovie(null), 300);
+    // Pop the modal's history entry silently
+    if (window.history.state?.modal === 'movie') {
+      window.history.back();
     }
   }, []);
 
@@ -73,8 +91,16 @@ export function MediaProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Force close without history.back race conditions (for play transitions)
+  const forceCloseTVModal = useCallback(() => {
+    setIsTVModalOpen(false);
+    setTimeout(() => setSelectedShow(null), 300);
+    if (window.history.state?.modal === 'tv') {
+      window.history.back();
+    }
+  }, []);
+
   const closeAllModals = useCallback(() => {
-    // Just reset state visually, do not mess with history here as it might be complex
     setIsMovieModalOpen(false);
     setIsTVModalOpen(false);
   }, []);
@@ -85,10 +111,12 @@ export function MediaProvider({ children }: { children: ReactNode }) {
       isMovieModalOpen,
       openMovieModal,
       closeMovieModal,
+      forceCloseMovieModal,
       selectedShow,
       isTVModalOpen,
       openTVModal,
       closeTVModal,
+      forceCloseTVModal,
       closeAllModals,
     }}>
       {children}

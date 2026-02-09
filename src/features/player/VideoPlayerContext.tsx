@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useState, useCallback, ReactNode, useEffect, useRef } from 'react';
 import { getTVShowSeasonDetails } from '@/lib/tmdb';
 import { addToHistory } from '@/lib/watchHistory';
 import type { Movie, TVShow } from '@/lib/tmdb';
@@ -34,25 +34,25 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
   const [videoState, setVideoState] = useState<VideoState>(initialVideoState);
   const [episodeContext, setEpisodeContext] = useState<TVEpisodeContext | null>(null);
 
+  // Ref to avoid stale closure in popstate handler
+  const isOpenRef = useRef(false);
+  useEffect(() => { isOpenRef.current = videoState.isOpen; }, [videoState.isOpen]);
+
   const notifyHistoryUpdate = () => {
     window.dispatchEvent(new CustomEvent('watch-history-updated'));
   };
 
-  // Handle Browser Back Button for Player
+  // Single popstate handler registered once
   useEffect(() => {
-    const handlePopState = (event: PopStateEvent) => {
-      // If the state is not 'player', close the player
-      if (!event.state || !event.state.player) {
-        if (videoState.isOpen) {
-           setVideoState(prev => ({ ...prev, isOpen: false }));
-           setEpisodeContext(null);
-        }
+    const handler = () => {
+      if (isOpenRef.current) {
+        setVideoState(prev => ({ ...prev, isOpen: false }));
+        setEpisodeContext(null);
       }
     };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, [videoState.isOpen]);
+    window.addEventListener('popstate', handler);
+    return () => window.removeEventListener('popstate', handler);
+  }, []);
 
   const playMovie = useCallback(async (movie: Movie) => {
     await addToHistory({
@@ -63,7 +63,6 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
     });
     notifyHistoryUpdate();
 
-    // Push player state
     window.history.pushState({ player: true }, '', window.location.pathname);
 
     setVideoState(prev => ({
@@ -106,7 +105,6 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
       setEpisodeContext(null);
     }
 
-    // Push player state
     window.history.pushState({ player: true }, '', window.location.pathname);
 
     setVideoState(prev => ({
@@ -180,7 +178,6 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
   }, [episodeContext, videoState.episodeNumber]);
 
   const closePlayer = useCallback(() => {
-    // Use history back to close if appropriate
     if (window.history.state?.player) {
       window.history.back();
     } else {
