@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { getMovieEmbedUrl, getTVShowEmbedUrl, SERVER_OPTIONS, type ServerType } from '@/lib/vidsrc';
 import { saveWatchProgress } from '@/lib/watchHistory';
 import { getMovieDetails, getTVShowDetails } from '@/lib/tmdb';
+import ResumeOverlay from './ResumeOverlay';
 
 interface VideoPlayerProps {
   isOpen: boolean;
@@ -223,6 +224,9 @@ const VideoPlayer = ({
               </div>
             </>
           )}
+
+          {/* Resume Info Overlay */}
+          <ResumeOverlay mediaId={mediaId} mediaType={mediaType} isVisible={!isConnecting} />
         </>
       )}
     </div>
