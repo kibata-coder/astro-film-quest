@@ -23,10 +23,12 @@ const Layout = memo(({ children, onSearch, searchQuery, showFooter = true }: Lay
     isMovieModalOpen,
     openMovieModal,
     openTVModal,
-    closeMovieModal,
+    // closeMovieModal, // No longer needed here
     selectedShow,
     isTVModalOpen,
-    closeTVModal,
+    // closeTVModal, // No longer needed here
+    closeTVModal, // Needed for SelectShow
+    closeMovieModal // Needed for SelectMovie
   } = useMedia();
   const {
     videoState,
@@ -41,7 +43,9 @@ const Layout = memo(({ children, onSearch, searchQuery, showFooter = true }: Lay
 
   const handlePlayMovie = async () => {
     if (selectedMovie) {
-      closeMovieModal();
+      // Do NOT close modal explicitly. 
+      // This keeps it in history so "Back" from player returns to details.
+      // closeMovieModal(); 
       await playMovie(selectedMovie);
     }
   };
@@ -55,7 +59,8 @@ const Layout = memo(({ children, onSearch, searchQuery, showFooter = true }: Lay
     posterPath: string | null
   ) => {
     if (selectedShow) {
-      closeTVModal();
+      // Do NOT close modal explicitly.
+      // closeTVModal();
       await playEpisode(selectedShow, seasonNumber, episodeNumber, episodeName);
     }
   };
