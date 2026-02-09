@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
 import { getTVShowSeasonDetails } from '@/lib/tmdb';
 import { addToHistory } from '@/lib/watchHistory';
 import type { Movie, TVShow } from '@/lib/tmdb';
@@ -38,6 +38,22 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
     window.dispatchEvent(new CustomEvent('watch-history-updated'));
   };
 
+  // Handle Browser Back Button for Player
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      // If the state is not 'player', close the player
+      if (!event.state || !event.state.player) {
+        if (videoState.isOpen) {
+           setVideoState(prev => ({ ...prev, isOpen: false }));
+           setEpisodeContext(null);
+        }
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [videoState.isOpen]);
+
   const playMovie = useCallback(async (movie: Movie) => {
     await addToHistory({
       id: movie.id,
@@ -46,6 +62,9 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
       poster_path: movie.poster_path || '',
     });
     notifyHistoryUpdate();
+
+    // Push player state
+    window.history.pushState({ player: true }, '', window.location.pathname);
 
     setVideoState(prev => ({
       ...prev,
@@ -86,6 +105,9 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
       console.error('Failed to fetch season details:', error);
       setEpisodeContext(null);
     }
+
+    // Push player state
+    window.history.pushState({ player: true }, '', window.location.pathname);
 
     setVideoState(prev => ({
       ...prev,
@@ -158,8 +180,13 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
   }, [episodeContext, videoState.episodeNumber]);
 
   const closePlayer = useCallback(() => {
-    setVideoState(prev => ({ ...prev, isOpen: false }));
-    setEpisodeContext(null);
+    // Use history back to close if appropriate
+    if (window.history.state?.player) {
+      window.history.back();
+    } else {
+      setVideoState(prev => ({ ...prev, isOpen: false }));
+      setEpisodeContext(null);
+    }
   }, []);
 
   const changeServer = useCallback((server: ServerType) => {
