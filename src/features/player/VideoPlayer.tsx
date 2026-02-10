@@ -135,11 +135,10 @@ const VideoPlayer = ({
         <>
           <iframe
             src={embedUrl}
-            className="w-full h-full border-0 absolute inset-0 z-0"
+            className="w-full h-full border-0"
             allowFullScreen
             allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope"
-            referrerPolicy="origin"
-            style={{ width: '100%', height: '100%' }}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 1 }}
           />
 
           {/* TOP LEFT: Title Info */}
