@@ -124,7 +124,7 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
 
           {/* Search */}
           {onSearch && showSearch ? (
-            <div className="absolute top-0 left-0 w-full h-[72px] bg-background flex items-center px-4 z-50 md:static md:w-auto md:h-auto md:bg-transparent md:p-0">
+            <div className="fixed top-0 left-0 w-full h-[72px] bg-background flex items-center px-4 z-[60] md:static md:w-auto md:h-auto md:bg-transparent md:p-0 md:z-auto">
               <Input
                 type="text"
                 placeholder="Search..."
@@ -172,16 +172,14 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
                <LogOut className="w-5 h-5" />
              </Button>
           ) : (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={openAuthModal}
-              className="text-foreground hover:text-primary transition-colors"
-              title="Sign In"
-            >
-              <User className="w-5 h-5" />
-            </Button>
-          )}
+             <Button 
+               variant="ghost" 
+               onClick={openAuthModal}
+               className="text-foreground hover:text-primary transition-colors text-sm font-medium"
+             >
+               Sign In
+             </Button>
+           )}
 
           {/* MOBILE MENU */}
           <Sheet>
