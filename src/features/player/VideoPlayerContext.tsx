@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useCallback, ReactNode, useEffect,
 import { getTVShowSeasonDetails } from '@/lib/tmdb';
 import { addToHistory } from '@/lib/watchHistory';
 import type { Movie, TVShow } from '@/lib/tmdb';
-import type { VideoState, TVEpisodeContext, ServerType } from '@/types/media';
+import type { VideoState, TVEpisodeContext } from '@/types/media';
 
 interface VideoPlayerContextType {
   videoState: VideoState;
@@ -17,7 +17,6 @@ interface VideoPlayerContextType {
   nextEpisode: () => Promise<void>;
   previousEpisode: () => Promise<void>;
   closePlayer: () => void;
-  changeServer: (server: ServerType) => void;
 }
 
 const initialVideoState: VideoState = {
@@ -25,7 +24,6 @@ const initialVideoState: VideoState = {
   title: '',
   mediaId: 0,
   mediaType: 'movie',
-  server: 'vidsrc',
 };
 
 const VideoPlayerContext = createContext<VideoPlayerContextType | undefined>(undefined);
@@ -34,7 +32,6 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
   const [videoState, setVideoState] = useState<VideoState>(initialVideoState);
   const [episodeContext, setEpisodeContext] = useState<TVEpisodeContext | null>(null);
 
-  // Ref to avoid stale closure in popstate handler
   const isOpenRef = useRef(false);
   useEffect(() => { isOpenRef.current = videoState.isOpen; }, [videoState.isOpen]);
 
@@ -42,7 +39,6 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
     window.dispatchEvent(new CustomEvent('watch-history-updated'));
   };
 
-  // Single popstate handler registered once
   useEffect(() => {
     const handler = () => {
       if (isOpenRef.current) {
@@ -62,9 +58,7 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
       poster_path: movie.poster_path || '',
     });
     notifyHistoryUpdate();
-
     window.history.pushState({ player: true }, '', window.location.pathname);
-
     setVideoState(prev => ({
       ...prev,
       isOpen: true,
@@ -106,7 +100,6 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
     }
 
     window.history.pushState({ player: true }, '', window.location.pathname);
-
     setVideoState(prev => ({
       ...prev,
       isOpen: true,
@@ -121,15 +114,11 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
 
   const nextEpisode = useCallback(async () => {
     if (!episodeContext || !videoState.episodeNumber) return;
-
     const currentEpIndex = episodeContext.episodes.findIndex(
       ep => ep.episode_number === videoState.episodeNumber
     );
-
     if (currentEpIndex === -1 || currentEpIndex >= episodeContext.episodes.length - 1) return;
-
     const nextEp = episodeContext.episodes[currentEpIndex + 1];
-
     await addToHistory({
       id: episodeContext.showId,
       media_type: 'tv',
@@ -139,7 +128,6 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
       episode_number: nextEp.episode_number,
     });
     notifyHistoryUpdate();
-
     setVideoState(prev => ({
       ...prev,
       title: `${episodeContext.showName} - ${nextEp.name}`,
@@ -150,15 +138,11 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
 
   const previousEpisode = useCallback(async () => {
     if (!episodeContext || !videoState.episodeNumber) return;
-
     const currentEpIndex = episodeContext.episodes.findIndex(
       ep => ep.episode_number === videoState.episodeNumber
     );
-
     if (currentEpIndex <= 0) return;
-
     const prevEp = episodeContext.episodes[currentEpIndex - 1];
-
     await addToHistory({
       id: episodeContext.showId,
       media_type: 'tv',
@@ -168,7 +152,6 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
       episode_number: prevEp.episode_number,
     });
     notifyHistoryUpdate();
-
     setVideoState(prev => ({
       ...prev,
       title: `${episodeContext.showName} - ${prevEp.name}`,
@@ -186,10 +169,6 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const changeServer = useCallback((server: ServerType) => {
-    setVideoState(prev => ({ ...prev, server }));
-  }, []);
-
   return (
     <VideoPlayerContext.Provider value={{
       videoState,
@@ -199,7 +178,6 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
       nextEpisode,
       previousEpisode,
       closePlayer,
-      changeServer,
     }}>
       {children}
     </VideoPlayerContext.Provider>

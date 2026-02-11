@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, ChevronLeft, ChevronRight, MonitorPlay } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { getMovieEmbedUrl, getTVShowEmbedUrl, SERVER_OPTIONS, type ServerType } from '@/lib/vidsrc';
+import { getMovieEmbedUrl, getTVShowEmbedUrl } from '@/lib/vidsrc';
 import { saveWatchProgress } from '@/lib/watchHistory';
 import { getMovieDetails, getTVShowDetails } from '@/lib/tmdb';
 import ResumeOverlay from './ResumeOverlay';
@@ -16,25 +16,22 @@ interface VideoPlayerProps {
   episodeNumber?: number;
   totalEpisodes?: number;
   episodeName?: string;
-  server: ServerType;
   onNextEpisode?: () => void;
   onPreviousEpisode?: () => void;
-  onChangeServer?: (server: ServerType) => void;
 }
 
 const VideoPlayer = ({
   isOpen, onClose, title, mediaId, mediaType, seasonNumber, episodeNumber,
-  totalEpisodes, episodeName, server, onNextEpisode, onPreviousEpisode, onChangeServer
+  totalEpisodes, episodeName, onNextEpisode, onPreviousEpisode
 }: VideoPlayerProps) => {
   const [isConnecting, setIsConnecting] = useState(true);
   const [showControls, setShowControls] = useState(true);
-  const [showServerMenu, setShowServerMenu] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const hideControlsTimer = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
   const durationRef = useRef<number>(0);
-  // Lock scroll when open
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -78,8 +75,8 @@ const VideoPlayer = ({
   };
 
   const embedUrl = mediaType === 'tv' && seasonNumber && episodeNumber
-    ? getTVShowEmbedUrl(mediaId, seasonNumber, episodeNumber, server)
-    : getMovieEmbedUrl(mediaId, server);
+    ? getTVShowEmbedUrl(mediaId, seasonNumber, episodeNumber)
+    : getMovieEmbedUrl(mediaId);
 
   const isFirstEpisode = episodeNumber === 1;
   const isLastEpisode = episodeNumber === totalEpisodes;
@@ -91,11 +88,10 @@ const VideoPlayer = ({
   useEffect(() => {
     if (isOpen) {
       setIsConnecting(true);
-      setShowServerMenu(false);
       const timer = setTimeout(() => setIsConnecting(false), 1500);
       return () => clearTimeout(timer);
     }
-  }, [isOpen, mediaId, seasonNumber, episodeNumber, server]);
+  }, [isOpen, mediaId, seasonNumber, episodeNumber]);
 
   useEffect(() => {
     if (!isOpen || isConnecting) return;
@@ -153,38 +149,8 @@ const VideoPlayer = ({
             </div>
           </div>
 
-          {/* TOP RIGHT: Server Selector & Close Button */}
-          <div className={`absolute top-4 right-4 z-50 flex items-center gap-2 transition-all duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-            {/* Server Selector */}
-            <div className="relative">
-              <Button
-                onClick={() => setShowServerMenu(!showServerMenu)}
-                className="rounded-full px-3 h-10 bg-black/40 hover:bg-black/60 text-white border border-white/10 backdrop-blur-sm transition-colors pointer-events-auto flex items-center gap-2"
-              >
-                <MonitorPlay className="w-4 h-4" />
-                <span className="text-sm">{SERVER_OPTIONS.find(s => s.value === server)?.label}</span>
-              </Button>
-
-              {showServerMenu && (
-                <div className="absolute top-12 right-0 bg-black/90 backdrop-blur-md rounded-lg border border-white/10 overflow-hidden pointer-events-auto">
-                  {SERVER_OPTIONS.map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => {
-                        onChangeServer?.(option.value);
-                        setShowServerMenu(false);
-                      }}
-                      className={`w-full px-4 py-2 text-left text-sm hover:bg-white/10 transition-colors ${server === option.value ? 'text-primary bg-white/5' : 'text-white'
-                        }`}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Close Button */}
+          {/* TOP RIGHT: Close Button */}
+          <div className={`absolute top-4 right-4 z-50 transition-all duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
             <Button
               onClick={handleClose}
               className="rounded-full w-10 h-10 p-0 bg-black/40 hover:bg-red-500/80 text-white border border-white/10 backdrop-blur-sm transition-colors pointer-events-auto"
@@ -196,7 +162,6 @@ const VideoPlayer = ({
           {/* CENTER SIDES: Navigation */}
           {isTVShow && totalEpisodes && (
             <>
-              {/* Previous Button */}
               <div className={`absolute top-1/2 left-4 -translate-y-1/2 z-40 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                 <Button
                   variant="ghost"
@@ -208,8 +173,6 @@ const VideoPlayer = ({
                   <ChevronLeft className="w-8 h-8" />
                 </Button>
               </div>
-
-              {/* Next Button */}
               <div className={`absolute top-1/2 right-4 -translate-y-1/2 z-40 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                 <Button
                   variant="ghost"
@@ -224,7 +187,6 @@ const VideoPlayer = ({
             </>
           )}
 
-          {/* Resume Info Overlay */}
           <ResumeOverlay mediaId={mediaId} mediaType={mediaType} isVisible={!isConnecting} />
         </>
       )}
