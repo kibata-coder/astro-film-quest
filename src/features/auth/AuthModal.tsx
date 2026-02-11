@@ -47,9 +47,10 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
         });
         if (error) throw error;
         toast({
-          title: "Account created!",
-          description: "Please check your email to verify your account.",
+          title: "Welcome!",
+          description: "Your account has been created.",
         });
+        onClose();
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
