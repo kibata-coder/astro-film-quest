@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { 
-  Search, Menu, LogOut, X, User, ChevronDown, Sparkles,
+  Search, Menu, LogOut, X, UserCircle, ChevronDown, Sparkles,
   Sword, Compass, Laugh, Theater, Ghost, Rocket, Heart, 
   Eye, Siren, Briefcase, ShieldAlert
 } from 'lucide-react';
@@ -162,15 +162,25 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
           
           {/* Auth Buttons */}
           {user ? (
-             <Button 
-               variant="ghost" 
-               size="icon" 
-               onClick={signOut}
-               className="text-foreground hover:text-primary transition-colors hidden md:flex"
-               title="Sign Out"
-             >
-               <LogOut className="w-5 h-5" />
-             </Button>
+            <div className="hidden md:flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-primary transition-colors"
+                title={user.email || 'Account'}
+              >
+                <UserCircle className="w-6 h-6" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={signOut}
+                className="text-foreground hover:text-primary transition-colors"
+                title="Sign Out"
+              >
+                <LogOut className="w-5 h-5" />
+              </Button>
+            </div>
           ) : (
              <Button 
                variant="ghost" 
