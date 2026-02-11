@@ -38,7 +38,6 @@ const Layout = memo(({ children, onSearch, searchQuery, showFooter = true }: Lay
     nextEpisode,
     previousEpisode,
     closePlayer,
-    changeServer,
   } = useVideoPlayer();
 
   const handlePlayMovie = async () => {
@@ -98,11 +97,9 @@ const Layout = memo(({ children, onSearch, searchQuery, showFooter = true }: Lay
           seasonNumber={videoState.seasonNumber}
           episodeNumber={videoState.episodeNumber}
           episodeName={videoState.episodeName}
-          server={videoState.server}
           totalEpisodes={episodeContext?.episodes.length}
           onNextEpisode={nextEpisode}
           onPreviousEpisode={previousEpisode}
-          onChangeServer={changeServer}
         />
       </Suspense>
     </div>
