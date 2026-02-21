@@ -1,56 +1,62 @@
 
 
-## Remove Server 2 (SuperEmbed) and Simplify to Vidsrc Only
+## UI/UX Improvements Plan
 
-### What's Changing
-Remove all Server 2 (SuperEmbed/MultiEmbed) code and the server selector UI. The app will only use Vidsrc for playback. The iframe will be kept as clean as possible -- no `sandbox`, no `referrerPolicy` -- so the Vidsrc player's built-in fullscreen and subtitles work natively without interference.
+### Issues Identified
 
-### Files to Modify
+1. **Movie Modal on Mobile -- broken layout**: The trailer iframe overlaps the title/buttons area. The YouTube "sign in to confirm you're not a bot" banner obscures content. The title and Play/My List buttons sit awkwardly over the video.
 
-**1. `src/lib/vidsrc.ts`**
-- Remove `SUPEREMBED_BASE_URL`, `getSuperembedMovieUrl`, `getSuperembedTVShowUrl`
-- Remove `ServerType` type (no longer needed)
-- Remove `SERVER_OPTIONS` array
-- Simplify `getMovieEmbedUrl` and `getTVShowEmbedUrl` to only return Vidsrc URLs (no server parameter)
-- Keep the Latest API functions and Vidsrc URL builders unchanged
+2. **Movie Modal on Mobile -- no proper slide-up behavior**: Uses a Sheet on mobile but the content layout inside needs refinement -- the title area overlaps the video embed.
 
-**2. `src/types/media.ts`**
-- Remove `ServerType` export
-- Remove `server` field from `VideoState` interface
+3. **TV Show Modal -- no mobile-friendly Sheet**: Unlike the Movie Modal, the TV Show modal uses Dialog on all screen sizes, which doesn't feel native on mobile.
 
-**3. `src/features/player/VideoPlayer.tsx`**
-- Remove `server`, `onChangeServer` props
-- Remove the entire server selector UI (the MonitorPlay button and dropdown menu)
-- Remove `MonitorPlay` import
-- Remove `showServerMenu` state
-- Simplify `embedUrl` to call the functions without a server parameter
-- Remove `server` from the useEffect dependency that triggers reconnect
-- Keep the iframe clean: `allowFullScreen`, broad `allow` permissions, NO `sandbox`, NO `referrerPolicy`
+4. **Hero Banner on mobile**: The left navigation arrow overlaps the title text. The dots indicator sits too close to the content. The description text can be hard to read.
 
-**4. `src/features/player/VideoPlayerContext.tsx`**
-- Remove `changeServer` method and its export
-- Remove `server` from `VideoState` initial state
-- Remove `ServerType` import
+5. **Header on mobile**: The "SoudFlex" logo, search icon, "Sign In" text, and hamburger menu are all crammed together with minimal spacing.
 
-**5. `src/components/Layout.tsx`**
-- Remove `changeServer` from `useVideoPlayer()` destructuring
-- Remove `onChangeServer` prop from `<VideoPlayer>`
-- Remove `server` prop from `<VideoPlayer>` (it won't need it)
+6. **App.css has conflicting styles**: Contains `#root { max-width: 1280px; margin: 0 auto; padding: 2rem; text-align: center; }` which constrains the entire app to 1280px centered with padding -- this conflicts with the full-width streaming layout.
 
-### Iframe Configuration (the key to fullscreen working)
-The iframe will be rendered as:
-```html
-<iframe
-  src={embedUrl}
-  className="w-full h-full border-0"
-  allowFullScreen
-  allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope"
-  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 1 }}
-/>
-```
-No `sandbox` attribute, no `referrerPolicy` -- these are the attributes that break fullscreen and subtitle rendering in embedded players.
+7. **Media cards section spacing**: Cards could use better gap and padding consistency.
 
-### What Stays the Same
-- All other player features: title overlay, close button, episode navigation (prev/next), resume overlay, watch history tracking, connecting spinner
-- The Vidsrc Latest API for fetching available movies/TV shows
-- All modal, history management, and playback flow logic
+---
+
+### Changes
+
+#### 1. Remove conflicting `App.css` styles
+- Clear out the `#root` max-width, padding, and text-align rules from `src/App.css` that constrain the full-width layout.
+
+#### 2. Fix Movie Modal (mobile and desktop)
+- **Mobile**: Improve the Sheet layout so the backdrop image displays cleanly at the top, with the title and buttons below (not overlapping the iframe).
+- Remove auto-playing YouTube trailer iframe on mobile (it causes bot-check popups and poor UX). Show the backdrop image instead, keeping the trailer only on desktop.
+- Better spacing for the cast, genres, and overview sections.
+
+#### 3. Fix TV Show Modal for mobile
+- Add mobile-friendly Sheet (slide-up panel) like the Movie Modal, so it feels native on phones.
+
+#### 4. Fix Hero Banner on mobile
+- Hide the left/right navigation arrows on mobile (users can use the dots or swipe).
+- Adjust bottom padding so dots don't overlap content.
+- Improve text readability with slightly stronger gradient overlay.
+
+#### 5. Fix Header spacing on mobile
+- Tighten the gap between right-side items (search, sign in, menu) so they fit comfortably.
+- Ensure the logo doesn't get cut off.
+
+#### 6. General polish
+- Consistent section spacing throughout the page.
+- Better padding on the main content area.
+
+---
+
+### Technical Details
+
+**Files to modify:**
+
+| File | Changes |
+|------|---------|
+| `src/App.css` | Remove the `#root` max-width/padding/text-align rules |
+| `src/features/movies/MovieModal.tsx` | Hide YouTube trailer on mobile (show backdrop instead), fix title/button overlap, improve content spacing |
+| `src/features/tv/TVShowModal.tsx` | Add mobile Sheet variant (like MovieModal), fix layout |
+| `src/components/HeroBanner.tsx` | Hide nav arrows on mobile, adjust gradient strength, fix dot indicator positioning |
+| `src/components/Header.tsx` | Fix mobile spacing for right-side items |
+
