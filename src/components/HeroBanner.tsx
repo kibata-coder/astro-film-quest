@@ -61,12 +61,12 @@ const HeroBanner = memo(({ movies, onPlay, onInfo }: HeroBannerProps) => {
         }}
       />
 
-      {/* Simplified Gradient for performance */}
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-transparent" />
+      {/* Gradient overlays - stronger on mobile for readability */}
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 md:via-background/40 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-background/90 md:from-background/80 via-transparent to-transparent" />
 
       {/* Content */}
-      <div className="absolute bottom-0 left-0 right-0 p-8 md:p-16 pb-20 md:pb-32">
+      <div className="absolute bottom-0 left-0 right-0 p-6 md:p-16 pb-24 md:pb-32">
         <div className={cn(
           "max-w-2xl transition-all duration-500",
           isTransitioning ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"
@@ -121,13 +121,13 @@ const HeroBanner = memo(({ movies, onPlay, onInfo }: HeroBannerProps) => {
         <>
           <button
             onClick={handlePrev}
-            className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-background/50 hover:bg-background/80 transition-colors"
+            className="hidden md:block absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-background/50 hover:bg-background/80 transition-colors"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
           <button
             onClick={handleNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-background/50 hover:bg-background/80 transition-colors"
+            className="hidden md:block absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-background/50 hover:bg-background/80 transition-colors"
           >
             <ChevronRight className="w-6 h-6" />
           </button>
@@ -136,7 +136,7 @@ const HeroBanner = memo(({ movies, onPlay, onInfo }: HeroBannerProps) => {
 
       {/* Dots Indicator */}
       {featuredMovies.length > 1 && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+        <div className="absolute bottom-10 md:bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
           {featuredMovies.map((_, index) => (
             <button
               key={index}
