@@ -107,7 +107,7 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
           </nav>
         </div>
 
-        <div className="flex items-center gap-2 md:gap-4">
+        <div className="flex items-center gap-1 md:gap-4">
           
           {/* MOBILE ONLY ICON: Shortcut to Personalized Feed */}
           {user && (

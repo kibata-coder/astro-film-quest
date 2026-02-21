@@ -107,96 +107,96 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
         <X className="w-5 h-5" />
       </button>
 
-      <div className="relative aspect-video w-full">
-        {trailer ? (
-          <iframe
-            src={`https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=1&controls=0&showinfo=0&rel=0`}
-            className="w-full h-full"
-            allow="autoplay; encrypted-media"
-            allowFullScreen
-          />
-        ) : backdropUrl ? (
-          <img
-            src={backdropUrl}
-            alt={movie.title}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full bg-muted" />
-        )}
-        <div className="absolute inset-0 gradient-fade-bottom pointer-events-none" />
-        <div className="absolute bottom-0 left-0 right-0 p-6">
-          <h2 className="text-2xl md:text-4xl font-bold mb-4">{movie.title}</h2>
-          <div className="flex gap-3">
-            <Button
-              onClick={onPlay}
-              variant="secondary"
-              size="lg"
-              className="bg-foreground text-background hover:bg-foreground/90 font-semibold"
-            >
-              <Play className="w-5 h-5 mr-2 fill-current" />
-              Play
-            </Button>
-            <Button
-              variant="secondary"
-              size="lg"
-              className="bg-secondary/80 hover:bg-secondary"
-              onClick={handleBookmark}
-              disabled={isBookmarkLoading}
-            >
-              {isBookmarked ? (
-                <>
-                  <Check className="w-5 h-5 mr-2" />
-                  In List
-                </>
-              ) : (
-                <>
-                  <Plus className="w-5 h-5 mr-2" />
-                  My List
-                </>
-              )}
-            </Button>
+      {/* Hero media - show trailer on desktop, backdrop on mobile */}
+      <div className="relative w-full">
+        {!isMobile && trailer ? (
+          <div className="aspect-video w-full">
+            <iframe
+              src={`https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=1&controls=0&showinfo=0&rel=0`}
+              className="w-full h-full"
+              allow="autoplay; encrypted-media"
+              allowFullScreen
+            />
           </div>
+        ) : backdropUrl ? (
+          <div className="aspect-video w-full">
+            <img
+              src={backdropUrl}
+              alt={movie.title}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        ) : (
+          <div className="aspect-video w-full bg-muted" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+      </div>
+
+      {/* Title & actions below the image */}
+      <div className="px-5 md:px-6 -mt-16 relative z-10">
+        <h2 className="text-xl md:text-3xl font-bold mb-3">{movie.title}</h2>
+        <div className="flex gap-3 mb-5">
+          <Button
+            onClick={onPlay}
+            size={isMobile ? "default" : "lg"}
+            className="gap-2 bg-foreground text-background hover:bg-foreground/90 font-semibold"
+          >
+            <Play className="w-4 h-4 fill-current" />
+            Play
+          </Button>
+          <Button
+            variant="secondary"
+            size={isMobile ? "default" : "lg"}
+            onClick={handleBookmark}
+            disabled={isBookmarkLoading}
+            className="gap-2"
+          >
+            {isBookmarked ? (
+              <>
+                <Check className="w-4 h-4" />
+                In List
+              </>
+            ) : (
+              <>
+                <Plus className="w-4 h-4" />
+                My List
+              </>
+            )}
+          </Button>
         </div>
       </div>
 
-      <div className="p-6 space-y-8">
+      <div className="px-5 md:px-6 pb-8 space-y-6">
         {isLoading ? (
           <LoadingSpinner />
         ) : (
           <>
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="md:col-span-2 space-y-4">
-                <div className="flex items-center gap-4 text-sm">
+            <div className="grid md:grid-cols-3 gap-5">
+              <div className="md:col-span-2 space-y-3">
+                <div className="flex items-center gap-3 text-sm">
                   <span className="match-score font-semibold">{matchScore}% Match</span>
                   <span className="text-muted-foreground">{year}</span>
                   {runtime && <span className="text-muted-foreground">{runtime}</span>}
                 </div>
-                <p className="text-foreground/90 leading-relaxed">{movie.overview}</p>
+                <p className="text-foreground/90 text-sm leading-relaxed">{movie.overview}</p>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {cast.length > 0 && (
                   <div>
-                    <span className="text-muted-foreground text-sm">Cast: </span>
-                    <span className="text-sm">
-                      {cast.map((c) => c.name).join(', ')}
-                    </span>
+                    <span className="text-muted-foreground text-xs">Cast: </span>
+                    <span className="text-xs">{cast.map((c) => c.name).join(', ')}</span>
                   </div>
                 )}
                 {details?.genres && details.genres.length > 0 && (
                   <div>
-                    <span className="text-muted-foreground text-sm">Genres: </span>
-                    <span className="text-sm">
-                      {details.genres.map((g) => g.name).join(', ')}
-                    </span>
+                    <span className="text-muted-foreground text-xs">Genres: </span>
+                    <span className="text-xs">{details.genres.map((g) => g.name).join(', ')}</span>
                   </div>
                 )}
                 {providers && providers.length > 0 && (
                   <div>
-                    <span className="text-muted-foreground text-sm block mb-2">
-                      Where to Watch:
-                    </span>
+                    <span className="text-muted-foreground text-xs block mb-1">Where to Watch:</span>
                     <div className="flex gap-2 flex-wrap">
                       {providers.map((p) => (
                         <img
@@ -204,7 +204,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
                           src={getImageUrl(p.logo_path, 'w300') || ''}
                           alt={p.provider_name}
                           title={p.provider_name}
-                          className="w-10 h-10 rounded-md"
+                          className="w-8 h-8 rounded-md"
                         />
                       ))}
                     </div>
@@ -215,16 +215,16 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
 
             {recommendations.length > 0 && (
               <div className="pt-4 border-t border-border/50">
-                <h3 className="text-lg font-semibold mb-4">More Like This</h3>
+                <h3 className="text-base font-semibold mb-3">More Like This</h3>
                 <ScrollArea className="w-full whitespace-nowrap pb-4">
-                  <div className="flex space-x-4 pr-4">
+                  <div className="flex space-x-3 pr-4">
                     {recommendations.map((recMovie) => (
                       <button
                         key={recMovie.id}
                         onClick={() => onSelectMovie && onSelectMovie(recMovie)}
-                        className="w-[140px] md:w-[160px] flex-none group relative transition-transform hover:scale-105 focus:outline-none"
+                        className="w-[120px] md:w-[150px] flex-none group relative transition-transform hover:scale-105 focus:outline-none"
                       >
-                        <div className="aspect-[2/3] rounded-md overflow-hidden bg-muted mb-2 relative">
+                        <div className="aspect-[2/3] rounded-md overflow-hidden bg-muted mb-1.5 relative">
                           {recMovie.poster_path ? (
                             <img
                               src={getImageUrl(recMovie.poster_path, 'w300') || ''}
@@ -233,24 +233,15 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
                               loading="lazy"
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-zinc-800 text-zinc-500 text-xs p-2 text-center">
+                            <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-xs p-2 text-center">
                               {recMovie.title}
                             </div>
                           )}
-                          <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
                         <div className="whitespace-normal">
-                          <h4 className="text-sm font-medium leading-tight line-clamp-2 text-left">
+                          <h4 className="text-xs font-medium leading-tight line-clamp-2 text-left">
                             {recMovie.title}
                           </h4>
-                          <div className="flex items-center gap-2 mt-1">
-                             <span className="text-xs text-muted-foreground">
-                               {recMovie.release_date ? new Date(recMovie.release_date).getFullYear() : 'N/A'}
-                             </span>
-                             <span className="text-xs font-semibold text-green-500">
-                               {Math.round(recMovie.vote_average * 10)}%
-                             </span>
-                          </div>
                         </div>
                       </button>
                     ))}
@@ -268,8 +259,10 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
   if (isMobile) {
     return (
       <Sheet open={isOpen} onOpenChange={() => onClose()}>
-        <SheetContent side="bottom" className="h-[95vh] p-0 border-0 rounded-t-xl">
-          <Content />
+        <SheetContent side="bottom" className="h-[92vh] p-0 border-0 rounded-t-xl overflow-hidden">
+          <div className="h-full overflow-y-auto">
+            <Content />
+          </div>
         </SheetContent>
       </Sheet>
     );

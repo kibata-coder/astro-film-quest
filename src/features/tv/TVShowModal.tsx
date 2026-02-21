@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { X, Play, Star, Calendar, Tv, Plus, Check } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { getBackdropUrl, getImageUrl, getTVShowDetails, getTVShowSeasonDetails, getTVShowRecommendations } from '@/lib/tmdb';
 import type { TVShow, TVShowDetails, Episode } from '@/lib/tmdb';
 import { checkIsBookmarked, toggleBookmark } from '@/lib/bookmarks';
@@ -17,6 +19,7 @@ interface TVShowModalProps {
 }
 
 const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow }: TVShowModalProps) => {
+  const isMobile = useIsMobile();
   const [details, setDetails] = useState<TVShowDetails | null>(null);
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [selectedSeason, setSelectedSeason] = useState<number>(1);
@@ -27,8 +30,8 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow }: TVShowModa
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
 
   useEffect(() => {
-     const scrollContainer = document.querySelector('[data-radix-scroll-area-viewport]');
-     if (scrollContainer) scrollContainer.scrollTop = 0;
+    const scrollContainer = document.querySelector('[data-radix-scroll-area-viewport]');
+    if (scrollContainer) scrollContainer.scrollTop = 0;
   }, [show?.id]);
 
   useEffect(() => {
@@ -83,212 +86,213 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow }: TVShowModa
   const year = show.first_air_date ? new Date(show.first_air_date).getFullYear() : 'N/A';
   const seasons = details?.seasons?.filter(s => s.season_number > 0) || [];
 
+  const Content = () => (
+    <div className="relative bg-background h-full overflow-y-auto">
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 z-20 p-2 rounded-full bg-background/80 hover:bg-background transition-colors"
+      >
+        <X className="w-5 h-5" />
+      </button>
+
+      {/* Backdrop */}
+      <div className="relative w-full">
+        <div className="aspect-video w-full">
+          {backdropUrl ? (
+            <img
+              src={backdropUrl}
+              alt={show.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-muted" />
+          )}
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+      </div>
+
+      {/* Title & meta */}
+      <div className="px-5 md:px-6 -mt-16 relative z-10">
+        <div className="flex gap-4 items-start">
+          {!isMobile && posterUrl && (
+            <img
+              src={posterUrl}
+              alt={show.name}
+              className="w-24 rounded-lg shadow-lg flex-shrink-0 -mt-8"
+            />
+          )}
+          <div className="flex-1 min-w-0">
+            <h2 className="text-xl md:text-3xl font-bold mb-2">{show.name}</h2>
+            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mb-3">
+              <span className="flex items-center gap-1">
+                <Calendar className="w-3.5 h-3.5" />
+                {year}
+              </span>
+              {show.vote_average > 0 && (
+                <span className="flex items-center gap-1">
+                  <Star className="w-3.5 h-3.5 text-yellow-500" />
+                  {show.vote_average.toFixed(1)}
+                </span>
+              )}
+              {details?.number_of_seasons && (
+                <span className="flex items-center gap-1">
+                  <Tv className="w-3.5 h-3.5" />
+                  {details.number_of_seasons} Season{details.number_of_seasons > 1 ? 's' : ''}
+                </span>
+              )}
+            </div>
+          </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleBookmark}
+            disabled={isBookmarkLoading}
+            className="flex-shrink-0 gap-1"
+          >
+            {isBookmarked ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+            {isBookmarked ? 'In List' : 'My List'}
+          </Button>
+        </div>
+      </div>
+
+      <div className="px-5 md:px-6 pb-8 mt-4 space-y-5">
+        <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">
+          {show.overview || 'No description available.'}
+        </p>
+
+        {seasons.length > 0 && (
+          <Select
+            value={String(selectedSeason)}
+            onValueChange={(val) => setSelectedSeason(Number(val))}
+          >
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Select Season" />
+            </SelectTrigger>
+            <SelectContent>
+              {seasons.map((season) => (
+                <SelectItem key={season.season_number} value={String(season.season_number)}>
+                  Season {season.season_number} ({season.episode_count} eps)
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+
+        {/* Episodes */}
+        <div>
+          <h3 className="text-base font-semibold mb-3">Episodes</h3>
+          <div className="space-y-2 max-h-64 overflow-y-auto rounded-md border border-border/50 bg-muted/20 p-3">
+            {episodes.length === 0 ? (
+              <p className="text-muted-foreground text-sm">No episodes available.</p>
+            ) : (
+              episodes.map((episode) => (
+                <div
+                  key={episode.id}
+                  className="flex items-center gap-3 p-2.5 rounded-lg bg-background hover:bg-muted/80 transition-colors border border-border/50"
+                >
+                  <div className="flex-shrink-0 w-20 aspect-video rounded overflow-hidden bg-muted">
+                    {episode.still_path ? (
+                      <img
+                        src={getImageUrl(episode.still_path, 'w300') || ''}
+                        alt={episode.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
+                        No Image
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm">
+                      {episode.episode_number}. {episode.name}
+                    </p>
+                    {episode.overview && (
+                      <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
+                        {episode.overview}
+                      </p>
+                    )}
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="hover:bg-primary/20 hover:text-primary flex-shrink-0"
+                    onClick={() => onPlay(
+                      show.id,
+                      show.name,
+                      selectedSeason,
+                      episode.episode_number,
+                      episode.name,
+                      show.poster_path
+                    )}
+                  >
+                    <Play className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Recommendations */}
+        {recommendations.length > 0 && (
+          <div className="pt-4 border-t border-border/50">
+            <h3 className="text-base font-semibold mb-3">More Like This</h3>
+            <ScrollArea className="w-full whitespace-nowrap pb-4">
+              <div className="flex space-x-3 pr-4">
+                {recommendations.map((recShow) => (
+                  <button
+                    key={recShow.id}
+                    onClick={() => onSelectShow && onSelectShow(recShow)}
+                    className="w-[120px] md:w-[150px] flex-none group relative transition-transform hover:scale-105 focus:outline-none"
+                  >
+                    <div className="aspect-[2/3] rounded-md overflow-hidden bg-muted mb-1.5 relative">
+                      {recShow.poster_path ? (
+                        <img
+                          src={getImageUrl(recShow.poster_path, 'w300') || ''}
+                          alt={recShow.name}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-xs p-2 text-center">
+                          {recShow.name}
+                        </div>
+                      )}
+                    </div>
+                    <div className="whitespace-normal">
+                      <h4 className="text-xs font-medium leading-tight line-clamp-2 text-left">
+                        {recShow.name}
+                      </h4>
+                    </div>
+                  </button>
+                ))}
+              </div>
+              <ScrollBar orientation="horizontal" />
+            </ScrollArea>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  if (isMobile) {
+    return (
+      <Sheet open={isOpen} onOpenChange={() => onClose()}>
+        <SheetContent side="bottom" className="h-[92vh] p-0 border-0 rounded-t-xl overflow-hidden">
+          <div className="h-full overflow-y-auto">
+            <Content />
+          </div>
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl p-0 overflow-hidden bg-background border-border max-h-[90vh]">
         <ScrollArea className="h-[90vh]">
-          <div className="relative h-48 md:h-64">
-            {backdropUrl ? (
-              <img
-                src={backdropUrl}
-                alt={show.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full bg-muted" />
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
-            
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 p-2 rounded-full bg-background/50 hover:bg-background/80 transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          <div className="p-6 -mt-20 relative">
-            <div className="flex gap-6">
-              <div className="hidden md:block flex-shrink-0 w-32">
-                {posterUrl ? (
-                  <img
-                    src={posterUrl}
-                    alt={show.name}
-                    className="w-full rounded-lg shadow-lg"
-                  />
-                ) : (
-                  <div className="w-full aspect-[2/3] rounded-lg bg-muted" />
-                )}
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between">
-                  <h2 className="text-2xl font-bold mb-2">{show.name}</h2>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={handleBookmark}
-                    disabled={isBookmarkLoading}
-                    className="ml-2"
-                  >
-                    {isBookmarked ? (
-                      <Check className="w-4 h-4 mr-1" />
-                    ) : (
-                      <Plus className="w-4 h-4 mr-1" />
-                    )}
-                    {isBookmarked ? 'In List' : 'My List'}
-                  </Button>
-                </div>
-                
-                <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-4">
-                  <span className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
-                    {year}
-                  </span>
-                  {show.vote_average > 0 && (
-                    <span className="flex items-center gap-1">
-                      <Star className="w-4 h-4 text-yellow-500" />
-                      {show.vote_average.toFixed(1)}
-                    </span>
-                  )}
-                  {details?.number_of_seasons && (
-                    <span className="flex items-center gap-1">
-                      <Tv className="w-4 h-4" />
-                      {details.number_of_seasons} Season{details.number_of_seasons > 1 ? 's' : ''}
-                    </span>
-                  )}
-                </div>
-
-                <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                  {show.overview || 'No description available.'}
-                </p>
-
-                {seasons.length > 0 && (
-                  <div className="mb-4">
-                    <Select
-                      value={String(selectedSeason)}
-                      onValueChange={(val) => setSelectedSeason(Number(val))}
-                    >
-                      <SelectTrigger className="w-48">
-                        <SelectValue placeholder="Select Season" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {seasons.map((season) => (
-                          <SelectItem key={season.season_number} value={String(season.season_number)}>
-                            Season {season.season_number} ({season.episode_count} eps)
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="mt-6 mb-8">
-              <h3 className="text-lg font-semibold mb-3">Episodes</h3>
-              <ScrollArea className="h-64 rounded-md border border-border/50 bg-muted/20">
-                <div className="space-y-2 p-4">
-                  {episodes.length === 0 ? (
-                    <p className="text-muted-foreground text-sm">No episodes available.</p>
-                  ) : (
-                    episodes.map((episode) => (
-                      <div
-                        key={episode.id}
-                        className="flex items-center gap-4 p-3 rounded-lg bg-background hover:bg-muted/80 transition-colors border border-border/50"
-                      >
-                        <div className="flex-shrink-0 w-24 aspect-video rounded overflow-hidden bg-muted">
-                          {episode.still_path ? (
-                            <img
-                              src={getImageUrl(episode.still_path, 'w300') || ''}
-                              alt={episode.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
-                              No Image
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm">
-                            {episode.episode_number}. {episode.name}
-                          </p>
-                          {episode.overview && (
-                            <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
-                              {episode.overview}
-                            </p>
-                          )}
-                        </div>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="hover:bg-primary/20 hover:text-primary"
-                          onClick={() => onPlay(
-                            show.id,
-                            show.name,
-                            selectedSeason,
-                            episode.episode_number,
-                            episode.name,
-                            show.poster_path
-                          )}
-                        >
-                          <Play className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </ScrollArea>
-            </div>
-
-            {recommendations.length > 0 && (
-              <div className="pt-6 border-t border-border/50 pb-8">
-                <h3 className="text-lg font-semibold mb-4">More Like This</h3>
-                <ScrollArea className="w-full whitespace-nowrap pb-4">
-                  <div className="flex space-x-4 pr-4">
-                    {recommendations.map((recShow) => (
-                      <button
-                        key={recShow.id}
-                        onClick={() => onSelectShow && onSelectShow(recShow)}
-                        className="w-[140px] md:w-[160px] flex-none group relative transition-transform hover:scale-105 focus:outline-none"
-                      >
-                        <div className="aspect-[2/3] rounded-md overflow-hidden bg-muted mb-2 relative">
-                          {recShow.poster_path ? (
-                            <img
-                              src={getImageUrl(recShow.poster_path, 'w300') || ''}
-                              alt={recShow.name}
-                              className="w-full h-full object-cover"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-zinc-800 text-zinc-500 text-xs p-2 text-center">
-                              {recShow.name}
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </div>
-                        <div className="whitespace-normal">
-                          <h4 className="text-sm font-medium leading-tight line-clamp-2 text-left">
-                            {recShow.name}
-                          </h4>
-                          <div className="flex items-center gap-2 mt-1">
-                              <span className="text-xs text-muted-foreground">
-                                {recShow.first_air_date ? new Date(recShow.first_air_date).getFullYear() : 'N/A'}
-                              </span>
-                              <span className="text-xs font-semibold text-green-500">
-                                {Math.round(recShow.vote_average * 10)}%
-                              </span>
-                          </div>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                  <ScrollBar orientation="horizontal" />
-                </ScrollArea>
-              </div>
-            )}
-          </div>
+          <Content />
         </ScrollArea>
       </DialogContent>
     </Dialog>
