@@ -162,25 +162,27 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
           
           {/* Auth Buttons */}
           {user ? (
-            <div className="hidden md:flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-primary transition-colors"
-                title={user.email || 'Account'}
-              >
-                <UserCircle className="w-6 h-6" />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={signOut}
-                className="text-foreground hover:text-primary transition-colors"
-                title="Sign Out"
-              >
-                <LogOut className="w-5 h-5" />
-              </Button>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-primary transition-colors"
+                  title={user.email || 'Account'}
+                >
+                  <UserCircle className="w-6 h-6" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 bg-background/95 backdrop-blur-xl border-border">
+                <div className="px-3 py-2 text-xs text-muted-foreground truncate border-b border-border/50 mb-1">
+                  {user.email}
+                </div>
+                <DropdownMenuItem onClick={signOut} className="cursor-pointer text-destructive focus:text-destructive">
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
              <Button 
                variant="ghost" 

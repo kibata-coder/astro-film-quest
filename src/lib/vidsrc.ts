@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const VIDSRC_BASE_URL = 'https://vidsrc-embed.ru';
+const VIDSRC_BASE_URL = 'https://vsembed.ru';
 
 // Schema definitions for the "Latest" API
 const VidsrcItemSchema = z.object({
