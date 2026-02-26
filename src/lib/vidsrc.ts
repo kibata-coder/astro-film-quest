@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
-const VIDSRC_BASE_URL = 'https://vsembed.ru';
+const VIDSRC_EMBED_BASE_URL = 'https://vsembed.ru';
+const VIDSRC_LATEST_API_BASE_URL = 'https://vidsrc-embed.ru';
 
 // Schema definitions for the "Latest" API
 const VidsrcItemSchema = z.object({
@@ -26,6 +27,7 @@ const validateAndExtractItems = (data: unknown, mediaType: 'movie' | 'tv'): Vids
   try {
     const validated = VidsrcResponseSchema.parse(data);
     const items = Array.isArray(validated) ? validated : validated.result;
+
     return items.map((item): VidsrcItem => ({
       tmdb_id: item.tmdb_id,
       imdb_id: item.imdb_id,
@@ -42,7 +44,7 @@ const validateAndExtractItems = (data: unknown, mediaType: 'movie' | 'tv'): Vids
 
 export const getLatestMovies = async (page = 1): Promise<VidsrcItem[]> => {
   try {
-    const response = await fetch(`${VIDSRC_BASE_URL}/movies/latest/page-${page}.json`);
+    const response = await fetch(`${VIDSRC_LATEST_API_BASE_URL}/movies/latest/page-${page}.json`);
     if (!response.ok) throw new Error('Failed to fetch latest movies');
     const data = await response.json();
     return validateAndExtractItems(data, 'movie');
@@ -54,7 +56,7 @@ export const getLatestMovies = async (page = 1): Promise<VidsrcItem[]> => {
 
 export const getLatestTVShows = async (page = 1): Promise<VidsrcItem[]> => {
   try {
-    const response = await fetch(`${VIDSRC_BASE_URL}/tvshows/latest/page-${page}.json`);
+    const response = await fetch(`${VIDSRC_LATEST_API_BASE_URL}/tvshows/latest/page-${page}.json`);
     if (!response.ok) throw new Error('Failed to fetch latest TV shows');
     const data = await response.json();
     return validateAndExtractItems(data, 'tv');
@@ -64,15 +66,16 @@ export const getLatestTVShows = async (page = 1): Promise<VidsrcItem[]> => {
   }
 };
 
-// --- Embed URLs ---
+// --- Embed URLs (docs-aligned path format) ---
 
 export const getMovieEmbedUrl = (tmdbId: number): string => {
-  return `${VIDSRC_BASE_URL}/embed/movie?tmdb=${tmdbId}&autoplay=1`;
+  return `${VIDSRC_EMBED_BASE_URL}/embed/movie/${tmdbId}?autoplay=1`;
 };
 
 export const getTVShowEmbedUrl = (tmdbId: number, season?: number, episode?: number): string => {
   if (season !== undefined && episode !== undefined) {
-    return `${VIDSRC_BASE_URL}/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}&autoplay=1`;
+    return `${VIDSRC_EMBED_BASE_URL}/embed/tv/${tmdbId}/${season}-${episode}?autoplay=1&autonext=1`;
   }
-  return `${VIDSRC_BASE_URL}/embed/tv?tmdb=${tmdbId}`;
+
+  return `${VIDSRC_EMBED_BASE_URL}/embed/tv/${tmdbId}`;
 };
