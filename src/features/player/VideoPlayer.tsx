@@ -134,11 +134,11 @@ const VideoPlayer = ({
             className="w-full h-full border-0"
             allowFullScreen
             allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope"
-            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 1 }}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 10 }}
           />
 
           {/* TOP LEFT: Title Info */}
-          <div className={`absolute top-4 left-4 z-50 flex flex-col gap-3 transition-all duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+          <div className={`absolute top-4 left-4 z-[20] flex flex-col gap-3 transition-all duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
             <div className="bg-black/60 backdrop-blur-md px-4 py-2 rounded-lg border border-white/10 max-w-[80vw] text-left pointer-events-auto">
               <h2 className="text-white font-bold text-sm md:text-base truncate">{title}</h2>
               {isTVShow && (
@@ -150,7 +150,7 @@ const VideoPlayer = ({
           </div>
 
           {/* TOP RIGHT: Close Button */}
-          <div className={`absolute top-4 right-4 z-50 transition-all duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+          <div className={`absolute top-4 right-4 z-[20] transition-all duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
             <Button
               onClick={handleClose}
               className="rounded-full w-10 h-10 p-0 bg-black/40 hover:bg-red-500/80 text-white border border-white/10 backdrop-blur-sm transition-colors pointer-events-auto"
@@ -162,7 +162,7 @@ const VideoPlayer = ({
           {/* CENTER SIDES: Navigation */}
           {isTVShow && totalEpisodes && (
             <>
-              <div className={`absolute top-1/2 left-4 -translate-y-1/2 z-40 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+              <div className={`absolute top-1/2 left-4 -translate-y-1/2 z-[20] transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -173,7 +173,7 @@ const VideoPlayer = ({
                   <ChevronLeft className="w-8 h-8" />
                 </Button>
               </div>
-              <div className={`absolute top-1/2 right-4 -translate-y-1/2 z-40 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+              <div className={`absolute top-1/2 right-4 -translate-y-1/2 z-[20] transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                 <Button
                   variant="ghost"
                   size="icon"
