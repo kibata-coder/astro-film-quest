@@ -1,6 +1,17 @@
 import { useEffect, useState } from 'react';
 import { WatchHistoryItem, getWatchHistory, removeFromHistory, clearAllHistory } from '@/lib/watchHistory';
-import { X, Play, Trash2 } from 'lucide-react';
+import { X, Play } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { getImageUrl, Movie, TVShow } from '@/lib/tmdb';
