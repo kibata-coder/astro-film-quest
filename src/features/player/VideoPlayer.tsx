@@ -188,6 +188,7 @@ const VideoPlayer = ({
             className="h-full w-full border-0"
             allowFullScreen
             allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope"
+            referrerPolicy="no-referrer"
           />
         )}
       </div>

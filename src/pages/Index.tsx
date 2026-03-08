@@ -55,12 +55,12 @@ const Index = () => {
           <HeroBanner movies={trendingMovies} onPlay={playMovie} onInfo={openMovieModal} />
           <main className="px-5 md:px-16 pb-16 -mt-20 md:-mt-32 relative z-10">
             <div className="space-y-6 md:space-y-10">
-              <div className="flex items-center justify-between mb-4">
-                <ContinueWatchingSection />
-                {user && <div className="hidden md:block pt-8"><FeedCustomizer preferences={preferences} onToggle={toggleSection} /></div>}
-              </div>
-              
-              {user && <div className="md:hidden flex justify-end -mt-4 mb-4"><FeedCustomizer preferences={preferences} onToggle={toggleSection} /></div>}
+              {user && (
+                <div className="flex justify-end mb-2">
+                  <FeedCustomizer preferences={preferences} onToggle={toggleSection} />
+                </div>
+              )}
+              <ContinueWatchingSection />
 
               <SectionErrorBoundary sectionName="For You">
                 <ForYouSection onMovieClick={openMovieModal} />

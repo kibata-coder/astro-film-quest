@@ -30,7 +30,7 @@ const MediaCard = memo(({ item, onClick, showBadge = true, className }: MediaCar
     <div
       onClick={() => onClick(item)}
       className={cn(
-        "flex-shrink-0 w-40 md:w-48 cursor-pointer group",
+        "flex-shrink-0 w-[130px] sm:w-40 md:w-48 cursor-pointer group",
         className
       )}
     >

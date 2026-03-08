@@ -69,13 +69,13 @@ export const getLatestTVShows = async (page = 1): Promise<VidsrcItem[]> => {
 // --- Embed URLs (docs-aligned path format) ---
 
 export const getMovieEmbedUrl = (tmdbId: number): string => {
-  return `${VIDSRC_EMBED_BASE_URL}/embed/movie/${tmdbId}?autoplay=1`;
+  return `${VIDSRC_EMBED_BASE_URL}/embed/movie?tmdb=${tmdbId}&autoplay=1`;
 };
 
 export const getTVShowEmbedUrl = (tmdbId: number, season?: number, episode?: number): string => {
   if (season !== undefined && episode !== undefined) {
-    return `${VIDSRC_EMBED_BASE_URL}/embed/tv/${tmdbId}/${season}-${episode}?autoplay=1&autonext=1`;
+    return `${VIDSRC_EMBED_BASE_URL}/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}&autoplay=1`;
   }
 
-  return `${VIDSRC_EMBED_BASE_URL}/embed/tv/${tmdbId}`;
+  return `${VIDSRC_EMBED_BASE_URL}/embed/tv?tmdb=${tmdbId}`;
 };
