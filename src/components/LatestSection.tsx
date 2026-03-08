@@ -19,7 +19,7 @@ const fetchLatestMovies = async (): Promise<Movie[]> => {
   const minYear = getMinYear();
   
   const results = await Promise.allSettled(
-    vidsrcMovies.slice(0, 10).map(async (item) => {
+    vidsrcMovies.slice(0, 5).map(async (item) => {
       const tmdbId = parseInt(item.tmdb_id, 10);
       if (isNaN(tmdbId)) throw new Error('Invalid ID');
       const details = await getMovieDetails(tmdbId);
