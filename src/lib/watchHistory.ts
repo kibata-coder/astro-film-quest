@@ -40,7 +40,7 @@ export const getWatchHistory = async (): Promise<WatchHistoryItem[]> => {
       episode_number: item.episode_number || undefined,
       last_watched: new Date(item.updated_at).getTime(),
       progress: item.progress || 0,
-      duration: 0,
+      duration: (item as any).duration || 0,
       completed: (item.progress || 0) > 0.8
     }));
   }
@@ -66,8 +66,9 @@ export const saveWatchProgress = async (
       season_number: item.season_number,
       episode_number: item.episode_number,
       progress: progress,
+      duration: Math.round(totalDuration),
       updated_at: new Date().toISOString(),
-    }, { onConflict: 'user_id, media_id, media_type' });
+    } as any, { onConflict: 'user_id, media_id, media_type' });
   } else {
     const history = getLocalHistory();
     const filtered = history.filter((i) => i.id !== item.id || i.media_type !== item.media_type);
@@ -90,7 +91,6 @@ export const addToHistory = async (item: Omit<WatchHistoryItem, 'last_watched' |
   const { data: { user } } = await supabase.auth.getUser();
 
   if (user) {
-    // Check if entry already exists - if so, don't overwrite progress
     const { data: existing } = await supabase
       .from('watch_history')
       .select('progress')
@@ -99,7 +99,6 @@ export const addToHistory = async (item: Omit<WatchHistoryItem, 'last_watched' |
       .eq('media_type', item.media_type)
       .maybeSingle();
 
-    // Only insert/update if no existing entry or entry has no progress
     if (!existing || existing.progress === 0) {
       await supabase.from('watch_history').upsert({
         user_id: user.id,
@@ -110,10 +109,10 @@ export const addToHistory = async (item: Omit<WatchHistoryItem, 'last_watched' |
         season_number: item.season_number,
         episode_number: item.episode_number,
         progress: 0,
+        duration: 0,
         updated_at: new Date().toISOString(),
-      }, { onConflict: 'user_id, media_id, media_type' });
+      } as any, { onConflict: 'user_id, media_id, media_type' });
     } else {
-      // Just update the timestamp to bring it to top
       await supabase.from('watch_history')
         .update({ updated_at: new Date().toISOString() })
         .eq('user_id', user.id)
@@ -121,12 +120,10 @@ export const addToHistory = async (item: Omit<WatchHistoryItem, 'last_watched' |
         .eq('media_type', item.media_type);
     }
   } else {
-    // Local storage fallback
     const history = getLocalHistory();
     const existingItem = history.find(i => i.id === item.id && i.media_type === item.media_type);
     
     if (existingItem) {
-      // Move to top without resetting progress
       const filtered = history.filter(i => !(i.id === item.id && i.media_type === item.media_type));
       existingItem.last_watched = Date.now();
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify([existingItem, ...filtered].slice(0, 20)));
@@ -152,6 +149,57 @@ export const getProgressForMedia = async (mediaId: number, mediaType: 'movie' | 
   const history = getLocalHistory();
   const item = history.find(i => i.id === mediaId && i.media_type === mediaType);
   return item?.progress || 0;
+};
+
+export const syncLocalHistoryToCloud = async (userId: string) => {
+  const localHistory = getLocalHistory();
+  if (localHistory.length === 0) return;
+
+  for (const item of localHistory) {
+    // Check if cloud already has this item with higher progress
+    const { data: existing } = await supabase
+      .from('watch_history')
+      .select('progress')
+      .eq('user_id', userId)
+      .eq('media_id', item.id)
+      .eq('media_type', item.media_type)
+      .maybeSingle();
+
+    const existingProgress = existing?.progress || 0;
+
+    // Only upsert if local has more progress
+    if (item.progress > existingProgress) {
+      await supabase.from('watch_history').upsert({
+        user_id: userId,
+        media_id: item.id,
+        media_type: item.media_type,
+        title: item.title,
+        poster_path: item.poster_path,
+        season_number: item.season_number,
+        episode_number: item.episode_number,
+        progress: item.progress,
+        duration: Math.round(item.duration),
+        updated_at: new Date().toISOString(),
+      } as any, { onConflict: 'user_id, media_id, media_type' });
+    } else if (!existing) {
+      // Item doesn't exist in cloud at all, add it
+      await supabase.from('watch_history').upsert({
+        user_id: userId,
+        media_id: item.id,
+        media_type: item.media_type,
+        title: item.title,
+        poster_path: item.poster_path,
+        season_number: item.season_number,
+        episode_number: item.episode_number,
+        progress: item.progress,
+        duration: Math.round(item.duration),
+        updated_at: new Date().toISOString(),
+      } as any, { onConflict: 'user_id, media_id, media_type' });
+    }
+  }
+
+  // Clear local storage after sync
+  localStorage.removeItem(LOCAL_STORAGE_KEY);
 };
 
 export const getUserSignals = async () => getWatchHistory();

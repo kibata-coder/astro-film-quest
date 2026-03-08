@@ -1,45 +1,38 @@
 
 
-## Fix Continue Watching — Full Backend + Sync Overhaul
+## Fix Signed-In Header UI + Video Player Fullscreen
 
-### Problems Found
+### Issues Found
 
-1. **Progress column is `integer`** — the code stores decimals like `0.45` but the DB truncates them to `0` or `1`. Progress bars and "Stopped at" labels are broken for signed-in users.
-2. **No `duration` column** — the DB doesn't store media duration, so `duration` is always `0` when loaded from the backend. The "Stopped at Xm" label never renders.
-3. **No local-to-cloud sync** — when a user signs in, their localStorage watch history is discarded. Anything they watched while logged out is lost.
+1. **Signed-in UI broken on mobile**: The account icon and sign-out button are wrapped in `hidden md:flex` (Header line 165), making them completely invisible on mobile when signed in. Users see no indication they're logged in and no way to sign out from the header bar.
+
+2. **Vidsrc domain migration**: The Vidsrc homepage announces a domain change from `vidsrc-embed.ru` to `vsembed.ru`. The old domain may be causing embed failures or fullscreen restrictions.
+
+3. **Iframe z-index conflict**: The iframe sits at `zIndex: 1` while overlay controls are at `z-40`/`z-50`. When controls are visible, they can intercept touch/click events on the iframe's native fullscreen button area, especially on mobile where the control bar is at the bottom of the screen.
 
 ---
 
-### Plan
+### Changes
 
-#### 1. Database Migration
-- Change `watch_history.progress` from `integer` to `real` (float) so values like `0.45` are stored correctly.
-- Add a `duration` column (`integer`, default `0`) to store total media runtime in seconds.
+#### 1. `src/components/Header.tsx` -- Fix signed-in mobile UI
+- Remove `hidden md:flex` from the signed-in user container so the account icon and sign-out button appear on all screen sizes.
+- Show a compact version on mobile: just the UserCircle icon that opens a small dropdown with email display and sign-out option, keeping the header clean.
 
-```sql
-ALTER TABLE public.watch_history
-  ALTER COLUMN progress TYPE real USING progress::real;
+#### 2. `src/lib/vidsrc.ts` -- Update embed domain
+- Change `VIDSRC_BASE_URL` from `https://vidsrc-embed.ru` to `https://vsembed.ru` (the new official domain per their announcement).
+- Keep the Latest API URLs on the old domain if they still work, or update them too.
 
-ALTER TABLE public.watch_history
-  ADD COLUMN IF NOT EXISTS duration integer NOT NULL DEFAULT 0;
-```
+#### 3. `src/features/player/VideoPlayer.tsx` -- Fix fullscreen interaction
+- Lower the overlay z-indexes so they don't block the iframe's native controls when visible. Move the iframe to `zIndex: 10` and keep overlays at `z-20`/`z-30` instead of `z-40`/`z-50`.
+- Ensure the bottom ~60px of the screen (where the iframe's native control bar sits) is not covered by any overlay element, so fullscreen and subtitle buttons remain tappable.
 
-#### 2. `src/lib/watchHistory.ts` — Update all functions
-- **`saveWatchProgress`**: Include `duration: totalDuration` in the upsert payload so it's persisted to DB.
-- **`getWatchHistory`**: Map `item.duration` from the DB row instead of hardcoding `0`.
-- **`addToHistory`**: Accept and store duration when available.
-- **New `syncLocalHistoryToCloud()`**: On sign-in, read localStorage history, upsert each item into DB (only if it has higher progress than existing), then clear localStorage.
+---
 
-#### 3. `src/features/auth/AuthContext.tsx` — Trigger sync on sign-in
-- In `onAuthStateChange`, when event is `SIGNED_IN`, call `syncLocalHistoryToCloud()` then dispatch `watch-history-updated` event so the UI refreshes.
+### Technical Details
 
-#### 4. `src/components/ContinueWatchingSection.tsx` — No changes needed
-- Already listens to `onAuthStateChange` and `watch-history-updated` events, so it will auto-refresh after sync.
-
-### Files to Edit
 | File | Change |
 |------|--------|
-| DB migration | Add `duration` column, change `progress` to `real` |
-| `src/lib/watchHistory.ts` | Store/read duration, fix progress type, add sync function |
-| `src/features/auth/AuthContext.tsx` | Call sync on sign-in |
+| `src/components/Header.tsx` | Replace `hidden md:flex` signed-in block with a responsive version: on mobile show UserCircle icon with a dropdown menu (email + sign out); on desktop keep current layout |
+| `src/lib/vidsrc.ts` | Update `VIDSRC_BASE_URL` to `https://vsembed.ru`; update Latest API URLs if needed |
+| `src/features/player/VideoPlayer.tsx` | Adjust z-index hierarchy (iframe z-10, overlays z-20/z-30); add `pointer-events-none` to a bottom safe zone so iframe controls remain accessible |
 

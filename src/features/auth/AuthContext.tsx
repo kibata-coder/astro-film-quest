@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { syncLocalHistoryToCloud } from '@/lib/watchHistory';
 import type { User } from '@supabase/supabase-js';
 
 interface AuthContextType {
@@ -24,10 +25,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
         setIsAuthModalOpen(false);
+        if (event === 'SIGNED_IN') {
+          await syncLocalHistoryToCloud(session.user.id);
+          window.dispatchEvent(new Event('watch-history-updated'));
+        }
       }
     });
 
