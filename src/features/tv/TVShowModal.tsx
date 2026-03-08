@@ -156,6 +156,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow }: TVShowModa
               {isBookmarked ? 'In List' : 'My List'}
             </Button>
             <ThumbsRating mediaId={show.id} mediaType="tv" />
+            <AddToCollectionDialog mediaId={show.id} mediaType="tv" title={show.name} posterPath={show.poster_path} />
           </div>
         </div>
       </div>

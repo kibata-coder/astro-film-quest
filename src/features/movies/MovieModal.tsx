@@ -166,6 +166,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
             )}
           </Button>
           <ThumbsRating mediaId={movie.id} mediaType="movie" />
+          <AddToCollectionDialog mediaId={movie.id} mediaType="movie" title={movie.title} posterPath={movie.poster_path} />
         </div>
       </div>
 
