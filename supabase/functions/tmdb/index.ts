@@ -81,7 +81,11 @@ serve(async (req) => {
 
     // 6. Return Data
     return new Response(JSON.stringify(data), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { 
+        ...corsHeaders, 
+        'Content-Type': 'application/json',
+        'Cache-Control': 'public, max-age=300',
+      },
     });
 
   } catch (error) {
