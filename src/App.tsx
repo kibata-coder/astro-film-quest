@@ -18,6 +18,7 @@ const MyList = lazy(() => import("./pages/MyList"));
 const ForYou = lazy(() => import("./pages/ForYou"));
 const NewPopular = lazy(() => import("./pages/NewPopular"));
 const Genre = lazy(() => import("./pages/Genre"));
+const Profile = lazy(() => import("./pages/Profile"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -56,6 +57,7 @@ const App = () => (
                     <Route path="/mylist" element={<MyList />} />
                     <Route path="/foryou" element={<ForYou />} />
                     <Route path="/genre/:id" element={<Genre />} />
+                    <Route path="/profile" element={<Profile />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </Suspense>

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { 
   Search, Menu, LogOut, X, UserCircle, ChevronDown, Sparkles,
   Sword, Compass, Laugh, Theater, Ghost, Rocket, Heart, 
-  Eye, Siren, Briefcase, ShieldAlert
+  Eye, Siren, Briefcase, ShieldAlert, Settings
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -165,6 +165,10 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
                 <div className="px-3 py-2 text-xs text-muted-foreground truncate border-b border-border/50 mb-1">
                   {user.email}
                 </div>
+                <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer">
+                  <Settings className="w-4 h-4 mr-2" />
+                  Profile Settings
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={signOut} className="cursor-pointer text-destructive focus:text-destructive">
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign Out
