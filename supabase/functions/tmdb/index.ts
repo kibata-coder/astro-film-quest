@@ -29,6 +29,23 @@ const ALLOWED_ENDPOINTS = [
   '/discover/tv',
 ];
 
+// Explicit allowlist of TMDB sub-paths for movie and TV details
+const ALLOWED_ENDPOINT_PATTERNS = [
+  /^\/movie\/\d+$/,
+  /^\/movie\/\d+\/credits$/,
+  /^\/movie\/\d+\/videos$/,
+  /^\/movie\/\d+\/watch\/providers$/,
+  /^\/movie\/\d+\/similar$/,
+  /^\/movie\/\d+\/recommendations$/,
+  /^\/tv\/\d+$/,
+  /^\/tv\/\d+\/credits$/,
+  /^\/tv\/\d+\/videos$/,
+  /^\/tv\/\d+\/similar$/,
+  /^\/tv\/\d+\/recommendations$/,
+  /^\/tv\/\d+\/season\/\d+$/,
+  /^\/tv\/\d+\/season\/\d+\/episode\/\d+$/,
+];
+
 serve(async (req) => {
   const origin = req.headers.get('origin');
   const isAllowedOrigin = isOriginAllowed(origin);
@@ -52,11 +69,10 @@ serve(async (req) => {
     // 2. Parse Body
     const { endpoint, params } = await req.json();
 
-    // 3. Security: Strict Endpoint Validation
-    // Allows exact matches or paths starting with /movie/ or /tv/ (for details)
-    const isEndpointAllowed = ALLOWED_ENDPOINTS.includes(endpoint) || 
-                              /^\/movie\/\d+/.test(endpoint) || 
-                              /^\/tv\/\d+/.test(endpoint);
+    // 3. Security: Strict Endpoint Validation with explicit allowlist
+    const isEndpointAllowed = 
+      ALLOWED_ENDPOINTS.includes(endpoint) || 
+      ALLOWED_ENDPOINT_PATTERNS.some(pattern => pattern.test(endpoint));
 
     if (!isEndpointAllowed) {
       console.error(`Blocked unauthorized endpoint access: ${endpoint}`);
