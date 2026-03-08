@@ -47,8 +47,14 @@ const ContinueWatchingSection = () => {
   const handleRemove = async (e: React.MouseEvent, item: WatchHistoryItem) => {
     e.preventDefault();
     e.stopPropagation();
-    await removeFromHistory(item.id, item.media_type);
-    loadHistory(); // Reload after delete
+    // Optimistic UI update
+    setHistory(prev => prev.filter(i => !(i.id === item.id && i.media_type === item.media_type)));
+    try {
+      await removeFromHistory(item.id, item.media_type);
+    } catch {
+      // Rollback on failure
+      loadHistory();
+    }
   };
 
   const handleClearAll = async () => {
