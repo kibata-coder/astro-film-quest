@@ -40,6 +40,12 @@ const ContinueWatchingSection = () => {
     loadHistory(); // Reload after delete
   };
 
+  const handleClearAll = async () => {
+    await clearAllHistory();
+    setHistory([]);
+    window.dispatchEvent(new Event('watch-history-updated'));
+  };
+
   const handleItemClick = (item: WatchHistoryItem) => {
     if (item.media_type === 'movie') {
       // Create a compatible Movie object from the history item
