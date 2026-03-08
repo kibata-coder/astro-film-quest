@@ -202,4 +202,12 @@ export const syncLocalHistoryToCloud = async (userId: string) => {
   localStorage.removeItem(LOCAL_STORAGE_KEY);
 };
 
+export const clearAllHistory = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    await supabase.from('watch_history').delete().eq('user_id', user.id);
+  }
+  localStorage.removeItem(LOCAL_STORAGE_KEY);
+};
+
 export const getUserSignals = async () => getWatchHistory();

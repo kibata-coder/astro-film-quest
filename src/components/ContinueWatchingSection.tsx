@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { WatchHistoryItem, getWatchHistory, removeFromHistory } from '@/lib/watchHistory';
-import { X, Play } from 'lucide-react';
+import { WatchHistoryItem, getWatchHistory, removeFromHistory, clearAllHistory } from '@/lib/watchHistory';
+import { X, Play, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
 import { getImageUrl, Movie, TVShow } from '@/lib/tmdb';
 import { useMedia } from '@/features/shared';
 
