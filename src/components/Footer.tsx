@@ -57,9 +57,14 @@ const Footer = memo(() => {
           <p className="text-sm text-muted-foreground">
             © {currentYear} SOUD FLIX. All rights reserved.
           </p>
-          <p className="text-xs text-muted-foreground">
-            Powered by TMDB API. This product uses the TMDB API but is not endorsed or certified by TMDB.
-          </p>
+          <div className="text-right space-y-1">
+            <p className="text-xs text-muted-foreground">
+              Powered by TMDB API. This product uses the TMDB API but is not endorsed or certified by TMDB.
+            </p>
+            <p className="text-xs text-muted-foreground">
+              This website is for educational purposes only.
+            </p>
+          </div>
         </div>
       </div>
     </footer>
