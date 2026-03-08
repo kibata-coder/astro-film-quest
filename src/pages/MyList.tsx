@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getBookmarks } from '@/lib/bookmarks';
+import { getBookmarks, toggleBookmark } from '@/lib/bookmarks';
 import {
   getCollections,
   getCollectionItems,
