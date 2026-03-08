@@ -196,7 +196,7 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
                 <NavLink to="/">Home</NavLink>
                 <NavLink to="/movies">Movies</NavLink>
                 <NavLink to="/tv">TV Shows</NavLink>
-                <NavLink to="/new">New & Popular</NavLink>
+                
                 {user && <NavLink to="/mylist">My List</NavLink>}
                 
                 {/* Mobile Genres List */}
