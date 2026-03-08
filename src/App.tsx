@@ -16,7 +16,7 @@ const Movies = lazy(() => import("./pages/Movies"));
 const TVShows = lazy(() => import("./pages/TVShows"));
 const MyList = lazy(() => import("./pages/MyList"));
 const ForYou = lazy(() => import("./pages/ForYou"));
-const NewPopular = lazy(() => import("./pages/NewPopular"));
+
 const Genre = lazy(() => import("./pages/Genre"));
 const Profile = lazy(() => import("./pages/Profile"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -53,7 +53,7 @@ const App = () => (
                     <Route path="/" element={<Index />} />
                     <Route path="/movies" element={<Movies />} />
                     <Route path="/tv" element={<TVShows />} />
-                    <Route path="/new" element={<NewPopular />} />
+                    
                     <Route path="/mylist" element={<MyList />} />
                     <Route path="/foryou" element={<ForYou />} />
                     <Route path="/genre/:id" element={<Genre />} />
