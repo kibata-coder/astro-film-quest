@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { Sparkles, RefreshCw } from 'lucide-react';
 import { Movie } from '@/lib/tmdb';
 import { getHybridRecommendations } from '@/lib/recommendations';
@@ -6,6 +5,7 @@ import { MovieCard } from '@/features/movies';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/features/auth';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 interface ForYouSectionProps {
   onMovieClick: (movie: Movie) => void;
@@ -13,27 +13,18 @@ interface ForYouSectionProps {
 
 const ForYouSection = ({ onMovieClick }: ForYouSectionProps) => {
   const { user } = useAuth();
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const queryClient = useQueryClient();
 
-  const fetchRecommendations = async () => {
-    setIsRefreshing(true);
-    try {
-      const recs = await getHybridRecommendations();
-      setMovies(recs);
-    } catch (err) {
-      console.error("Failed to load recommendations", err);
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
+  const { data: movies = [], isLoading, isFetching } = useQuery({
+    queryKey: ['recommendations', user?.id],
+    queryFn: () => getHybridRecommendations(),
+    enabled: !!user,
+    staleTime: 1000 * 60 * 10,
+  });
+
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: ['recommendations', user?.id] });
   };
-
-  useEffect(() => {
-    if (user) fetchRecommendations();
-    else setIsLoading(false);
-  }, [user]);
 
   if (!user) return null;
 
@@ -46,8 +37,8 @@ const ForYouSection = ({ onMovieClick }: ForYouSectionProps) => {
             Top Picks For You
           </h2>
         </div>
-        <Button variant="ghost" size="sm" onClick={fetchRecommendations} disabled={isRefreshing} className="text-muted-foreground hover:text-foreground">
-          <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+        <Button variant="ghost" size="sm" onClick={handleRefresh} disabled={isFetching} className="text-muted-foreground hover:text-foreground">
+          <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
           <span className="hidden sm:inline ml-2">Refresh</span>
         </Button>
       </div>
@@ -69,7 +60,7 @@ const ForYouSection = ({ onMovieClick }: ForYouSectionProps) => {
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
       ) : (
-        <div className="text-center py-8 bg-muted/10 rounded-xl border border-white/5">
+        <div className="text-center py-8 bg-muted/10 rounded-xl border border-border/50">
           <p className="text-muted-foreground">Watch a few movies to help us learn what you like!</p>
         </div>
       )}

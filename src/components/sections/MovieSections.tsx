@@ -27,7 +27,7 @@ import { Movie, TVShow } from '@/lib/tmdb';
 interface DynamicSectionProps {
   title: string;
   icon: LucideIcon;
-  useDataHook: () => { data: any; isLoading: boolean };
+  useDataHook: (enabled?: boolean) => { data: any; isLoading: boolean };
   onItemClick?: (item: any) => void;
   isTrending?: boolean;
 }
@@ -47,11 +47,15 @@ const SectionSkeleton = () => (
   </div>
 );
 
-const DynamicSection = ({ title, icon, useDataHook, onItemClick, isTrending = false }: DynamicSectionProps) => {
-  const { data, isLoading } = useDataHook();
+// Inner component that actually calls the hook with enabled flag
+const DynamicSectionInner = ({ title, icon, useDataHook, onItemClick, enabled }: DynamicSectionProps & { enabled: boolean }) => {
+  const { data, isLoading } = useDataHook(enabled);
   const items = data?.results?.slice(0, 15) || [];
 
-  const Content = (
+  if (isLoading || !enabled) return <SectionSkeleton />;
+  if (!items.length) return null;
+
+  return (
     <ScrollableSection title={title} icon={icon}>
       {items.map((item: any) => (
         <MediaCard 
@@ -62,20 +66,20 @@ const DynamicSection = ({ title, icon, useDataHook, onItemClick, isTrending = fa
       ))}
     </ScrollableSection>
   );
+};
 
+const DynamicSection = ({ title, icon, useDataHook, onItemClick, isTrending = false }: DynamicSectionProps) => {
+  // Trending sections load immediately (no lazy wrapper)
   if (isTrending) {
-    if (isLoading) return <SectionSkeleton />;
-    if (!items.length) return null;
-    return Content;
+    return <DynamicSectionInner title={title} icon={icon} useDataHook={useDataHook} onItemClick={onItemClick} enabled={true} />;
   }
 
+  // Non-trending sections: lazy load data when visible
   return (
     <LazySection>
-      {isLoading ? (
-        <SectionSkeleton />
-      ) : items.length ? (
-        Content
-      ) : null}
+      {({ isVisible }) => (
+        <DynamicSectionInner title={title} icon={icon} useDataHook={useDataHook} onItemClick={onItemClick} enabled={isVisible} />
+      )}
     </LazySection>
   );
 };
@@ -108,7 +112,7 @@ export const OtherMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
   <DynamicSection title="International Movies" icon={Globe} useDataHook={useOtherMovies} onItemClick={onMovieClick} />
 );
 
-// 3. Language Sections (TV Shows) - Restored!
+// 3. Language Sections (TV Shows)
 export const IndianTVSection = ({ onShowClick }: TVSectionProps) => (
   <DynamicSection title="Indian TV Shows" icon={Tv} useDataHook={useIndianTVShows} onItemClick={onShowClick} />
 );
@@ -154,5 +158,4 @@ export const WarMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
   <DynamicSection title="War" icon={Siren} useDataHook={useWarMovies} onItemClick={onMovieClick} />
 );
 
-// Export LatestSection which is a default import in some places, or named import in others
 export { LatestSection };
