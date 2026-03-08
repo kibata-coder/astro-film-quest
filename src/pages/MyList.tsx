@@ -149,26 +149,37 @@ const MyList = () => {
 
 // --- Sub-components ---
 
-function MediaGrid({ items, onItemClick }: {
+function MediaGrid({ items, onItemClick, onRemove }: {
   items: any[];
   onItemClick: (item: any) => void;
+  onRemove?: (item: any) => void;
 }) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
       {items.map((item) => (
-        <MediaCard
-          key={`${item.media_type}-${item.media_id}`}
-          item={{
-            id: item.media_id,
-            title: item.title,
-            name: item.title,
-            poster_path: item.poster_path,
-            vote_average: 0,
-            release_date: '',
-            first_air_date: '',
-          } as any}
-          onClick={() => onItemClick(item)}
-        />
+        <div key={`${item.media_type}-${item.media_id}`} className="relative group/card">
+          <MediaCard
+            item={{
+              id: item.media_id,
+              title: item.title,
+              name: item.title,
+              poster_path: item.poster_path,
+              vote_average: 0,
+              release_date: '',
+              first_air_date: '',
+            } as any}
+            onClick={() => onItemClick(item)}
+          />
+          {onRemove && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onRemove(item); }}
+              className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-destructive/90 text-destructive-foreground opacity-0 group-hover/card:opacity-100 transition-opacity hover:bg-destructive"
+              title="Remove from collection"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
       ))}
     </div>
   );
