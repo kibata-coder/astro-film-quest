@@ -9,6 +9,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { getBackdropUrl, getImageUrl, getTVShowDetails, getTVShowSeasonDetails, getTVShowRecommendations } from '@/lib/tmdb';
 import type { TVShow, TVShowDetails, Episode } from '@/lib/tmdb';
 import { checkIsBookmarked, toggleBookmark } from '@/lib/bookmarks';
+import ThumbsRating from '@/components/ThumbsRating';
 
 interface TVShowModalProps {
   show: TVShow | null;
