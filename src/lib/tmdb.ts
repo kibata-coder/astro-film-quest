@@ -225,6 +225,47 @@ export const getWesternMovies = async (page = 1) => callTMDB<Movie>('/discover/m
 export const getCrimeMovies = async (page = 1) => callTMDB<Movie>('/discover/movie', { page, with_genres: '80', sort_by: 'popularity.desc' });
 export const getWarMovies = async (page = 1) => callTMDB<Movie>('/discover/movie', { page, with_genres: '10752', sort_by: 'popularity.desc' });
 
+// --- DISCOVER WITH FILTERS ---
+
+export interface DiscoverFilters {
+  genre?: string;
+  year?: string;
+  rating?: string;
+  language?: string;
+  sortBy?: string;
+  page?: number;
+}
+
+export const discoverMovies = async (filters: DiscoverFilters = {}) => {
+  const params: Record<string, string | number> = {
+    sort_by: filters.sortBy || 'popularity.desc',
+    page: filters.page || 1,
+  };
+  if (filters.genre) params.with_genres = filters.genre;
+  if (filters.year) {
+    params['primary_release_date.gte'] = `${filters.year}-01-01`;
+    params['primary_release_date.lte'] = `${filters.year}-12-31`;
+  }
+  if (filters.rating) params['vote_average.gte'] = filters.rating;
+  if (filters.language) params.with_original_language = filters.language;
+  return callTMDB<Movie>('/discover/movie', params);
+};
+
+export const discoverTVShows = async (filters: DiscoverFilters = {}) => {
+  const params: Record<string, string | number> = {
+    sort_by: filters.sortBy || 'popularity.desc',
+    page: filters.page || 1,
+  };
+  if (filters.genre) params.with_genres = filters.genre;
+  if (filters.year) {
+    params['first_air_date.gte'] = `${filters.year}-01-01`;
+    params['first_air_date.lte'] = `${filters.year}-12-31`;
+  }
+  if (filters.rating) params['vote_average.gte'] = filters.rating;
+  if (filters.language) params.with_original_language = filters.language;
+  return callTMDB<TVShow>('/discover/tv', params);
+};
+
 // --- SMART RECOMMENDATION ENGINE ---
 
 export const getMovieRecommendations = async (movieId: number) => {
