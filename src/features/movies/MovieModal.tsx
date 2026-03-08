@@ -21,6 +21,7 @@ import {
 import { checkIsBookmarked, toggleBookmark } from '@/lib/bookmarks';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ThumbsRating from '@/components/ThumbsRating';
+import AddToCollectionDialog from '@/components/AddToCollectionDialog';
 
 interface MovieModalProps {
   movie: Movie | null;
@@ -165,6 +166,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
             )}
           </Button>
           <ThumbsRating mediaId={movie.id} mediaType="movie" />
+          <AddToCollectionDialog mediaId={movie.id} mediaType="movie" title={movie.title} posterPath={movie.poster_path} />
         </div>
       </div>
 

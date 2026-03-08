@@ -10,6 +10,7 @@ import { getBackdropUrl, getImageUrl, getTVShowDetails, getTVShowSeasonDetails, 
 import type { TVShow, TVShowDetails, Episode } from '@/lib/tmdb';
 import { checkIsBookmarked, toggleBookmark } from '@/lib/bookmarks';
 import ThumbsRating from '@/components/ThumbsRating';
+import AddToCollectionDialog from '@/components/AddToCollectionDialog';
 
 interface TVShowModalProps {
   show: TVShow | null;
@@ -155,6 +156,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow }: TVShowModa
               {isBookmarked ? 'In List' : 'My List'}
             </Button>
             <ThumbsRating mediaId={show.id} mediaType="tv" />
+            <AddToCollectionDialog mediaId={show.id} mediaType="tv" title={show.name} posterPath={show.poster_path} />
           </div>
         </div>
       </div>
