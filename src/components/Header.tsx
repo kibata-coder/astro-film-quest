@@ -63,7 +63,7 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
       }`}
     >
       <div className="container mx-auto px-5 md:px-8 h-[72px] flex items-center justify-between">
-        <div className="flex items-center gap-10">
+        <div className="flex items-center gap-4 md:gap-10">
           <a href="/" className="text-2xl font-bold text-primary tracking-tighter hover:scale-105 transition-transform">
             SoudFlex
           </a>
