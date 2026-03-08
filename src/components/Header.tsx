@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { 
   Search, Menu, LogOut, X, UserCircle, ChevronDown, Sparkles,
   Sword, Compass, Laugh, Theater, Ghost, Rocket, Heart, 
-  Eye, Siren, Briefcase, ShieldAlert
+  Eye, Siren, Briefcase, ShieldAlert, Settings
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
