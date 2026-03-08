@@ -64,6 +64,7 @@ export type Database = {
       }
       watch_history: {
         Row: {
+          duration: number
           episode_number: number | null
           id: string
           media_id: number
@@ -76,6 +77,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          duration?: number
           episode_number?: number | null
           id?: string
           media_id: number
@@ -88,6 +90,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          duration?: number
           episode_number?: number | null
           id?: string
           media_id?: number
