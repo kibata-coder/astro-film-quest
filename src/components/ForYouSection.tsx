@@ -46,9 +46,9 @@ const ForYouSection = ({ onMovieClick }: ForYouSectionProps) => {
             Top Picks For You
           </h2>
         </div>
-        <Button variant="ghost" size="sm" onClick={fetchRecommendations} disabled={isRefreshing} className="text-muted-foreground hover:text-white">
-          <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-          Refresh
+        <Button variant="ghost" size="sm" onClick={fetchRecommendations} disabled={isRefreshing} className="text-muted-foreground hover:text-foreground">
+          <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          <span className="hidden sm:inline ml-2">Refresh</span>
         </Button>
       </div>
       {isLoading ? (
