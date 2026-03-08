@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { WatchHistoryItem, getWatchHistory, removeFromHistory, clearAllHistory } from '@/lib/watchHistory';
+import { toast } from 'sonner';
 import { X, Play } from 'lucide-react';
 import {
   AlertDialog,
