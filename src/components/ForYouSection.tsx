@@ -61,7 +61,7 @@ const ForYouSection = ({ onMovieClick }: ForYouSectionProps) => {
         <ScrollArea className="w-full whitespace-nowrap pb-4">
           <div className="flex space-x-4">
             {movies.map((movie) => (
-              <div key={movie.id} className="w-[150px] md:w-[200px] flex-none">
+              <div key={movie.id} className="w-[130px] sm:w-40 md:w-48 flex-none">
                 <MovieCard movie={movie} onClick={() => onMovieClick(movie)} />
               </div>
             ))}

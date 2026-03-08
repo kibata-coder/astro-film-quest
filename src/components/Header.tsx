@@ -109,18 +109,6 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
 
         <div className="flex items-center gap-1 md:gap-4">
           
-          {/* MOBILE ONLY ICON: Shortcut to Personalized Feed */}
-          {user && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate('/foryou')}
-              className="md:hidden text-yellow-400 hover:text-yellow-300 hover:bg-yellow-400/10 transition-colors"
-              title="For You"
-            >
-              <Sparkles className="w-5 h-5 fill-current" />
-            </Button>
-          )}
 
           {/* Search */}
           {onSearch && showSearch ? (
