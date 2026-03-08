@@ -199,29 +199,6 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
                 
                 {user && <NavLink to="/mylist">My List</NavLink>}
                 
-                {/* Mobile Genres List */}
-                <div className="py-2 border-t border-border/50 mt-2">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase mb-3 mt-4">Genres</p>
-                  {user && (
-                    <button 
-                      onClick={() => navigate('/foryou')}
-                      className="flex items-center gap-3 text-sm font-medium text-yellow-400 hover:text-yellow-300 w-full text-left py-2.5 px-2 hover:bg-white/5 rounded-md transition-colors"
-                    >
-                      <Sparkles className="w-4 h-4 fill-current" />
-                      For You
-                    </button>
-                  )}
-                  {genres.map((g) => (
-                    <button 
-                      key={g.id}
-                      onClick={() => handleGenreClick(g.id)}
-                      className="flex items-center gap-3 text-sm font-medium text-muted-foreground hover:text-foreground w-full text-left py-2.5 px-2 hover:bg-white/5 rounded-md transition-colors"
-                    >
-                      <g.icon className={`w-4 h-4 ${g.color}`} />
-                      {g.name}
-                    </button>
-                  ))}
-                </div>
 
                 {user ? (
                    <button onClick={signOut} className="text-left text-sm font-medium text-muted-foreground hover:text-foreground transition-colors mt-4 border-t border-border/50 pt-4">
