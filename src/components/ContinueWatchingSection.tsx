@@ -95,7 +95,18 @@ const ContinueWatchingSection = () => {
 
   return (
     <section className="py-8 md:py-10">
-      <h2 className="text-xl md:text-2xl font-semibold mb-5 md:mb-6">Continue Watching</h2>
+      <div className="flex items-center justify-between mb-5 md:mb-6">
+        <h2 className="text-xl md:text-2xl font-semibold">Continue Watching</h2>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleClearAll}
+          className="text-muted-foreground hover:text-destructive gap-1.5"
+        >
+          <Trash2 className="w-4 h-4" />
+          <span className="hidden sm:inline">Clear All</span>
+        </Button>
+      </div>
       
       <div className="flex gap-4 md:gap-5 overflow-x-auto pb-4 scrollbar-hide">
         {history.map((item) => {
