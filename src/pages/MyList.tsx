@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getBookmarks } from '@/lib/bookmarks';
+import { getBookmarks, toggleBookmark } from '@/lib/bookmarks';
 import {
   getCollections,
   getCollectionItems,
@@ -114,7 +114,14 @@ const MyList = () => {
           <TabsContent value="bookmarks">
             {bookmarksLoading ? <LoadingSpinner /> : (
               bookmarks && bookmarks.length > 0 ? (
-                <MediaGrid items={bookmarks} onItemClick={handleItemClick} />
+                <MediaGrid
+                  items={bookmarks}
+                  onItemClick={handleItemClick}
+                  onRemove={async (item) => {
+                    await toggleBookmark(item.media_id, item.media_type, item.title, item.poster_path);
+                    queryClient.invalidateQueries({ queryKey: ['bookmarks'] });
+                  }}
+                />
               ) : (
                 <EmptyState message="You haven't added any movies or shows to your list yet." />
               )
