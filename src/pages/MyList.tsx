@@ -149,26 +149,37 @@ const MyList = () => {
 
 // --- Sub-components ---
 
-function MediaGrid({ items, onItemClick }: {
+function MediaGrid({ items, onItemClick, onRemove }: {
   items: any[];
   onItemClick: (item: any) => void;
+  onRemove?: (item: any) => void;
 }) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
       {items.map((item) => (
-        <MediaCard
-          key={`${item.media_type}-${item.media_id}`}
-          item={{
-            id: item.media_id,
-            title: item.title,
-            name: item.title,
-            poster_path: item.poster_path,
-            vote_average: 0,
-            release_date: '',
-            first_air_date: '',
-          } as any}
-          onClick={() => onItemClick(item)}
-        />
+        <div key={`${item.media_type}-${item.media_id}`} className="relative group/card">
+          <MediaCard
+            item={{
+              id: item.media_id,
+              title: item.title,
+              name: item.title,
+              poster_path: item.poster_path,
+              vote_average: 0,
+              release_date: '',
+              first_air_date: '',
+            } as any}
+            onClick={() => onItemClick(item)}
+          />
+          {onRemove && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onRemove(item); }}
+              className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-destructive/90 text-destructive-foreground opacity-0 group-hover/card:opacity-100 transition-opacity hover:bg-destructive"
+              title="Remove from collection"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
       ))}
     </div>
   );
@@ -237,16 +248,26 @@ function CollectionContent({
   userId: string;
   onItemClick: (item: any) => void;
 }) {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const { data: items, isLoading } = useQuery({
     queryKey: ['collection-items', collectionId],
     queryFn: () => getCollectionItems(collectionId),
     enabled: !!collectionId,
   });
 
+  const handleRemove = async (item: any) => {
+    const ok = await removeFromCollection(collectionId, item.media_id, item.media_type);
+    if (ok) {
+      queryClient.invalidateQueries({ queryKey: ['collection-items', collectionId] });
+      toast({ title: `Removed "${item.title}"` });
+    }
+  };
+
   if (isLoading) return <LoadingSpinner />;
   if (!items || items.length === 0) return <EmptyState message="This collection is empty. Add items from movie or TV show details." />;
 
-  return <MediaGrid items={items} onItemClick={onItemClick} />;
+  return <MediaGrid items={items} onItemClick={onItemClick} onRemove={handleRemove} />;
 }
 
 export default MyList;
