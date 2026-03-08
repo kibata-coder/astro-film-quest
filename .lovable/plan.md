@@ -1,38 +1,58 @@
 
 
-## Fix Signed-In Header UI + Video Player Fullscreen
+## Plan: Optimize App Performance and Load Speed
 
-### Issues Found
+### Problems Identified
 
-1. **Signed-in UI broken on mobile**: The account icon and sign-out button are wrapped in `hidden md:flex` (Header line 165), making them completely invisible on mobile when signed in. Users see no indication they're logged in and no way to sign out from the header bar.
-
-2. **Vidsrc domain migration**: The Vidsrc homepage announces a domain change from `vidsrc-embed.ru` to `vsembed.ru`. The old domain may be causing embed failures or fullscreen restrictions.
-
-3. **Iframe z-index conflict**: The iframe sits at `zIndex: 1` while overlay controls are at `z-40`/`z-50`. When controls are visible, they can intercept touch/click events on the iframe's native fullscreen button area, especially on mobile where the control bar is at the bottom of the screen.
-
----
+1. **Double font loading**: Google Fonts imported via `@import` in `index.css` AND preloaded in `index.html` — the CSS `@import` is render-blocking.
+2. **Genre sections fetch data even when off-screen**: All 12 genre hooks fire on mount inside `DynamicSection`, even though `LazySection` wraps the rendering. The data fetches happen immediately regardless of scroll position.
+3. **ForYouSection bypasses React Query**: Uses raw `useState`/`useEffect` — no caching, refetches every mount.
+4. **LatestSection fires 20 individual API calls**: Fetches 10 movie details + 10 TV show details individually — massive waterfall.
+5. **Edge function returns no cache headers**: Every TMDB response is re-fetched from scratch on each call.
+6. **Missing `preconnect` to `image.tmdb.org`**: Images are the heaviest asset but the browser doesn't get an early connection hint.
 
 ### Changes
 
-#### 1. `src/components/Header.tsx` -- Fix signed-in mobile UI
-- Remove `hidden md:flex` from the signed-in user container so the account icon and sign-out button appear on all screen sizes.
-- Show a compact version on mobile: just the UserCircle icon that opens a small dropdown with email display and sign-out option, keeping the header clean.
+**1. `src/index.css`** — Remove the `@import` Google Fonts line (line 1). Already handled by the optimized preload in `index.html`.
 
-#### 2. `src/lib/vidsrc.ts` -- Update embed domain
-- Change `VIDSRC_BASE_URL` from `https://vidsrc-embed.ru` to `https://vsembed.ru` (the new official domain per their announcement).
-- Keep the Latest API URLs on the old domain if they still work, or update them too.
+**2. `src/components/sections/MovieSections.tsx`** — Make `DynamicSection` accept an `enabled` prop and pass it to `useDataHook`. When inside `LazySection`, only enable data fetching once the section is visible. This requires:
+- Adding a visibility state to `LazySection` (expose via render prop or callback).
+- Refactoring `DynamicSection` to use an `enabled` flag.
+- Updating all genre hooks in `use-media.ts` to accept an `enabled` parameter.
 
-#### 3. `src/features/player/VideoPlayer.tsx` -- Fix fullscreen interaction
-- Lower the overlay z-indexes so they don't block the iframe's native controls when visible. Move the iframe to `zIndex: 10` and keep overlays at `z-20`/`z-30` instead of `z-40`/`z-50`.
-- Ensure the bottom ~60px of the screen (where the iframe's native control bar sits) is not covered by any overlay element, so fullscreen and subtitle buttons remain tappable.
+**3. `src/hooks/use-media.ts`** — Add optional `enabled` parameter to all genre hooks so queries don't fire until the section scrolls into view.
 
----
+**4. `src/components/LazySection.tsx`** — Support a render-prop pattern: `children` can be a function receiving `{ isVisible }`, so `DynamicSection` knows when to start fetching.
+
+**5. `src/components/ForYouSection.tsx`** — Convert to use `useQuery` from React Query for caching and deduplication. Replace `useState`/`useEffect` with a single `useQuery` call.
+
+**6. `src/components/LatestSection.tsx`** — Reduce individual API calls from 10 to 5 per category (movies + TV), cutting the waterfall in half.
+
+**7. `supabase/functions/tmdb/index.ts`** — Add `Cache-Control` header to successful responses (e.g., `max-age=300` for 5-minute browser caching).
+
+**8. `index.html`** — Add `<link rel="preconnect" href="https://image.tmdb.org">` for faster image loading.
 
 ### Technical Details
 
-| File | Change |
-|------|--------|
-| `src/components/Header.tsx` | Replace `hidden md:flex` signed-in block with a responsive version: on mobile show UserCircle icon with a dropdown menu (email + sign out); on desktop keep current layout |
-| `src/lib/vidsrc.ts` | Update `VIDSRC_BASE_URL` to `https://vsembed.ru`; update Latest API URLs if needed |
-| `src/features/player/VideoPlayer.tsx` | Adjust z-index hierarchy (iframe z-10, overlays z-20/z-30); add `pointer-events-none` to a bottom safe zone so iframe controls remain accessible |
+The biggest win is change #2-4 (lazy data fetching). Currently, landing on the homepage triggers ~15+ parallel API calls even though only 2-3 sections are visible. With lazy fetching, only visible sections fetch data, reducing initial API calls to ~3-4.
+
+```text
+Before (homepage load):
+  → trending movies    ← needed (visible)
+  → trending TV        ← needed (visible)  
+  → action movies      ← NOT visible, fetched anyway
+  → adventure movies   ← NOT visible, fetched anyway
+  → comedy movies      ← NOT visible, fetched anyway
+  → ... (12 more genre calls)
+  → latest movies (10 detail calls)
+  → latest TV (10 detail calls)
+  Total: ~30+ API calls on load
+
+After:
+  → trending movies    ← fetched
+  → trending TV        ← fetched  
+  → genre sections     ← fetch only when scrolled into view
+  → latest sections    ← fetch only when scrolled into view (5 each)
+  Total: ~3-4 API calls on load, rest on scroll
+```
 
