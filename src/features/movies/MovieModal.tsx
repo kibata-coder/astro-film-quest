@@ -21,6 +21,7 @@ import {
 import { checkIsBookmarked, toggleBookmark } from '@/lib/bookmarks';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ThumbsRating from '@/components/ThumbsRating';
+import AddToCollectionDialog from '@/components/AddToCollectionDialog';
 
 interface MovieModalProps {
   movie: Movie | null;
