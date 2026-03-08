@@ -248,16 +248,26 @@ function CollectionContent({
   userId: string;
   onItemClick: (item: any) => void;
 }) {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const { data: items, isLoading } = useQuery({
     queryKey: ['collection-items', collectionId],
     queryFn: () => getCollectionItems(collectionId),
     enabled: !!collectionId,
   });
 
+  const handleRemove = async (item: any) => {
+    const ok = await removeFromCollection(collectionId, item.media_id, item.media_type);
+    if (ok) {
+      queryClient.invalidateQueries({ queryKey: ['collection-items', collectionId] });
+      toast({ title: `Removed "${item.title}"` });
+    }
+  };
+
   if (isLoading) return <LoadingSpinner />;
   if (!items || items.length === 0) return <EmptyState message="This collection is empty. Add items from movie or TV show details." />;
 
-  return <MediaGrid items={items} onItemClick={onItemClick} />;
+  return <MediaGrid items={items} onItemClick={onItemClick} onRemove={handleRemove} />;
 }
 
 export default MyList;
