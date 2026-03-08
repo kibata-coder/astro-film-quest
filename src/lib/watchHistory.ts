@@ -80,7 +80,7 @@ export const saveWatchProgress = async (
 export const removeFromHistory = async (id: number, mediaType: 'movie' | 'tv') => {
   const { data: { user } } = await supabase.auth.getUser();
   if (user) {
-    await supabase.from('watch_history').delete().eq('media_id', id).eq('media_type', mediaType);
+    await supabase.from('watch_history').delete().eq('user_id', user.id).eq('media_id', id).eq('media_type', mediaType);
   } else {
     const history = getLocalHistory();
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(history.filter(i => !(i.id === id && i.media_type === mediaType))));
