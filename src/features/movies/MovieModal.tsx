@@ -20,6 +20,7 @@ import {
 } from '@/lib/tmdb';
 import { checkIsBookmarked, toggleBookmark } from '@/lib/bookmarks';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import ThumbsRating from '@/components/ThumbsRating';
 
 interface MovieModalProps {
   movie: Movie | null;
