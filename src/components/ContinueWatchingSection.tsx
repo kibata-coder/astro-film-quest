@@ -108,14 +108,29 @@ const ContinueWatchingSection = () => {
     <section className="py-8 md:py-10">
       <div className="flex items-center justify-between mb-5 md:mb-6">
         <h2 className="text-xl md:text-2xl font-semibold">Continue Watching</h2>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleClearAll}
-          className="text-muted-foreground hover:text-destructive"
-        >
-          Clear All
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground hover:text-destructive"
+            >
+              Clear All
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Clear watch history?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will permanently remove all items from your Continue Watching list. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleClearAll}>Clear All</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
       
       <div className="flex gap-4 md:gap-5 overflow-x-auto pb-4 scrollbar-hide">
