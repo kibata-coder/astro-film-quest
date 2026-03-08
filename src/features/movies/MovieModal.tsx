@@ -136,7 +136,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
       {/* Title & actions below the image */}
       <div className="px-5 md:px-6 -mt-16 relative z-10">
         <h2 className="text-xl md:text-3xl font-bold mb-3">{movie.title}</h2>
-        <div className="flex gap-3 mb-5">
+        <div className="flex items-center gap-3 mb-5">
           <Button
             onClick={onPlay}
             size={isMobile ? "default" : "lg"}
@@ -164,6 +164,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
               </>
             )}
           </Button>
+          <ThumbsRating mediaId={movie.id} mediaType="movie" />
         </div>
       </div>
 

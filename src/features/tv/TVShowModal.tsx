@@ -143,16 +143,19 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow }: TVShowModa
               )}
             </div>
           </div>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={handleBookmark}
-            disabled={isBookmarkLoading}
-            className="flex-shrink-0 gap-1"
-          >
-            {isBookmarked ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-            {isBookmarked ? 'In List' : 'My List'}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleBookmark}
+              disabled={isBookmarkLoading}
+              className="flex-shrink-0 gap-1"
+            >
+              {isBookmarked ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+              {isBookmarked ? 'In List' : 'My List'}
+            </Button>
+            <ThumbsRating mediaId={show.id} mediaType="tv" />
+          </div>
         </div>
       </div>
 
