@@ -57,6 +57,7 @@ const App = () => (
                     <Route path="/mylist" element={<MyList />} />
                     <Route path="/foryou" element={<ForYou />} />
                     <Route path="/genre/:id" element={<Genre />} />
+                    <Route path="/profile" element={<Profile />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </Suspense>
