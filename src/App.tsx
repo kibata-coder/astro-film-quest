@@ -16,7 +16,7 @@ const Movies = lazy(() => import("./pages/Movies"));
 const TVShows = lazy(() => import("./pages/TVShows"));
 const MyList = lazy(() => import("./pages/MyList"));
 const ForYou = lazy(() => import("./pages/ForYou"));
-const NewPopular = lazy(() => import("./pages/NewPopular"));
+
 const Genre = lazy(() => import("./pages/Genre"));
 const Profile = lazy(() => import("./pages/Profile"));
 const NotFound = lazy(() => import("./pages/NotFound"));
