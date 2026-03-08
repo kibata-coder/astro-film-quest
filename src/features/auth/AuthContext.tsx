@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { syncLocalHistoryToCloud } from '@/lib/watchHistory';
 import type { User } from '@supabase/supabase-js';
 
 interface AuthContextType {
