@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { WatchHistoryItem, getWatchHistory, removeFromHistory, clearAllHistory } from '@/lib/watchHistory';
+import { toast } from 'sonner';
 import { X, Play } from 'lucide-react';
 import {
   AlertDialog,
@@ -47,13 +48,14 @@ const ContinueWatchingSection = () => {
   const handleRemove = async (e: React.MouseEvent, item: WatchHistoryItem) => {
     e.preventDefault();
     e.stopPropagation();
-    // Optimistic UI update
+    const previousHistory = history;
     setHistory(prev => prev.filter(i => !(i.id === item.id && i.media_type === item.media_type)));
     try {
       await removeFromHistory(item.id, item.media_type);
+      toast.success(`Removed "${item.title}" from history`);
     } catch {
-      // Rollback on failure
-      loadHistory();
+      setHistory(previousHistory);
+      toast.error('Failed to remove item. Please try again.');
     }
   };
 
