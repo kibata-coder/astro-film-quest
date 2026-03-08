@@ -10,6 +10,7 @@ import { getBackdropUrl, getImageUrl, getTVShowDetails, getTVShowSeasonDetails, 
 import type { TVShow, TVShowDetails, Episode } from '@/lib/tmdb';
 import { checkIsBookmarked, toggleBookmark } from '@/lib/bookmarks';
 import ThumbsRating from '@/components/ThumbsRating';
+import AddToCollectionDialog from '@/components/AddToCollectionDialog';
 
 interface TVShowModalProps {
   show: TVShow | null;
