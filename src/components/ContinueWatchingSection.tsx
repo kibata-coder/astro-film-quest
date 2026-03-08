@@ -101,10 +101,9 @@ const ContinueWatchingSection = () => {
           variant="ghost"
           size="sm"
           onClick={handleClearAll}
-          className="text-muted-foreground hover:text-destructive gap-1.5"
+          className="text-muted-foreground hover:text-destructive"
         >
-          <Trash2 className="w-4 h-4" />
-          <span className="hidden sm:inline">Clear All</span>
+          Clear All
         </Button>
       </div>
       
