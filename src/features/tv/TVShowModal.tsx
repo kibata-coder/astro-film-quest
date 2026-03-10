@@ -115,7 +115,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow }: TVShowModa
 
       {/* Title & meta */}
       <div className="px-5 md:px-6 -mt-16 relative z-10">
-        <div className="flex gap-4 items-start">
+        <div className="flex gap-4 items-end">
           {!isMobile && posterUrl && (
             <img
               src={posterUrl}
@@ -125,7 +125,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow }: TVShowModa
           )}
           <div className="flex-1 min-w-0">
             <h2 className="text-xl md:text-3xl font-bold mb-2">{show.name}</h2>
-            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mb-3">
+            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
               <span className="flex items-center gap-1">
                 <Calendar className="w-3.5 h-3.5" />
                 {year}
@@ -144,20 +144,33 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow }: TVShowModa
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={handleBookmark}
-              disabled={isBookmarkLoading}
-              className="flex-shrink-0 gap-1"
-            >
-              {isBookmarked ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-              {isBookmarked ? 'In List' : 'My List'}
-            </Button>
-            <ThumbsRating mediaId={show.id} mediaType="tv" />
-            <AddToCollectionDialog mediaId={show.id} mediaType="tv" title={show.name} posterPath={show.poster_path} />
-          </div>
+        </div>
+        <div className="flex items-center gap-3 mt-4 mb-1">
+          <Button
+            onClick={() => {
+              const firstEp = episodes?.[0];
+              if (firstEp) {
+                onPlay(selectedSeason, firstEp.episode_number);
+              }
+            }}
+            size={isMobile ? "default" : "lg"}
+            className="gap-2 bg-foreground text-background hover:bg-foreground/90 font-semibold"
+          >
+            <Play className="w-4 h-4 fill-current" />
+            Play
+          </Button>
+          <Button
+            variant="secondary"
+            size={isMobile ? "default" : "lg"}
+            onClick={handleBookmark}
+            disabled={isBookmarkLoading}
+            className="gap-2"
+          >
+            {isBookmarked ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+            {isBookmarked ? 'In List' : 'My List'}
+          </Button>
+          <ThumbsRating mediaId={show.id} mediaType="tv" />
+          <AddToCollectionDialog mediaId={show.id} mediaType="tv" title={show.name} posterPath={show.poster_path} />
         </div>
       </div>
 
