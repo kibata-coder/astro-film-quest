@@ -112,7 +112,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
       {/* Hero media - show trailer on desktop, backdrop on mobile */}
       <div className="relative w-full">
         {!isMobile && trailer ? (
-          <div className="aspect-video w-full">
+          <div className="aspect-video w-full max-h-[300px] overflow-hidden">
             <iframe
               src={`https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=1&controls=0&showinfo=0&rel=0`}
               className="w-full h-full"
@@ -121,7 +121,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
             />
           </div>
         ) : backdropUrl ? (
-          <div className="aspect-video w-full">
+          <div className="aspect-video w-full max-h-[300px] overflow-hidden">
             <img
               src={backdropUrl}
               alt={movie.title}
@@ -129,14 +129,14 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
             />
           </div>
         ) : (
-          <div className="aspect-video w-full bg-muted" />
+          <div className="aspect-video w-full max-h-[300px] bg-muted" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
       </div>
 
       {/* Title & actions below the image */}
-      <div className="px-5 md:px-6 -mt-16 relative z-10">
-        <h2 className="text-xl md:text-3xl font-bold mb-3">{movie.title}</h2>
+      <div className="px-5 md:px-6 -mt-12 relative z-10">
+        <h2 className="text-xl md:text-2xl font-bold mb-3">{movie.title}</h2>
         <div className="flex items-center gap-3 mb-5">
           <Button
             onClick={onPlay}
@@ -170,7 +170,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
         </div>
       </div>
 
-      <div className="px-5 md:px-6 pb-8 space-y-6">
+      <div className="px-5 md:px-6 pb-8 space-y-4">
         {isLoading ? (
           <LoadingSpinner />
         ) : (
@@ -274,7 +274,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
 
   return (
     <Dialog open={isOpen} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-4xl p-0 overflow-hidden border-0 bg-background max-h-[90vh]">
+      <DialogContent className="max-w-3xl p-0 overflow-hidden border-0 bg-background max-h-[90vh]">
         <ScrollArea className="h-[90vh]">
            <Content />
         </ScrollArea>
