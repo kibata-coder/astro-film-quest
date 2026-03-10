@@ -149,8 +149,8 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow }: TVShowModa
           <Button
             onClick={() => {
               const firstEp = episodes?.[0];
-              if (firstEp) {
-                onPlay(selectedSeason, firstEp.episode_number);
+              if (firstEp && show) {
+                onPlay(show.id, show.name, selectedSeason, firstEp.episode_number, firstEp.name || `Episode ${firstEp.episode_number}`, show.poster_path);
               }
             }}
             size={isMobile ? "default" : "lg"}
