@@ -114,7 +114,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow }: TVShowModa
       </div>
 
       {/* Title & meta */}
-      <div className="px-5 md:px-6 -mt-16 relative z-10">
+      <div className="px-5 md:px-6 -mt-12 relative z-10">
         <div className="flex gap-4 items-end">
           {!isMobile && posterUrl && (
             <img
@@ -124,7 +124,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow }: TVShowModa
             />
           )}
           <div className="flex-1 min-w-0">
-            <h2 className="text-xl md:text-3xl font-bold mb-2">{show.name}</h2>
+            <h2 className="text-xl md:text-2xl font-bold mb-2">{show.name}</h2>
             <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
               <span className="flex items-center gap-1">
                 <Calendar className="w-3.5 h-3.5" />
