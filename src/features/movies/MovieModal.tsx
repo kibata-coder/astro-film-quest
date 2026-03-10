@@ -170,7 +170,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
         </div>
       </div>
 
-      <div className="px-5 md:px-6 pb-8 space-y-6">
+      <div className="px-5 md:px-6 pb-8 space-y-4">
         {isLoading ? (
           <LoadingSpinner />
         ) : (
