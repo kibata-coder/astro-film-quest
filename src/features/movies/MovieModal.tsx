@@ -135,8 +135,8 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
       </div>
 
       {/* Title & actions below the image */}
-      <div className="px-5 md:px-6 -mt-16 relative z-10">
-        <h2 className="text-xl md:text-3xl font-bold mb-3">{movie.title}</h2>
+      <div className="px-5 md:px-6 -mt-12 relative z-10">
+        <h2 className="text-xl md:text-2xl font-bold mb-3">{movie.title}</h2>
         <div className="flex items-center gap-3 mb-5">
           <Button
             onClick={onPlay}
