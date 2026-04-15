@@ -223,7 +223,12 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
               episodes.map((episode) => (
                 <div
                   key={episode.id}
-                  className="flex items-center gap-3 p-2.5 rounded-lg bg-background hover:bg-muted/80 transition-colors border border-border/50"
+                  ref={(el) => { episodeRefs.current[episode.episode_number] = el; }}
+                  className={`flex items-center gap-3 p-2.5 rounded-lg transition-colors border ${
+                    highlightedEpisode === episode.episode_number
+                      ? 'bg-primary/10 border-primary/50 ring-1 ring-primary/30'
+                      : 'bg-background hover:bg-muted/80 border-border/50'
+                  }`}
                 >
                   <div className="flex-shrink-0 w-20 aspect-video rounded overflow-hidden bg-muted">
                     {episode.still_path ? (
