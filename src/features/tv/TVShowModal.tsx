@@ -164,16 +164,19 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
         <div className="flex items-center gap-3 mt-4 mb-1">
           <Button
             onClick={() => {
-              const firstEp = episodes?.[0];
-              if (firstEp && show) {
-                onPlay(show.id, show.name, selectedSeason, firstEp.episode_number, firstEp.name || `Episode ${firstEp.episode_number}`, show.poster_path);
+              const resumeEp = initialEpisode !== undefined
+                ? episodes?.find(e => e.episode_number === initialEpisode)
+                : undefined;
+              const ep = resumeEp || episodes?.[0];
+              if (ep && show) {
+                onPlay(show.id, show.name, selectedSeason, ep.episode_number, ep.name || `Episode ${ep.episode_number}`, show.poster_path);
               }
             }}
             size={isMobile ? "default" : "lg"}
             className="gap-2 bg-foreground text-background hover:bg-foreground/90 font-semibold"
           >
             <Play className="w-4 h-4 fill-current" />
-            Play
+            {initialEpisode !== undefined && selectedSeason === initialSeason ? 'Resume' : 'Play'}
           </Button>
           <Button
             variant="secondary"
