@@ -16,6 +16,7 @@ import { useMedia } from '@/features/shared';
 import { useVideoPlayer } from '@/features/player';
 import { useAuth } from '@/features/auth';
 import { FeedCustomizer } from '@/components/FeedCustomizer';
+import SignUpPrompt from '@/components/SignUpPrompt';
 import {
   TrendingMoviesSection, TrendingTVSection, LatestSection,
   ActionMoviesSection, AdventureMoviesSection, ComedyMoviesSection,
