@@ -1,6 +1,11 @@
 import { createContext, useContext, useState, useCallback, ReactNode, useEffect, useRef } from 'react';
 import type { Movie, TVShow } from '@/lib/tmdb';
 
+interface TVModalOptions {
+  initialSeason?: number;
+  initialEpisode?: number;
+}
+
 interface MediaContextType {
   // Movie modal
   selectedMovie: Movie | null;
@@ -12,7 +17,8 @@ interface MediaContextType {
   // TV modal
   selectedShow: TVShow | null;
   isTVModalOpen: boolean;
-  openTVModal: (show: TVShow) => void;
+  tvModalOptions: TVModalOptions | null;
+  openTVModal: (show: TVShow, options?: TVModalOptions) => void;
   closeTVModal: () => void;
   forceCloseTVModal: () => void;
   
@@ -27,6 +33,7 @@ export function MediaProvider({ children }: { children: ReactNode }) {
   const [isMovieModalOpen, setIsMovieModalOpen] = useState(false);
   const [selectedShow, setSelectedShow] = useState<TVShow | null>(null);
   const [isTVModalOpen, setIsTVModalOpen] = useState(false);
+  const [tvModalOptions, setTvModalOptions] = useState<TVModalOptions | null>(null);
 
   // Refs to avoid stale closures in popstate handler
   const isMovieOpenRef = useRef(false);
@@ -76,8 +83,9 @@ export function MediaProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const openTVModal = useCallback((show: TVShow) => {
+  const openTVModal = useCallback((show: TVShow, options?: TVModalOptions) => {
     setSelectedShow(show);
+    setTvModalOptions(options || null);
     setIsTVModalOpen(true);
     window.history.pushState({ modal: 'tv' }, '', window.location.pathname);
   }, []);
@@ -114,6 +122,7 @@ export function MediaProvider({ children }: { children: ReactNode }) {
       forceCloseMovieModal,
       selectedShow,
       isTVModalOpen,
+      tvModalOptions,
       openTVModal,
       closeTVModal,
       forceCloseTVModal,

@@ -27,6 +27,7 @@ const Layout = memo(({ children, onSearch, searchQuery, showFooter = true }: Lay
     forceCloseMovieModal,
     selectedShow,
     isTVModalOpen,
+    tvModalOptions,
     closeTVModal,
     forceCloseTVModal,
   } = useMedia();
@@ -86,6 +87,8 @@ const Layout = memo(({ children, onSearch, searchQuery, showFooter = true }: Lay
           onClose={closeTVModal}
           onPlay={handlePlayTVShow}
           onSelectShow={openTVModal}
+          initialSeason={tvModalOptions?.initialSeason}
+          initialEpisode={tvModalOptions?.initialEpisode}
         />
 
         <VideoPlayer

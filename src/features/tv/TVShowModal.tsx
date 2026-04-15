@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X, Play, Star, Calendar, Tv, Plus, Check } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
@@ -18,15 +18,19 @@ interface TVShowModalProps {
   onClose: () => void;
   onPlay: (showId: number, showName: string, seasonNumber: number, episodeNumber: number, episodeName: string, posterPath: string | null) => void;
   onSelectShow?: (show: TVShow) => void;
+  initialSeason?: number;
+  initialEpisode?: number;
 }
 
-const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow }: TVShowModalProps) => {
+const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeason, initialEpisode }: TVShowModalProps) => {
   const isMobile = useIsMobile();
   const [details, setDetails] = useState<TVShowDetails | null>(null);
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [selectedSeason, setSelectedSeason] = useState<number>(1);
   const [recommendations, setRecommendations] = useState<TVShow[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [highlightedEpisode, setHighlightedEpisode] = useState<number | undefined>(undefined);
+  const episodeRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
@@ -47,7 +51,9 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow }: TVShowModa
       ])
         .then(([data, recs]) => {
           setDetails(data);
-          if (data.seasons && data.seasons.length > 0) {
+          if (initialSeason !== undefined) {
+            setSelectedSeason(initialSeason);
+          } else if (data.seasons && data.seasons.length > 0) {
             const firstRegularSeason = data.seasons.find(s => s.season_number > 0) || data.seasons[0];
             setSelectedSeason(firstRegularSeason.season_number);
           }
@@ -62,11 +68,21 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow }: TVShowModa
     if (show && selectedSeason >= 0) {
       getTVShowSeasonDetails(show.id, selectedSeason)
         .then((data) => {
-          setEpisodes(data.episodes || []);
+          const eps = data.episodes || [];
+          setEpisodes(eps);
+          // If this is the initial season from Continue Watching, highlight and scroll to the episode
+          if (initialEpisode !== undefined && selectedSeason === initialSeason) {
+            setHighlightedEpisode(initialEpisode);
+            setTimeout(() => {
+              episodeRefs.current[initialEpisode]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+          } else {
+            setHighlightedEpisode(undefined);
+          }
         })
         .catch(console.error);
     }
-  }, [show, selectedSeason]);
+  }, [show, selectedSeason, initialSeason, initialEpisode]);
 
   const handleBookmark = async () => {
     if (!show) return;
@@ -148,16 +164,19 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow }: TVShowModa
         <div className="flex items-center gap-3 mt-4 mb-1">
           <Button
             onClick={() => {
-              const firstEp = episodes?.[0];
-              if (firstEp && show) {
-                onPlay(show.id, show.name, selectedSeason, firstEp.episode_number, firstEp.name || `Episode ${firstEp.episode_number}`, show.poster_path);
+              const resumeEp = initialEpisode !== undefined
+                ? episodes?.find(e => e.episode_number === initialEpisode)
+                : undefined;
+              const ep = resumeEp || episodes?.[0];
+              if (ep && show) {
+                onPlay(show.id, show.name, selectedSeason, ep.episode_number, ep.name || `Episode ${ep.episode_number}`, show.poster_path);
               }
             }}
             size={isMobile ? "default" : "lg"}
             className="gap-2 bg-foreground text-background hover:bg-foreground/90 font-semibold"
           >
             <Play className="w-4 h-4 fill-current" />
-            Play
+            {initialEpisode !== undefined && selectedSeason === initialSeason ? 'Resume' : 'Play'}
           </Button>
           <Button
             variant="secondary"
@@ -207,7 +226,12 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow }: TVShowModa
               episodes.map((episode) => (
                 <div
                   key={episode.id}
-                  className="flex items-center gap-3 p-2.5 rounded-lg bg-background hover:bg-muted/80 transition-colors border border-border/50"
+                  ref={(el) => { episodeRefs.current[episode.episode_number] = el; }}
+                  className={`flex items-center gap-3 p-2.5 rounded-lg transition-colors border ${
+                    highlightedEpisode === episode.episode_number
+                      ? 'bg-primary/10 border-primary/50 ring-1 ring-primary/30'
+                      : 'bg-background hover:bg-muted/80 border-border/50'
+                  }`}
                 >
                   <div className="flex-shrink-0 w-20 aspect-video rounded overflow-hidden bg-muted">
                     {episode.still_path ? (
