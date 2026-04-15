@@ -68,11 +68,21 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
     if (show && selectedSeason >= 0) {
       getTVShowSeasonDetails(show.id, selectedSeason)
         .then((data) => {
-          setEpisodes(data.episodes || []);
+          const eps = data.episodes || [];
+          setEpisodes(eps);
+          // If this is the initial season from Continue Watching, highlight and scroll to the episode
+          if (initialEpisode !== undefined && selectedSeason === initialSeason) {
+            setHighlightedEpisode(initialEpisode);
+            setTimeout(() => {
+              episodeRefs.current[initialEpisode]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+          } else {
+            setHighlightedEpisode(undefined);
+          }
         })
         .catch(console.error);
     }
-  }, [show, selectedSeason]);
+  }, [show, selectedSeason, initialSeason, initialEpisode]);
 
   const handleBookmark = async () => {
     if (!show) return;
