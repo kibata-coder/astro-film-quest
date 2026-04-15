@@ -16,6 +16,7 @@ import { useMedia } from '@/features/shared';
 import { useVideoPlayer } from '@/features/player';
 import { useAuth } from '@/features/auth';
 import { FeedCustomizer } from '@/components/FeedCustomizer';
+import SignUpPrompt from '@/components/SignUpPrompt';
 import {
   TrendingMoviesSection, TrendingTVSection, LatestSection,
   ActionMoviesSection, AdventureMoviesSection, ComedyMoviesSection,
@@ -52,6 +53,7 @@ const Index = () => {
         </main>
       ) : (
         <>
+          <SignUpPrompt />
           <HeroBanner movies={trendingMovies} onPlay={playMovie} onInfo={openMovieModal} />
           <main className="px-5 md:px-16 pb-16 -mt-20 md:-mt-32 relative z-10">
             <div className="space-y-6 md:space-y-10">
