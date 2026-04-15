@@ -18,9 +18,11 @@ interface TVShowModalProps {
   onClose: () => void;
   onPlay: (showId: number, showName: string, seasonNumber: number, episodeNumber: number, episodeName: string, posterPath: string | null) => void;
   onSelectShow?: (show: TVShow) => void;
+  initialSeason?: number;
+  initialEpisode?: number;
 }
 
-const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow }: TVShowModalProps) => {
+const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeason, initialEpisode }: TVShowModalProps) => {
   const isMobile = useIsMobile();
   const [details, setDetails] = useState<TVShowDetails | null>(null);
   const [episodes, setEpisodes] = useState<Episode[]>([]);
