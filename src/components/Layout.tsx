@@ -27,6 +27,7 @@ const Layout = memo(({ children, onSearch, searchQuery, showFooter = true }: Lay
     forceCloseMovieModal,
     selectedShow,
     isTVModalOpen,
+    tvModalOptions,
     closeTVModal,
     forceCloseTVModal,
   } = useMedia();

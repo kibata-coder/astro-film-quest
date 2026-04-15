@@ -49,7 +49,9 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
       ])
         .then(([data, recs]) => {
           setDetails(data);
-          if (data.seasons && data.seasons.length > 0) {
+          if (initialSeason !== undefined) {
+            setSelectedSeason(initialSeason);
+          } else if (data.seasons && data.seasons.length > 0) {
             const firstRegularSeason = data.seasons.find(s => s.season_number > 0) || data.seasons[0];
             setSelectedSeason(firstRegularSeason.season_number);
           }
