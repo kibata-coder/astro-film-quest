@@ -33,6 +33,7 @@ export function MediaProvider({ children }: { children: ReactNode }) {
   const [isMovieModalOpen, setIsMovieModalOpen] = useState(false);
   const [selectedShow, setSelectedShow] = useState<TVShow | null>(null);
   const [isTVModalOpen, setIsTVModalOpen] = useState(false);
+  const [tvModalOptions, setTvModalOptions] = useState<TVModalOptions | null>(null);
 
   // Refs to avoid stale closures in popstate handler
   const isMovieOpenRef = useRef(false);
@@ -82,8 +83,9 @@ export function MediaProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const openTVModal = useCallback((show: TVShow) => {
+  const openTVModal = useCallback((show: TVShow, options?: TVModalOptions) => {
     setSelectedShow(show);
+    setTvModalOptions(options || null);
     setIsTVModalOpen(true);
     window.history.pushState({ modal: 'tv' }, '', window.location.pathname);
   }, []);
@@ -120,6 +122,7 @@ export function MediaProvider({ children }: { children: ReactNode }) {
       forceCloseMovieModal,
       selectedShow,
       isTVModalOpen,
+      tvModalOptions,
       openTVModal,
       closeTVModal,
       forceCloseTVModal,
