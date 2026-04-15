@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X, Play, Star, Calendar, Tv, Plus, Check } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
@@ -29,6 +29,8 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
   const [selectedSeason, setSelectedSeason] = useState<number>(1);
   const [recommendations, setRecommendations] = useState<TVShow[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [highlightedEpisode, setHighlightedEpisode] = useState<number | undefined>(undefined);
+  const episodeRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
