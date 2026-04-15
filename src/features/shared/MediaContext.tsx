@@ -1,6 +1,11 @@
 import { createContext, useContext, useState, useCallback, ReactNode, useEffect, useRef } from 'react';
 import type { Movie, TVShow } from '@/lib/tmdb';
 
+interface TVModalOptions {
+  initialSeason?: number;
+  initialEpisode?: number;
+}
+
 interface MediaContextType {
   // Movie modal
   selectedMovie: Movie | null;
@@ -12,7 +17,8 @@ interface MediaContextType {
   // TV modal
   selectedShow: TVShow | null;
   isTVModalOpen: boolean;
-  openTVModal: (show: TVShow) => void;
+  tvModalOptions: TVModalOptions | null;
+  openTVModal: (show: TVShow, options?: TVModalOptions) => void;
   closeTVModal: () => void;
   forceCloseTVModal: () => void;
   

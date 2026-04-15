@@ -88,12 +88,10 @@ const ContinueWatchingSection = () => {
       
       openMovieModal(movie);
     } else {
-      // Create a compatible TVShow object from the history item
       const show: TVShow = {
         id: item.id,
-        name: item.title, // History stores 'title', TVShow uses 'name'
+        name: item.title,
         poster_path: item.poster_path,
-        // Provide defaults for fields missing in history but required by TVShow type
         backdrop_path: '',
         overview: '',
         first_air_date: '',
@@ -106,7 +104,10 @@ const ContinueWatchingSection = () => {
         genre_ids: []
       } as unknown as TVShow;
 
-      openTVModal(show);
+      openTVModal(show, {
+        initialSeason: item.season_number ?? undefined,
+        initialEpisode: item.episode_number ?? undefined,
+      });
     }
   };
 
