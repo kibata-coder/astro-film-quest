@@ -115,7 +115,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
 
       {/* Backdrop */}
       <div className="relative w-full">
-        <div className="aspect-video w-full max-h-[300px] overflow-hidden">
+        <div className="w-full h-[220px] md:h-[280px] overflow-hidden bg-black">
           {backdropUrl ? (
             <img
               src={backdropUrl}
@@ -333,7 +333,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl p-0 overflow-hidden bg-background border-border max-h-[90vh]">
+      <DialogContent className="max-w-2xl p-0 overflow-hidden bg-background border-border max-h-[90vh]">
         <ScrollArea className="h-[90vh]">
           <Content />
         </ScrollArea>

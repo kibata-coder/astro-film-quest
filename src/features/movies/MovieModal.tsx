@@ -112,7 +112,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
       {/* Hero media - show trailer on desktop, backdrop on mobile */}
       <div className="relative w-full">
         {!isMobile && trailer ? (
-          <div className="aspect-video w-full max-h-[300px] overflow-hidden">
+          <div className="w-full h-[220px] md:h-[280px] overflow-hidden bg-black">
             <iframe
               src={`https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=1&controls=0&showinfo=0&rel=0`}
               className="w-full h-full"
@@ -121,7 +121,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
             />
           </div>
         ) : backdropUrl ? (
-          <div className="aspect-video w-full max-h-[300px] overflow-hidden">
+          <div className="w-full h-[220px] md:h-[280px] overflow-hidden bg-black">
             <img
               src={backdropUrl}
               alt={movie.title}
@@ -129,7 +129,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
             />
           </div>
         ) : (
-          <div className="aspect-video w-full max-h-[300px] bg-muted" />
+          <div className="w-full h-[220px] md:h-[280px] bg-muted" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
       </div>
@@ -274,7 +274,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
 
   return (
     <Dialog open={isOpen} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-3xl p-0 overflow-hidden border-0 bg-background max-h-[90vh]">
+      <DialogContent className="max-w-2xl p-0 overflow-hidden border-0 bg-background max-h-[90vh]">
         <ScrollArea className="h-[90vh]">
            <Content />
         </ScrollArea>
