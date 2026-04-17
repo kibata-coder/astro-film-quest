@@ -274,7 +274,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
 
   return (
     <Dialog open={isOpen} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-3xl p-0 overflow-hidden border-0 bg-background max-h-[90vh]">
+      <DialogContent className="max-w-2xl p-0 overflow-hidden border-0 bg-background max-h-[90vh]">
         <ScrollArea className="h-[90vh]">
            <Content />
         </ScrollArea>
