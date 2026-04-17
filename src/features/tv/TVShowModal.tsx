@@ -115,7 +115,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
 
       {/* Backdrop */}
       <div className="relative w-full">
-        <div className="aspect-video w-full max-h-[300px] overflow-hidden">
+        <div className="w-full h-[220px] md:h-[280px] overflow-hidden bg-black">
           {backdropUrl ? (
             <img
               src={backdropUrl}
