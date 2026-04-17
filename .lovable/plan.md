@@ -1,26 +1,27 @@
 
 
-## Sign-Up Prompt Popup for Guest Users
+## Problem
+At the current viewport (888px), the trailer in MovieModal/TVShowModal still appears too large. The `max-h-[300px]` cap I added doesn't actually constrain because `aspect-video` on a ~720px wide modal produces ~405px height — but `max-h` with `aspect-video` and `overflow-hidden` just crops, it doesn't shrink. Also at md breakpoint (768px+), the modal is near full width of the 888px viewport.
 
-### Behavior
-- Show a popup after 5 seconds on the home page for users who are **not signed in**
-- The popup highlights benefits of creating an account
-- If the user clicks **"Create Account"**, open the existing auth modal
-- If the user clicks **X** or **"Maybe Later"**, close the popup **but do NOT persist dismissal** — the popup will appear again on the next visit/refresh
-- The popup **never shows** for authenticated users — checked via `useAuth().user`
-- No localStorage needed — the popup simply checks auth state on each page load
+## Fix
 
-### Changes
+**MovieModal.tsx & TVShowModal.tsx** — replace the trailer/backdrop wrapper:
 
-**1. New file: `src/components/SignUpPrompt.tsx`**
-- Dialog component listing benefits (bookmarks, collections, watch history sync, continue watching, personalized recommendations)
-- "Create Free Account" button → calls `openAuthModal()` and closes popup
-- "Maybe Later" / X button → just closes popup (no persistence)
-- Uses a `setTimeout(5000)` to delay showing
-- Checks `useAuth().user` — if user exists, never show
+Instead of `aspect-video w-full max-h-[300px] overflow-hidden` (which crops), use a fixed height container that the iframe/image fills:
 
-**2. Edit: `src/pages/Index.tsx`**
-- Import and render `<SignUpPrompt />` inside the non-search home view
+```tsx
+<div className="w-full h-[220px] md:h-[280px] overflow-hidden bg-black">
+  <iframe ... className="w-full h-full" />
+  {/* or */}
+  <img ... className="w-full h-full object-cover" />
+</div>
+```
 
-### No database or localStorage changes needed — purely auth-state driven.
+This guarantees the hero never exceeds 280px on desktop and 220px on mobile, keeping title + action buttons visible without scrolling.
+
+Also reduce dialog `max-w-3xl` → `max-w-2xl` (~672px) for a tighter modal on mid-size screens.
+
+### Files
+- `src/features/movies/MovieModal.tsx`
+- `src/features/tv/TVShowModal.tsx`
 
