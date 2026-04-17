@@ -31,6 +31,32 @@ interface MovieModalProps {
   onSelectMovie?: (movie: Movie) => void;
 }
 
+const getTrailerScore = (video: Video) => {
+  const name = video.name.toLowerCase();
+  let score = 0;
+
+  if (video.site === 'YouTube') score += 20;
+  if (video.type === 'Trailer') score += 40;
+  if (video.official) score += 30;
+  if (name.includes('official trailer')) score += 20;
+  else if (name.includes('trailer')) score += 10;
+
+  if (name.includes('teaser')) score -= 10;
+  if (name.includes('clip')) score -= 20;
+  if (name.includes('short')) score -= 40;
+  if (name.includes('vertical')) score -= 40;
+
+  score += Math.min(video.size ?? 0, 1080) / 100;
+
+  return score;
+};
+
+const getPreferredTrailer = (videos: Video[]) =>
+  [...videos]
+    .filter((video) => video.site === 'YouTube')
+    .sort((a, b) => getTrailerScore(b) - getTrailerScore(a))
+    .find((video) => getTrailerScore(video) > 0) || null;
+
 const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModalProps) => {
   const isMobile = useIsMobile();
   const [details, setDetails] = useState<Movie | null>(null);
@@ -64,11 +90,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
         .then(([movieDetails, credits, videos, watchProviders, recommendedMovies]) => {
           setDetails(movieDetails);
           setCast((credits as unknown as { cast: Cast[] }).cast?.slice(0, 6) || []);
-          
-          const officialTrailer = videos.find(
-            (v) => v.type === 'Trailer' && v.site === 'YouTube'
-          );
-          setTrailer(officialTrailer || null);
+          setTrailer(getPreferredTrailer(videos));
           
           setProviders(watchProviders?.flatrate || null);
           setRecommendations(recommendedMovies.results?.slice(0, 10) || []);

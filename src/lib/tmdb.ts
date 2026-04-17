@@ -71,6 +71,9 @@ export interface Video {
   name: string;
   site: string;
   type: string;
+  official?: boolean;
+  size?: number;
+  published_at?: string;
 }
 
 export interface WatchProvider {
