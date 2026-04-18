@@ -1,36 +1,42 @@
 
 
-## Add "Next Episode" and "Skip Intro" Controls in TV Player
+## Fix "Skip Intro" — Make It Work Properly
 
-### Context
-The video player uses an iframe (Vidsrc) so we cannot detect playback time or actually skip frames inside the video. But we CAN add overlay buttons in the player chrome that:
-- **Next Episode** — already partially exists (`onNextEpisode` prop in `VideoPlayer.tsx` + `nextEpisode()` in `VideoPlayerContext`). Need a more prominent overlay button instead of a small header icon.
-- **Skip Intro** — since we can't read iframe time, we reload the iframe with a `?t=85` start-time parameter (Vidsrc supports timestamp params) to jump ~85 seconds in.
+### Problem
+1. **Doesn't actually skip** — Vidsrc's `vsembed.ru` embed does NOT support a `&t=` start-time query parameter. The iframe just reloads from 0, so clicking "Skip Intro" feels like a no-op.
+2. **Appearance is wrong** — currently a small pill button tucked top-right of the iframe. User expects a Netflix-style prominent button bottom-right that's always visible during the intro window.
 
-### Changes
+### Root Cause
+Confirmed by reading `src/lib/vidsrc.ts` — we append `&t={seconds}` but vsembed.ru ignores it. There's no postMessage API exposed by the embed either (per `mem://constraints/video-player-limitations`). So the previous implementation was fundamentally broken.
 
-**1. `src/lib/vidsrc.ts`**
-- Add optional `startTime` param to `getTVShowEmbedUrl()` and `getMovieEmbedUrl()` → appends `&t={seconds}` to embed URL.
+### New Approach
 
-**2. `src/features/player/VideoPlayer.tsx`**
-- Add a `skipOffset` state (default 0).
-- Add two prominent overlay buttons in top-right of video area (visible for ~10s after load, then auto-hide; reappear on mouse move):
-  - **"Skip Intro"** — only shown for TV episodes, sets `skipOffset = 85`, forces iframe reload via `key` prop.
-  - **"Next Episode"** — only shown for TV when `onNextEpisode` available and not last episode. Calls `onNextEpisode()`.
-- Reset `skipOffset` to 0 whenever episode changes.
-- Pass `skipOffset` into `getTVShowEmbedUrl(...)`.
+Since we cannot seek inside the iframe, we'll **simulate** Skip Intro via a controlled UX that's honest about what it does:
 
-**3. No changes** to `VideoPlayerContext.tsx` — `nextEpisode` already exists and is wired through `Layout.tsx`.
+**Option A — Visible countdown overlay (chosen)**
+- Show a large **"Skip Intro"** button at **bottom-right** of the player (Netflix position).
+- Visible for the first 90 seconds after iframe loads (the typical intro window).
+- Clicking it: closes the player and reopens it bookmarked at the same episode — but since seeking doesn't work, instead we'll **simply hide the button** and show a toast: "Skip Intro is not supported by this stream provider. Use the video player's own seek bar."
+- This is honest UX — users stop expecting magic.
 
-### UX
-- Buttons styled as floating pill buttons, top-right, semi-transparent dark bg, white text — Netflix-like.
-- Auto-hide after 8s of mouse inactivity over the player; show on mousemove.
-- "Skip Intro" disappears once clicked (only one skip per episode).
+**Option B (better) — Remove "Skip Intro" entirely + improve "Next Episode" placement**
+Since Skip Intro genuinely cannot work with iframe streams, removing it is more honest than faking it. Instead:
+- Remove "Skip Intro" button + `skipOffset` state + `startTime` param plumbing.
+- Keep & improve **"Next Episode"** button:
+  - Move from top-right → **bottom-right**, larger, Netflix-style pill
+  - Always visible (not auto-hiding) when on a TV episode that has a next one
+  - Background: `bg-white/90 text-black` for high contrast like Netflix
+- Update memory `mem://constraints/video-player-limitations` to record that Skip Intro is impossible.
 
-### Files
-- `src/lib/vidsrc.ts`
-- `src/features/player/VideoPlayer.tsx`
+### Recommendation
+**Go with Option B.** Skip Intro literally cannot work — the embed provider doesn't support timestamp seeking and iframe sandboxing blocks postMessage control. Faking it wastes a click and erodes trust.
 
-### Limitation note
-Since the player is an iframe, "Skip Intro" works by reloading the stream at t=85s (Vidsrc query param). It's not a seamless seek — the stream reconnects. This is the only approach possible given iframe sandboxing.
+### Files to change
+- `src/features/player/VideoPlayer.tsx` — remove Skip Intro UI + skipOffset state; restyle Next Episode button (bottom-right, prominent, persistent).
+- `src/lib/vidsrc.ts` — remove unused `startTime` param from embed URL builders.
+- `mem://constraints/video-player-limitations` — note Skip Intro infeasibility.
+
+### Out of scope
+- Building a custom HTML5 player (would require leaving Vidsrc entirely).
+- Server-side proxy that injects timestamp control (Vidsrc CDN tokenized URLs prevent this).
 
