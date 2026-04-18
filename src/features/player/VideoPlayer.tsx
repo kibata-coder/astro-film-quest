@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { X, ChevronLeft, ChevronRight, SkipForward, FastForward } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getMovieEmbedUrl, getTVShowEmbedUrl } from '@/lib/vidsrc';
 import { saveWatchProgress } from '@/lib/watchHistory';
