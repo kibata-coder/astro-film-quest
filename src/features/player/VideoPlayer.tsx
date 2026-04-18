@@ -84,10 +84,25 @@ const VideoPlayer = ({
     if (!isOpen) return;
 
     setIsConnecting(true);
+    setSkipOffset(0);
     const timer = setTimeout(() => setIsConnecting(false), 1200);
 
     return () => clearTimeout(timer);
   }, [isOpen, mediaId, seasonNumber, episodeNumber]);
+
+  const revealOverlay = useCallback(() => {
+    setShowOverlay(true);
+    if (hideTimerRef.current) window.clearTimeout(hideTimerRef.current);
+    hideTimerRef.current = window.setTimeout(() => setShowOverlay(false), 8000);
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    revealOverlay();
+    return () => {
+      if (hideTimerRef.current) window.clearTimeout(hideTimerRef.current);
+    };
+  }, [isOpen, mediaId, seasonNumber, episodeNumber, revealOverlay]);
 
   useEffect(() => {
     if (!isOpen) return;
