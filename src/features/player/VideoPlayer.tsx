@@ -140,8 +140,8 @@ const VideoPlayer = ({
 
   const embedUrl =
     mediaType === 'tv' && seasonNumber && episodeNumber
-      ? getTVShowEmbedUrl(mediaId, seasonNumber, episodeNumber)
-      : getMovieEmbedUrl(mediaId);
+      ? getTVShowEmbedUrl(mediaId, seasonNumber, episodeNumber, skipOffset)
+      : getMovieEmbedUrl(mediaId, skipOffset);
 
   const isTVShow = mediaType === 'tv' && seasonNumber && episodeNumber;
   const isFirstEpisode = episodeNumber === 1;
