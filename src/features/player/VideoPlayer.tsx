@@ -33,6 +33,9 @@ const VideoPlayer = ({
   onPreviousEpisode,
 }: VideoPlayerProps) => {
   const [isConnecting, setIsConnecting] = useState(true);
+  const [skipOffset, setSkipOffset] = useState(0);
+  const [showOverlay, setShowOverlay] = useState(true);
+  const hideTimerRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);
   const durationRef = useRef<number>(0);
 
