@@ -120,7 +120,7 @@ const ContinueWatchingSection = ({ filterType, title = 'Continue Watching' }: Co
   return (
     <section className="py-8 md:py-10">
       <div className="flex items-center justify-between mb-5 md:mb-6">
-        <h2 className="text-xl md:text-2xl font-semibold">Continue Watching</h2>
+        <h2 className="text-xl md:text-2xl font-semibold">{title}</h2>
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
