@@ -14,6 +14,7 @@ import {
   IndianTVSection,
   EnglishTVSection,
 } from '@/components/sections/MovieSections';
+import ContinueWatchingSection from '@/components/ContinueWatchingSection';
 
 const TVShows = () => {
   const [searchQuery, setSearchQuery] = useState('');
