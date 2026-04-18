@@ -18,13 +18,18 @@ import { Button } from '@/components/ui/button';
 import { getImageUrl, Movie, TVShow } from '@/lib/tmdb';
 import { useMedia } from '@/features/shared';
 
-const ContinueWatchingSection = () => {
+interface ContinueWatchingSectionProps {
+  filterType?: 'movie' | 'tv';
+  title?: string;
+}
+
+const ContinueWatchingSection = ({ filterType, title = 'Continue Watching' }: ContinueWatchingSectionProps = {}) => {
   const [history, setHistory] = useState<WatchHistoryItem[]>([]);
   const { openMovieModal, openTVModal } = useMedia();
 
   const loadHistory = async () => {
     const data = await getWatchHistory();
-    setHistory(data);
+    setHistory(filterType ? data.filter((i) => i.media_type === filterType) : data);
   };
 
   useEffect(() => {
