@@ -227,7 +227,23 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
                 <div
                   key={episode.id}
                   ref={(el) => { episodeRefs.current[episode.episode_number] = el; }}
-                  className={`flex items-center gap-3 p-2.5 rounded-lg transition-colors border ${
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => onPlay(
+                    show.id,
+                    show.name,
+                    selectedSeason,
+                    episode.episode_number,
+                    episode.name,
+                    show.poster_path
+                  )}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onPlay(show.id, show.name, selectedSeason, episode.episode_number, episode.name, show.poster_path);
+                    }
+                  }}
+                  className={`flex items-center gap-3 p-2.5 rounded-lg transition-colors border cursor-pointer ${
                     highlightedEpisode === episode.episode_number
                       ? 'bg-primary/10 border-primary/50 ring-1 ring-primary/30'
                       : 'bg-background hover:bg-muted/80 border-border/50'
