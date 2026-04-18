@@ -35,12 +35,10 @@ const ContinueWatchingSection = ({ filterType, title = 'Continue Watching' }: Co
   useEffect(() => {
     loadHistory();
 
-    // Listen for auth changes to reload history (e.g., user signs in)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
       loadHistory();
     });
 
-    // Listen for custom event if you trigger it elsewhere
     const handleHistoryUpdate = () => loadHistory();
     window.addEventListener('watch-history-updated', handleHistoryUpdate);
 
@@ -48,7 +46,8 @@ const ContinueWatchingSection = ({ filterType, title = 'Continue Watching' }: Co
       subscription.unsubscribe();
       window.removeEventListener('watch-history-updated', handleHistoryUpdate);
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterType]);
 
   const handleRemove = async (e: React.MouseEvent, item: WatchHistoryItem) => {
     e.preventDefault();
