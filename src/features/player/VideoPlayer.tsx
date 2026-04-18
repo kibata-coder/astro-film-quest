@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { X, ChevronLeft, ChevronRight, SkipForward, FastForward } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getMovieEmbedUrl, getTVShowEmbedUrl } from '@/lib/vidsrc';
 import { saveWatchProgress } from '@/lib/watchHistory';
@@ -33,6 +33,9 @@ const VideoPlayer = ({
   onPreviousEpisode,
 }: VideoPlayerProps) => {
   const [isConnecting, setIsConnecting] = useState(true);
+  const [skipOffset, setSkipOffset] = useState(0);
+  const [showOverlay, setShowOverlay] = useState(true);
+  const hideTimerRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);
   const durationRef = useRef<number>(0);
 
@@ -81,10 +84,25 @@ const VideoPlayer = ({
     if (!isOpen) return;
 
     setIsConnecting(true);
+    setSkipOffset(0);
     const timer = setTimeout(() => setIsConnecting(false), 1200);
 
     return () => clearTimeout(timer);
   }, [isOpen, mediaId, seasonNumber, episodeNumber]);
+
+  const revealOverlay = useCallback(() => {
+    setShowOverlay(true);
+    if (hideTimerRef.current) window.clearTimeout(hideTimerRef.current);
+    hideTimerRef.current = window.setTimeout(() => setShowOverlay(false), 8000);
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    revealOverlay();
+    return () => {
+      if (hideTimerRef.current) window.clearTimeout(hideTimerRef.current);
+    };
+  }, [isOpen, mediaId, seasonNumber, episodeNumber, revealOverlay]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -122,8 +140,8 @@ const VideoPlayer = ({
 
   const embedUrl =
     mediaType === 'tv' && seasonNumber && episodeNumber
-      ? getTVShowEmbedUrl(mediaId, seasonNumber, episodeNumber)
-      : getMovieEmbedUrl(mediaId);
+      ? getTVShowEmbedUrl(mediaId, seasonNumber, episodeNumber, skipOffset)
+      : getMovieEmbedUrl(mediaId, skipOffset);
 
   const isTVShow = mediaType === 'tv' && seasonNumber && episodeNumber;
   const isFirstEpisode = episodeNumber === 1;
@@ -173,7 +191,11 @@ const VideoPlayer = ({
         </div>
       </div>
 
-      <div className="relative flex-1">
+      <div
+        className="relative flex-1"
+        onMouseMove={revealOverlay}
+        onTouchStart={revealOverlay}
+      >
         {isConnecting ? (
           <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
             <div className="loading-spinner h-12 w-12" />
@@ -183,13 +205,44 @@ const VideoPlayer = ({
             </div>
           </div>
         ) : (
-          <iframe
-            src={embedUrl}
-            className="h-full w-full border-0"
-            allowFullScreen
-            allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope"
-            referrerPolicy="no-referrer"
-          />
+          <>
+            <iframe
+              key={`${mediaId}-${seasonNumber ?? 'm'}-${episodeNumber ?? 'm'}-${skipOffset}`}
+              src={embedUrl}
+              className="h-full w-full border-0"
+              allowFullScreen
+              allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope"
+              referrerPolicy="no-referrer"
+            />
+            <div
+              className={`pointer-events-none absolute right-3 top-3 flex flex-col items-end gap-2 transition-opacity duration-300 ${
+                showOverlay ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              {isTVShow && skipOffset === 0 && (
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="pointer-events-auto gap-2 bg-background/80 backdrop-blur hover:bg-background"
+                  onClick={() => setSkipOffset(85)}
+                >
+                  <FastForward className="h-4 w-4" />
+                  Skip Intro
+                </Button>
+              )}
+              {isTVShow && totalEpisodes && !isLastEpisode && onNextEpisode && (
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="pointer-events-auto gap-2 bg-background/80 backdrop-blur hover:bg-background"
+                  onClick={onNextEpisode}
+                >
+                  <SkipForward className="h-4 w-4" />
+                  Next Episode
+                </Button>
+              )}
+            </div>
+          </>
         )}
       </div>
     </div>
