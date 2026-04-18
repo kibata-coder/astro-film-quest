@@ -18,24 +18,27 @@ import { Button } from '@/components/ui/button';
 import { getImageUrl, Movie, TVShow } from '@/lib/tmdb';
 import { useMedia } from '@/features/shared';
 
-const ContinueWatchingSection = () => {
+interface ContinueWatchingSectionProps {
+  filterType?: 'movie' | 'tv';
+  title?: string;
+}
+
+const ContinueWatchingSection = ({ filterType, title = 'Continue Watching' }: ContinueWatchingSectionProps = {}) => {
   const [history, setHistory] = useState<WatchHistoryItem[]>([]);
   const { openMovieModal, openTVModal } = useMedia();
 
   const loadHistory = async () => {
     const data = await getWatchHistory();
-    setHistory(data);
+    setHistory(filterType ? data.filter((i) => i.media_type === filterType) : data);
   };
 
   useEffect(() => {
     loadHistory();
 
-    // Listen for auth changes to reload history (e.g., user signs in)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
       loadHistory();
     });
 
-    // Listen for custom event if you trigger it elsewhere
     const handleHistoryUpdate = () => loadHistory();
     window.addEventListener('watch-history-updated', handleHistoryUpdate);
 
@@ -43,7 +46,8 @@ const ContinueWatchingSection = () => {
       subscription.unsubscribe();
       window.removeEventListener('watch-history-updated', handleHistoryUpdate);
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterType]);
 
   const handleRemove = async (e: React.MouseEvent, item: WatchHistoryItem) => {
     e.preventDefault();
@@ -116,7 +120,7 @@ const ContinueWatchingSection = () => {
   return (
     <section className="py-8 md:py-10">
       <div className="flex items-center justify-between mb-5 md:mb-6">
-        <h2 className="text-xl md:text-2xl font-semibold">Continue Watching</h2>
+        <h2 className="text-xl md:text-2xl font-semibold">{title}</h2>
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button

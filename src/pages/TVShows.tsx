@@ -14,6 +14,7 @@ import {
   IndianTVSection,
   EnglishTVSection,
 } from '@/components/sections/MovieSections';
+import ContinueWatchingSection from '@/components/ContinueWatchingSection';
 
 const TVShows = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -84,6 +85,7 @@ const TVShows = () => {
           </section>
         ) : (
           <>
+            <ContinueWatchingSection filterType="tv" title="Continue Watching TV" />
             <SectionErrorBoundary sectionName="Trending TV">
               <TrendingTVSection onShowClick={openTVModal} />
             </SectionErrorBoundary>
