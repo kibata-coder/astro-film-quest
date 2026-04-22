@@ -6,7 +6,6 @@ import {
 import MediaCard from '@/components/MediaCard';
 import ScrollableSection from '@/components/ScrollableSection';
 import LazySection from '@/components/LazySection';
-import LatestSection from '@/components/LatestSection';
 import { 
   useTrendingMovies,
   useIndianMovies, 
@@ -157,5 +156,3 @@ export const CrimeMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
 export const WarMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
   <DynamicSection title="War" icon={Siren} useDataHook={useWarMovies} onItemClick={onMovieClick} />
 );
-
-export { LatestSection };

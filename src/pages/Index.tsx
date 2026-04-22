@@ -18,7 +18,7 @@ import { useAuth } from '@/features/auth';
 import { FeedCustomizer } from '@/components/FeedCustomizer';
 import SignUpPrompt from '@/components/SignUpPrompt';
 import {
-  TrendingMoviesSection, TrendingTVSection, LatestSection,
+  TrendingMoviesSection, TrendingTVSection,
   ActionMoviesSection, AdventureMoviesSection, ComedyMoviesSection,
   DramaMoviesSection, HorrorMoviesSection, SciFiMoviesSection,
   FantasyMoviesSection, RomanceMoviesSection, ThrillerMoviesSection,
@@ -87,9 +87,6 @@ const Index = () => {
                   {preferences.western && <SectionErrorBoundary sectionName="Western"><WesternMoviesSection onMovieClick={openMovieModal} /></SectionErrorBoundary>}
                   {preferences.war && <SectionErrorBoundary sectionName="War"><WarMoviesSection onMovieClick={openMovieModal} /></SectionErrorBoundary>}
                   
-                  <SectionErrorBoundary sectionName="Latest">
-                    <LatestSection onMovieClick={openMovieModal} onTVShowClick={openTVModal} />
-                  </SectionErrorBoundary>
                   <SectionErrorBoundary sectionName="Trending TV">
                     <TrendingTVSection onShowClick={openTVModal} />
                   </SectionErrorBoundary>
