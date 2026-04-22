@@ -50,7 +50,7 @@ const LazySection = ({
   );
 
   return (
-    <div ref={ref} className={cn("min-h-[200px]", className)}>
+    <div ref={ref} className={cn('min-h-[200px] cv-auto', className)}>
       {hasBeenVisible ? (
         <div className="transition-opacity duration-500 opacity-100">
           {typeof children === 'function' ? children({ isVisible: hasBeenVisible }) : children}
