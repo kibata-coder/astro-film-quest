@@ -6,7 +6,6 @@ import {
 import MediaCard from '@/components/MediaCard';
 import ScrollableSection from '@/components/ScrollableSection';
 import LazySection from '@/components/LazySection';
-import LatestSection from '@/components/LatestSection';
 import { 
   useTrendingMovies,
   useIndianMovies, 
