@@ -197,7 +197,7 @@ const VideoPlayer = ({
               <Button
                 size="lg"
                 onClick={onNextEpisode}
-                className="absolute bottom-6 right-6 gap-2 rounded-full bg-white px-6 font-semibold text-black shadow-lg hover:bg-white/90"
+                className="absolute bottom-20 right-6 gap-2 rounded-full bg-white px-6 font-semibold text-black shadow-lg hover:bg-white/90"
               >
                 <SkipForward className="h-5 w-5" />
                 Next Episode
