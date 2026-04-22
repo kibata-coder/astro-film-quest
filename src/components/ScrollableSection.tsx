@@ -28,16 +28,25 @@ const ScrollableSection = memo(({
   };
 
   useEffect(() => {
+    let ticking = false;
+    const throttled = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        checkScroll();
+        ticking = false;
+      });
+    };
     checkScroll();
     const el = scrollRef.current;
     if (el) {
-      el.addEventListener('scroll', checkScroll);
-      window.addEventListener('resize', checkScroll);
+      el.addEventListener('scroll', throttled, { passive: true });
+      window.addEventListener('resize', throttled, { passive: true });
     }
     return () => {
       if (el) {
-        el.removeEventListener('scroll', checkScroll);
-        window.removeEventListener('resize', checkScroll);
+        el.removeEventListener('scroll', throttled);
+        window.removeEventListener('resize', throttled);
       }
     };
   }, [children]);

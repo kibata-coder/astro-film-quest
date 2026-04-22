@@ -12,9 +12,7 @@ interface MediaCardProps {
   className?: string;
 }
 
-const isMovie = (item: MediaItem): item is Movie => {
-  return 'title' in item;
-};
+const isMovie = (item: MediaItem): item is Movie => 'title' in item;
 
 const MediaCard = memo(({ item, onClick, showBadge = true, className }: MediaCardProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -30,27 +28,32 @@ const MediaCard = memo(({ item, onClick, showBadge = true, className }: MediaCar
     <div
       onClick={() => onClick(item)}
       className={cn(
-        "flex-shrink-0 w-[130px] sm:w-40 md:w-48 cursor-pointer group",
-        className
+        'flex-shrink-0 w-[130px] sm:w-40 md:w-48 cursor-pointer group',
+        className,
       )}
     >
+      {/* aspect-[2/3] reserves space → no CLS even before the image loads */}
       <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-muted">
-        {/* Placeholder */}
         {!imageLoaded && !imageError && (
           <div className="absolute inset-0 bg-muted animate-pulse" />
         )}
 
-        {/* Image */}
         {posterUrl && !imageError ? (
           <img
             src={posterUrl}
             alt={title}
+            // Native browser lazy-loading + async decode keep low-end devices responsive.
             loading="lazy"
+            decoding="async"
+            // @ts-expect-error fetchpriority is valid HTML
+            fetchpriority="low"
+            width={300}
+            height={450}
             onLoad={() => setImageLoaded(true)}
             onError={() => setImageError(true)}
             className={cn(
-              "w-full h-full object-cover transition-all duration-300 group-hover:scale-110",
-              imageLoaded ? "opacity-100" : "opacity-0"
+              'w-full h-full object-cover transition-opacity duration-300 md:group-hover:scale-105 md:transition-transform',
+              imageLoaded ? 'opacity-100' : 'opacity-0',
             )}
           />
         ) : (
@@ -66,7 +69,6 @@ const MediaCard = memo(({ item, onClick, showBadge = true, className }: MediaCar
           </div>
         )}
 
-        {/* Rating Badge */}
         {showBadge && rating > 0 && (
           <div className="absolute top-2 right-2 flex items-center gap-1 px-1.5 py-0.5 rounded bg-background/90 backdrop-blur-sm">
             <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
@@ -74,15 +76,14 @@ const MediaCard = memo(({ item, onClick, showBadge = true, className }: MediaCar
           </div>
         )}
 
-        {/* Media Type Badge */}
         {showBadge && (
           <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-primary/90 text-primary-foreground text-xs font-medium">
             {isMovie(item) ? 'Movie' : 'TV'}
           </div>
         )}
 
-        {/* Hover Overlay */}
-        <div className="absolute inset-0 bg-background/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+        {/* Hover overlay — pointer-events:none keeps it cheap on touch devices */}
+        <div className="hidden md:flex absolute inset-0 bg-background/70 opacity-0 group-hover:opacity-100 transition-opacity duration-200 items-center justify-center pointer-events-none">
           <div className="flex flex-col items-center gap-2">
             <div className="p-3 rounded-full bg-primary/90">
               <Play className="w-6 h-6 text-primary-foreground" fill="currentColor" />
@@ -92,7 +93,6 @@ const MediaCard = memo(({ item, onClick, showBadge = true, className }: MediaCar
         </div>
       </div>
 
-      {/* Info */}
       <div className="mt-3">
         <p className="text-sm md:text-base font-medium truncate group-hover:text-primary transition-colors">
           {title}

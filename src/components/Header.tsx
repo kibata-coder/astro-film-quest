@@ -31,8 +31,16 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 0);
-    window.addEventListener('scroll', handleScroll);
+    let ticking = false;
+    const handleScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        setIsScrolled(window.scrollY > 0);
+        ticking = false;
+      });
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 

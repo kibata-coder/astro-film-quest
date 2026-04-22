@@ -7,7 +7,8 @@ export const getImageUrl = (path: string | null, size: 'w300' | 'w500' | 'w780' 
   return `${IMAGE_BASE_URL}/${size}${path}`;
 };
 
-export const getBackdropUrl = (path: string | null, size: 'w780' | 'w1280' | 'original' = 'original') => {
+// Default to w1280 (not 'original') — multi-MB backdrops kill mobile bandwidth.
+export const getBackdropUrl = (path: string | null, size: 'w780' | 'w1280' | 'original' = 'w1280') => {
   if (!path) return null;
   return `${IMAGE_BASE_URL}/${size}${path}`;
 };
