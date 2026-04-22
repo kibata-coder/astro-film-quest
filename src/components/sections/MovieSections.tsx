@@ -156,5 +156,3 @@ export const CrimeMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
 export const WarMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
   <DynamicSection title="War" icon={Siren} useDataHook={useWarMovies} onItemClick={onMovieClick} />
 );
-
-export { LatestSection };
