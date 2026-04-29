@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
-import { AlertTriangle, X } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 
-const STORAGE_KEY = 'soudflex.announcement.dismissedUntil.v1';
-const DISMISS_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 const SiteAnnouncement = () => {
   const [open, setOpen] = useState(false);
