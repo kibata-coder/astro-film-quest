@@ -50,6 +50,7 @@ const App = () => (
           <TooltipProvider>
             <Toaster />
             <Sonner />
+            <SiteAnnouncement />
             <ErrorBoundary>
               <BrowserRouter>
                 <Suspense fallback={<PageLoader />}>
