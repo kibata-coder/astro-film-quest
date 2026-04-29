@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
 import { AlertTriangle, X } from 'lucide-react';
 
-const STORAGE_KEY = 'soudflex.announcement.dismissed.v2';
+const STORAGE_KEY = 'soudflex.announcement.dismissedUntil.v1';
+const DISMISS_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 const SiteAnnouncement = () => {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
     try {
-      if (!localStorage.getItem(STORAGE_KEY)) setOpen(true);
+      const until = Number(localStorage.getItem(STORAGE_KEY) || 0);
+      if (!until || Date.now() > until) setOpen(true);
     } catch {
       setOpen(true);
     }
@@ -16,7 +18,7 @@ const SiteAnnouncement = () => {
 
   const dismiss = () => {
     try {
-      localStorage.setItem(STORAGE_KEY, '1');
+      localStorage.setItem(STORAGE_KEY, String(Date.now() + DISMISS_MS));
     } catch {}
     setOpen(false);
   };
@@ -29,8 +31,12 @@ const SiteAnnouncement = () => {
       role="dialog"
       aria-modal="true"
       aria-labelledby="announcement-title"
+      onClick={dismiss}
     >
-      <div className="relative w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-2xl">
+      <div
+        className="relative w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
           onClick={dismiss}
           className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
@@ -57,12 +63,20 @@ const SiteAnnouncement = () => {
           domain name, we will inform you here.
         </p>
 
-        <button
-          onClick={dismiss}
-          className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-        >
-          Got it
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={dismiss}
+            className="flex-1 rounded-md border border-border bg-transparent px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+          >
+            Dismiss
+          </button>
+          <button
+            onClick={dismiss}
+            className="flex-1 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            Got it
+          </button>
+        </div>
       </div>
     </div>
   );
