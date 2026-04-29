@@ -30,8 +30,8 @@ const PROVIDERS: StreamProvider[] = [
   {
     id: 'vsembed',
     name: 'VsEmbed',
-    movie: (id) => `https://vsembed.ru/embed/movie?tmdb=${id}&autoplay=1`,
-    tv: (id, s, e) => `https://vsembed.ru/embed/tv?tmdb=${id}&season=${s}&episode=${e}&autoplay=1`,
+    movie: (id) => `https://vsembed.su/embed/movie?tmdb=${id}&autoplay=1`,
+    tv: (id, s, e) => `https://vsembed.su/embed/tv?tmdb=${id}&season=${s}&episode=${e}&autoplay=1`,
   },
 ];
 
