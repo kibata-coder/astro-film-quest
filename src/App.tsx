@@ -9,6 +9,7 @@ import { MediaProvider } from "@/features/shared";
 import { VideoPlayerProvider } from "@/features/player";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import SiteAnnouncement from "@/components/SiteAnnouncement";
 
 // Lazy load all pages for code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -49,6 +50,7 @@ const App = () => (
           <TooltipProvider>
             <Toaster />
             <Sonner />
+            <SiteAnnouncement />
             <ErrorBoundary>
               <BrowserRouter>
                 <Suspense fallback={<PageLoader />}>
