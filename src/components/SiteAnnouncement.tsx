@@ -47,20 +47,9 @@ const SiteAnnouncement = () => {
           domain name, we will inform you here.
         </p>
 
-        <div className="flex gap-2">
-          <button
-            onClick={dismiss}
-            className="flex-1 rounded-md border border-border bg-transparent px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors"
-          >
-            Dismiss
-          </button>
-          <button
-            onClick={dismiss}
-            className="flex-1 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-          >
-            Got it
-          </button>
-        </div>
+        <p className="text-xs text-muted-foreground text-center">
+          We'll be back soon. Thank you for your patience.
+        </p>
       </div>
     </div>
   );
