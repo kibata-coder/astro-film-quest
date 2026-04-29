@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AlertTriangle, X } from 'lucide-react';
 
-const STORAGE_KEY = 'soudflex.announcement.dismissed.v1';
+const STORAGE_KEY = 'soudflex.announcement.dismissed.v2';
 
 const SiteAnnouncement = () => {
   const [open, setOpen] = useState(false);
@@ -52,9 +52,9 @@ const SiteAnnouncement = () => {
         </div>
 
         <p className="text-sm text-foreground/90 leading-relaxed mb-5">
-          Our website is currently experiencing downtime. We are working at our best to bring it
-          back online as soon as possible. If there is any change in our domain name, we will
-          inform you here.
+          Hello SoudFlexers, our website is currently experiencing downtime. We are working at
+          our best to bring it back online as soon as possible. If there is any change in our
+          domain name, we will inform you here.
         </p>
 
         <button
