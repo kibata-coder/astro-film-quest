@@ -52,9 +52,9 @@ const SiteAnnouncement = () => {
         </div>
 
         <p className="text-sm text-foreground/90 leading-relaxed mb-5">
-          Our website is currently experiencing downtime. We are working at our best to bring it
-          back online as soon as possible. If there is any change in our domain name, we will
-          inform you here.
+          Hello SoudFlexers, our website is currently experiencing downtime. We are working at
+          our best to bring it back online as soon as possible. If there is any change in our
+          domain name, we will inform you here.
         </p>
 
         <button
