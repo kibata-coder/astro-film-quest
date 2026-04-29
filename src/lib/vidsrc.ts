@@ -1,5 +1,10 @@
-// Multi-provider streaming fallback. Each provider is an independent mirror —
-// when one doesn't host a particular title, users can switch via the player UI.
+// Streaming providers — all mirrors of the same Vidsrc API on different domains.
+// Users can switch between them in the player UI if one isn't responding.
+//
+// API reference (per user-provided docs):
+//   /embed/movie?tmdb=ID
+//   /embed/tv?tmdb=ID&season=S&episode=E
+// Optional: autoplay=1, autonext=1, ds_lang=xx
 
 export interface StreamProvider {
   id: string;
@@ -8,30 +13,36 @@ export interface StreamProvider {
   tv: (tmdbId: number, season: number, episode: number) => string;
 }
 
+const buildMovie = (host: string) => (id: number) =>
+  `https://${host}/embed/movie?tmdb=${id}&autoplay=1`;
+
+const buildTv = (host: string) => (id: number, s: number, e: number) =>
+  `https://${host}/embed/tv?tmdb=${id}&season=${s}&episode=${e}&autoplay=1&autonext=1`;
+
 const PROVIDERS: StreamProvider[] = [
   {
-    id: 'vidsrc-xyz',
-    name: 'VidSrc',
-    movie: (id) => `https://vidsrc.xyz/embed/movie?tmdb=${id}`,
-    tv: (id, s, e) => `https://vidsrc.xyz/embed/tv?tmdb=${id}&season=${s}&episode=${e}`,
+    id: 'vsembed-su',
+    name: 'Server 1',
+    movie: buildMovie('vsembed.su'),
+    tv: buildTv('vsembed.su'),
   },
   {
-    id: 'vidsrc-to',
-    name: 'VidSrc.to',
-    movie: (id) => `https://vidsrc.to/embed/movie/${id}`,
-    tv: (id, s, e) => `https://vidsrc.to/embed/tv/${id}/${s}/${e}`,
+    id: 'vidsrc-embed-su',
+    name: 'Server 2',
+    movie: buildMovie('vidsrc-embed.su'),
+    tv: buildTv('vidsrc-embed.su'),
   },
   {
-    id: 'embed-su',
-    name: 'Embed.su',
-    movie: (id) => `https://embed.su/embed/movie/${id}`,
-    tv: (id, s, e) => `https://embed.su/embed/tv/${id}/${s}/${e}`,
+    id: 'vidsrcme-su',
+    name: 'Server 3',
+    movie: buildMovie('vidsrcme.su'),
+    tv: buildTv('vidsrcme.su'),
   },
   {
-    id: 'vsembed',
-    name: 'VsEmbed',
-    movie: (id) => `https://vsembed.su/embed/movie?tmdb=${id}&autoplay=1`,
-    tv: (id, s, e) => `https://vsembed.su/embed/tv?tmdb=${id}&season=${s}&episode=${e}&autoplay=1`,
+    id: 'vsrc-su',
+    name: 'Server 4',
+    movie: buildMovie('vsrc.su'),
+    tv: buildTv('vsrc.su'),
   },
 ];
 
@@ -40,9 +51,8 @@ export const getProviders = (): StreamProvider[] => PROVIDERS;
 const safeIndex = (i: number) =>
   Math.max(0, Math.min(PROVIDERS.length - 1, Number.isFinite(i) ? i : 0));
 
-export const getMovieEmbedUrl = (tmdbId: number, providerIndex = 0): string => {
-  return PROVIDERS[safeIndex(providerIndex)].movie(tmdbId);
-};
+export const getMovieEmbedUrl = (tmdbId: number, providerIndex = 0): string =>
+  PROVIDERS[safeIndex(providerIndex)].movie(tmdbId);
 
 export const getTVShowEmbedUrl = (
   tmdbId: number,
@@ -51,9 +61,5 @@ export const getTVShowEmbedUrl = (
   providerIndex = 0
 ): string => {
   const provider = PROVIDERS[safeIndex(providerIndex)];
-  if (season !== undefined && episode !== undefined) {
-    return provider.tv(tmdbId, season, episode);
-  }
-  // Fallback to first episode if season/episode not provided
-  return provider.tv(tmdbId, 1, 1);
+  return provider.tv(tmdbId, season ?? 1, episode ?? 1);
 };
