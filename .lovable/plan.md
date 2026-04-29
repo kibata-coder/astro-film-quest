@@ -1,45 +1,35 @@
-## Why playback fails on soudflex.pages.dev
+# Restore SoudFlex + Switch to a Small Domain-Change Announcement
 
-The app uses **only one** streaming provider — `vsembed.ru` — hardcoded in `src/lib/vidsrc.ts`. When you click a card, the player iframe loads that URL. The problem:
+## Goals
+1. Take the site out of "maintenance mode" — full UI/UX restored.
+2. Replace the full-screen black overlay with a small, non-blocking announcement informing users about the domain change (vsembed.ru → vsembed.su).
+3. Confirm streaming embed URLs use the new `vsembed.su` domain.
 
-1. **`vsembed.ru` doesn't have every title.** For movies/episodes it doesn't host, the embed page shows a blank or "no source" frame inside the iframe — the page loads (HTTP 200) but no video plays. The app has zero fallback.
-2. **No way for the user to switch source.** If one provider fails, the click is a dead end.
-3. **No "open in new tab" escape hatch.** Some embeds throttle iframe usage but work standalone.
+## Changes
 
-The TMDB data API itself works fine (network logs show `/discover/movie` and `/trending/tv/week` returning 200 with full results). The CORS allowlist already covers `*.pages.dev`. So data fetching is healthy — only playback is broken.
+### 1. `src/components/SiteAnnouncement.tsx` — rewrite
+Replace the full-screen maintenance overlay with a compact, dismissible toast/banner pinned to the bottom-right (above content, but not blocking). Behavior:
 
-## Fix
+- Small card (~max-w-sm), bottom-right on desktop, full-width bottom on mobile (`bottom-4 right-4 left-4 sm:left-auto`).
+- z-index high enough to float above content but below modals/player (`z-50`, NOT the max int).
+- No body scroll lock, no countdown, no ETA logic — remove all of that.
+- Content: short heading "Domain update" + message explaining one of our streaming providers moved from `vsembed.ru` to `vsembed.su` and everything is back to normal.
+- "Got it" button + close (X) icon. Both dismiss.
+- Dismissal stored in `localStorage` under `soudflex.announcement.domain-change.v1` so it doesn't reappear (no time expiry — once dismissed, gone).
+- Subtle styling consistent with dark theme: `bg-card border border-border` + small primary accent icon (Megaphone or Info from lucide-react).
 
-**1. Add a multi-provider fallback in `src/lib/vidsrc.ts`.** Define an ordered list of mirror embeds:
+### 2. Streaming embed domain — verify only
+`src/lib/vidsrc.ts` already uses `https://vsembed.su/...` for both movie and TV. No code change needed there. The domain change is already correct in code; the user's note about `vsembed.ru → vsembed.su` matches what's deployed.
 
-```ts
-const PROVIDERS = [
-  { name: 'VidSrc',    movie: (id) => `https://vidsrc.xyz/embed/movie?tmdb=${id}`,
-                       tv: (id, s, e) => `https://vidsrc.xyz/embed/tv?tmdb=${id}&season=${s}&episode=${e}` },
-  { name: 'VidSrc.to', movie: (id) => `https://vidsrc.to/embed/movie/${id}`,
-                       tv: (id, s, e) => `https://vidsrc.to/embed/tv/${id}/${s}/${e}` },
-  { name: 'Embed.su',  movie: (id) => `https://embed.su/embed/movie/${id}`,
-                       tv: (id, s, e) => `https://embed.su/embed/tv/${id}/${s}/${e}` },
-  { name: 'VsEmbed',   movie: (id) => `https://vsembed.ru/embed/movie?tmdb=${id}&autoplay=1`,
-                       tv: (id, s, e) => `https://vsembed.ru/embed/tv?tmdb=${id}&season=${s}&episode=${e}&autoplay=1` },
-];
-```
+### 3. Memory update
+Project memory (`mem://features/streaming-service`) currently references `vsembed.ru`. Update it to `vsembed.su` to stay accurate. Also update `mem://index.md` Core line that mentions `vsembed.ru`.
 
-Export helpers: `getProviders()`, `getMovieEmbedUrl(tmdbId, providerIndex)`, `getTVShowEmbedUrl(tmdbId, season, episode, providerIndex)`. Default to provider 0 (VidSrc.xyz — biggest catalog).
+## Result
+- Full site UI restored exactly as before maintenance (Hero, rows, search, player, etc.) — no changes to App.tsx routing or layout.
+- A small announcement appears once on visit, can be dismissed permanently with "Got it" or the X button.
+- Streaming continues via `vsembed.su` (already in place).
 
-**2. Add a "Server" picker to the player UI** (`src/features/player/VideoPlayer.tsx`). A small dropdown in the top control bar (next to prev/next/close) lets the user switch source if the current one fails. State: `const [providerIdx, setProviderIdx] = useState(0)`. The iframe `key` already includes provider index so it re-mounts cleanly.
-
-**3. Add an "Open in new tab" link** as a last-resort escape hatch in the same control row.
-
-**4. Persist the chosen provider** to `localStorage` so users who find a working mirror don't have to reselect every time.
-
-## Files
-
-- `src/lib/vidsrc.ts` — replace with multi-provider list + helpers (reverse-compatible: existing single-arg calls keep working with default index 0).
-- `src/features/player/VideoPlayer.tsx` — add server-switcher dropdown, "open in new tab" link, persist provider in localStorage, re-key iframe on provider change.
-- `mem://features/streaming-service` — update to note multi-provider fallback (no longer "Vidsrc only").
-
-## Out of scope
-
-- Building a custom HTML5 player or hosting our own streams (that's a different product).
-- Auto-detecting which provider has a given title (none of these mirrors expose a reliable availability API; manual switch is the standard pattern across every streaming aggregator site).
+## Files touched
+- `src/components/SiteAnnouncement.tsx` (rewrite)
+- `mem://features/streaming-service` (update domain)
+- `mem://index.md` (update Core line)
