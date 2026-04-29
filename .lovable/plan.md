@@ -1,42 +1,45 @@
+## Why playback fails on soudflex.pages.dev
 
+The app uses **only one** streaming provider — `vsembed.ru` — hardcoded in `src/lib/vidsrc.ts`. When you click a card, the player iframe loads that URL. The problem:
 
-## Fix "Skip Intro" — Make It Work Properly
+1. **`vsembed.ru` doesn't have every title.** For movies/episodes it doesn't host, the embed page shows a blank or "no source" frame inside the iframe — the page loads (HTTP 200) but no video plays. The app has zero fallback.
+2. **No way for the user to switch source.** If one provider fails, the click is a dead end.
+3. **No "open in new tab" escape hatch.** Some embeds throttle iframe usage but work standalone.
 
-### Problem
-1. **Doesn't actually skip** — Vidsrc's `vsembed.ru` embed does NOT support a `&t=` start-time query parameter. The iframe just reloads from 0, so clicking "Skip Intro" feels like a no-op.
-2. **Appearance is wrong** — currently a small pill button tucked top-right of the iframe. User expects a Netflix-style prominent button bottom-right that's always visible during the intro window.
+The TMDB data API itself works fine (network logs show `/discover/movie` and `/trending/tv/week` returning 200 with full results). The CORS allowlist already covers `*.pages.dev`. So data fetching is healthy — only playback is broken.
 
-### Root Cause
-Confirmed by reading `src/lib/vidsrc.ts` — we append `&t={seconds}` but vsembed.ru ignores it. There's no postMessage API exposed by the embed either (per `mem://constraints/video-player-limitations`). So the previous implementation was fundamentally broken.
+## Fix
 
-### New Approach
+**1. Add a multi-provider fallback in `src/lib/vidsrc.ts`.** Define an ordered list of mirror embeds:
 
-Since we cannot seek inside the iframe, we'll **simulate** Skip Intro via a controlled UX that's honest about what it does:
+```ts
+const PROVIDERS = [
+  { name: 'VidSrc',    movie: (id) => `https://vidsrc.xyz/embed/movie?tmdb=${id}`,
+                       tv: (id, s, e) => `https://vidsrc.xyz/embed/tv?tmdb=${id}&season=${s}&episode=${e}` },
+  { name: 'VidSrc.to', movie: (id) => `https://vidsrc.to/embed/movie/${id}`,
+                       tv: (id, s, e) => `https://vidsrc.to/embed/tv/${id}/${s}/${e}` },
+  { name: 'Embed.su',  movie: (id) => `https://embed.su/embed/movie/${id}`,
+                       tv: (id, s, e) => `https://embed.su/embed/tv/${id}/${s}/${e}` },
+  { name: 'VsEmbed',   movie: (id) => `https://vsembed.ru/embed/movie?tmdb=${id}&autoplay=1`,
+                       tv: (id, s, e) => `https://vsembed.ru/embed/tv?tmdb=${id}&season=${s}&episode=${e}&autoplay=1` },
+];
+```
 
-**Option A — Visible countdown overlay (chosen)**
-- Show a large **"Skip Intro"** button at **bottom-right** of the player (Netflix position).
-- Visible for the first 90 seconds after iframe loads (the typical intro window).
-- Clicking it: closes the player and reopens it bookmarked at the same episode — but since seeking doesn't work, instead we'll **simply hide the button** and show a toast: "Skip Intro is not supported by this stream provider. Use the video player's own seek bar."
-- This is honest UX — users stop expecting magic.
+Export helpers: `getProviders()`, `getMovieEmbedUrl(tmdbId, providerIndex)`, `getTVShowEmbedUrl(tmdbId, season, episode, providerIndex)`. Default to provider 0 (VidSrc.xyz — biggest catalog).
 
-**Option B (better) — Remove "Skip Intro" entirely + improve "Next Episode" placement**
-Since Skip Intro genuinely cannot work with iframe streams, removing it is more honest than faking it. Instead:
-- Remove "Skip Intro" button + `skipOffset` state + `startTime` param plumbing.
-- Keep & improve **"Next Episode"** button:
-  - Move from top-right → **bottom-right**, larger, Netflix-style pill
-  - Always visible (not auto-hiding) when on a TV episode that has a next one
-  - Background: `bg-white/90 text-black` for high contrast like Netflix
-- Update memory `mem://constraints/video-player-limitations` to record that Skip Intro is impossible.
+**2. Add a "Server" picker to the player UI** (`src/features/player/VideoPlayer.tsx`). A small dropdown in the top control bar (next to prev/next/close) lets the user switch source if the current one fails. State: `const [providerIdx, setProviderIdx] = useState(0)`. The iframe `key` already includes provider index so it re-mounts cleanly.
 
-### Recommendation
-**Go with Option B.** Skip Intro literally cannot work — the embed provider doesn't support timestamp seeking and iframe sandboxing blocks postMessage control. Faking it wastes a click and erodes trust.
+**3. Add an "Open in new tab" link** as a last-resort escape hatch in the same control row.
 
-### Files to change
-- `src/features/player/VideoPlayer.tsx` — remove Skip Intro UI + skipOffset state; restyle Next Episode button (bottom-right, prominent, persistent).
-- `src/lib/vidsrc.ts` — remove unused `startTime` param from embed URL builders.
-- `mem://constraints/video-player-limitations` — note Skip Intro infeasibility.
+**4. Persist the chosen provider** to `localStorage` so users who find a working mirror don't have to reselect every time.
 
-### Out of scope
-- Building a custom HTML5 player (would require leaving Vidsrc entirely).
-- Server-side proxy that injects timestamp control (Vidsrc CDN tokenized URLs prevent this).
+## Files
 
+- `src/lib/vidsrc.ts` — replace with multi-provider list + helpers (reverse-compatible: existing single-arg calls keep working with default index 0).
+- `src/features/player/VideoPlayer.tsx` — add server-switcher dropdown, "open in new tab" link, persist provider in localStorage, re-key iframe on provider change.
+- `mem://features/streaming-service` — update to note multi-provider fallback (no longer "Vidsrc only").
+
+## Out of scope
+
+- Building a custom HTML5 player or hosting our own streams (that's a different product).
+- Auto-detecting which provider has a given title (none of these mirrors expose a reliable availability API; manual switch is the standard pattern across every streaming aggregator site).

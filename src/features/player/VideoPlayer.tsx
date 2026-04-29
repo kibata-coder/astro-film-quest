@@ -1,7 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, ChevronLeft, ChevronRight, SkipForward } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, SkipForward, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { getMovieEmbedUrl, getTVShowEmbedUrl } from '@/lib/vidsrc';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { getMovieEmbedUrl, getTVShowEmbedUrl, getProviders } from '@/lib/vidsrc';
 import { saveWatchProgress } from '@/lib/watchHistory';
 import { getMovieDetails, getTVShowDetails } from '@/lib/tmdb';
 
@@ -19,6 +26,8 @@ interface VideoPlayerProps {
   onPreviousEpisode?: () => void;
 }
 
+const PROVIDER_STORAGE_KEY = 'soudflex.preferredProvider';
+
 const VideoPlayer = ({
   isOpen,
   onClose,
@@ -33,6 +42,13 @@ const VideoPlayer = ({
   onPreviousEpisode,
 }: VideoPlayerProps) => {
   const [isConnecting, setIsConnecting] = useState(true);
+  const providers = getProviders();
+  const [providerIdx, setProviderIdx] = useState<number>(() => {
+    if (typeof window === 'undefined') return 0;
+    const stored = window.localStorage.getItem(PROVIDER_STORAGE_KEY);
+    const n = stored ? parseInt(stored, 10) : 0;
+    return Number.isFinite(n) && n >= 0 && n < providers.length ? n : 0;
+  });
   const startTimeRef = useRef<number>(0);
   const durationRef = useRef<number>(0);
 
@@ -84,7 +100,7 @@ const VideoPlayer = ({
     const timer = setTimeout(() => setIsConnecting(false), 1200);
 
     return () => clearTimeout(timer);
-  }, [isOpen, mediaId, seasonNumber, episodeNumber]);
+  }, [isOpen, mediaId, seasonNumber, episodeNumber, providerIdx]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -97,7 +113,19 @@ const VideoPlayer = ({
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, onClose, mediaId, mediaType, title, seasonNumber, episodeNumber]);
+
+  const handleProviderChange = (value: string) => {
+    const idx = parseInt(value, 10);
+    if (!Number.isFinite(idx)) return;
+    setProviderIdx(idx);
+    try {
+      window.localStorage.setItem(PROVIDER_STORAGE_KEY, String(idx));
+    } catch {
+      // ignore quota / privacy errors
+    }
+  };
 
   const handleClose = () => {
     if (startTimeRef.current > 0 && durationRef.current > 0) {
@@ -122,8 +150,8 @@ const VideoPlayer = ({
 
   const embedUrl =
     mediaType === 'tv' && seasonNumber && episodeNumber
-      ? getTVShowEmbedUrl(mediaId, seasonNumber, episodeNumber)
-      : getMovieEmbedUrl(mediaId);
+      ? getTVShowEmbedUrl(mediaId, seasonNumber, episodeNumber, providerIdx)
+      : getMovieEmbedUrl(mediaId, providerIdx);
 
   const isTVShow = mediaType === 'tv' && seasonNumber && episodeNumber;
   const isFirstEpisode = episodeNumber === 1;
@@ -145,6 +173,32 @@ const VideoPlayer = ({
         </div>
 
         <div className="flex items-center gap-1">
+          <Select value={String(providerIdx)} onValueChange={handleProviderChange}>
+            <SelectTrigger
+              className="h-8 w-auto gap-1 border-border/60 bg-transparent px-2 text-xs"
+              aria-label="Select streaming server"
+            >
+              <SelectValue placeholder="Server" />
+            </SelectTrigger>
+            <SelectContent>
+              {providers.map((p, i) => (
+                <SelectItem key={p.id} value={String(i)} className="text-xs">
+                  {p.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => window.open(embedUrl, '_blank', 'noopener,noreferrer')}
+            aria-label="Open stream in new tab"
+            title="Open in new tab"
+          >
+            <ExternalLink className="h-5 w-5" />
+          </Button>
+
           {isTVShow && totalEpisodes && (
             <>
               <Button
@@ -180,13 +234,15 @@ const VideoPlayer = ({
             <div className="loading-spinner h-12 w-12" />
             <div>
               <p className="text-base font-medium text-foreground">Connecting stream...</p>
-              <p className="text-sm text-muted-foreground">{title}</p>
+              <p className="text-sm text-muted-foreground">
+                {title} · {providers[providerIdx].name}
+              </p>
             </div>
           </div>
         ) : (
           <>
             <iframe
-              key={`${mediaId}-${seasonNumber ?? 'm'}-${episodeNumber ?? 'm'}`}
+              key={`${mediaId}-${seasonNumber ?? 'm'}-${episodeNumber ?? 'm'}-${providerIdx}`}
               src={embedUrl}
               className="h-full w-full border-0"
               allowFullScreen
