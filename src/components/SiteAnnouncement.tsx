@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AlertTriangle, X } from 'lucide-react';
 
-const STORAGE_KEY = 'soudflex.announcement.dismissed.v1';
+const STORAGE_KEY = 'soudflex.announcement.dismissed.v2';
 
 const SiteAnnouncement = () => {
   const [open, setOpen] = useState(false);
