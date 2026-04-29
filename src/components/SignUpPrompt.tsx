@@ -38,6 +38,14 @@ export default function SignUpPrompt() {
             Create a free account to unlock these features
           </DialogDescription>
         </DialogHeader>
+        <div className="rounded-lg border border-primary/30 bg-gradient-to-br from-primary/15 to-primary/5 p-4 text-center">
+          <p className="text-sm font-bold text-foreground leading-relaxed whitespace-pre-line">
+{`I THINK IT'S SAFE TO SAY OUR LUCK IS OFFICIALLY TURNED AROUND, GUYS
+WE ARE BACK, BABY!
+WE ARE FUDGING BACK!
+WE ARE BACKKKKKK!!!!`}
+          </p>
+        </div>
         <ul className="space-y-3 py-2">
           {benefits.map(({ icon: Icon, text }) => (
             <li key={text} className="flex items-center gap-3 text-sm text-foreground">
