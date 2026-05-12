@@ -18,7 +18,35 @@ import { Button } from '@/components/ui/button';
 import { getImageUrl, getMovieDetails, getTVShowDetails, Movie, TVShow } from '@/lib/tmdb';
 import { useMedia } from '@/features/shared';
 
-const posterCache = new Map<string, string | null>();
+const POSTER_CACHE_KEY = 'poster-cache-v1';
+
+const loadPosterCache = (): Map<string, string | null> => {
+  try {
+    const raw = localStorage.getItem(POSTER_CACHE_KEY);
+    if (!raw) return new Map();
+    const obj = JSON.parse(raw) as Record<string, string | null>;
+    return new Map(Object.entries(obj));
+  } catch {
+    return new Map();
+  }
+};
+
+const posterCache = loadPosterCache();
+let savePending = false;
+const persistPosterCache = () => {
+  if (savePending) return;
+  savePending = true;
+  setTimeout(() => {
+    savePending = false;
+    try {
+      const obj: Record<string, string | null> = {};
+      posterCache.forEach((v, k) => { obj[k] = v; });
+      localStorage.setItem(POSTER_CACHE_KEY, JSON.stringify(obj));
+    } catch {
+      /* quota or serialization error — ignore */
+    }
+  }, 500);
+};
 
 const fetchMissingPoster = async (id: number, mediaType: 'movie' | 'tv'): Promise<string | null> => {
   const key = `${mediaType}-${id}`;
@@ -27,9 +55,11 @@ const fetchMissingPoster = async (id: number, mediaType: 'movie' | 'tv'): Promis
     const details = mediaType === 'movie' ? await getMovieDetails(id) : await getTVShowDetails(id);
     const path = (details as any)?.poster_path ?? null;
     posterCache.set(key, path);
+    persistPosterCache();
     return path;
   } catch {
     posterCache.set(key, null);
+    persistPosterCache();
     return null;
   }
 };
