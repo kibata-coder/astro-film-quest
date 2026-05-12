@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Play, Check, Plus } from 'lucide-react';
+import { X, Play, Check, Plus, Volume2, VolumeX } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
