@@ -48,30 +48,51 @@ const ContinueWatchingSection = ({ filterType, title = 'Continue Watching' }: Co
     const filtered = filterType ? data.filter((i) => i.media_type === filterType) : data;
     setHistory(filtered);
 
-    // Backfill missing posters from TMDB
+    // Backfill missing posters from TMDB in a single batched upsert
     const missing = filtered.filter((i) => !i.poster_path);
     if (missing.length === 0) return;
 
     const { data: { user } } = await supabase.auth.getUser();
-    await Promise.all(
-      missing.map(async (item) => {
-        const path = await fetchMissingPoster(item.id, item.media_type);
-        if (!path) return;
-        setHistory((prev) =>
-          prev.map((i) =>
-            i.id === item.id && i.media_type === item.media_type ? { ...i, poster_path: path } : i
-          )
+
+    // Fetch all missing posters in parallel
+    const resolved = await Promise.all(
+      missing.map(async (item) => ({
+        item,
+        path: await fetchMissingPoster(item.id, item.media_type),
+      }))
+    );
+
+    const updates = resolved.filter((r) => r.path);
+    if (updates.length === 0) return;
+
+    // Optimistic UI update
+    setHistory((prev) =>
+      prev.map((i) => {
+        const found = updates.find(
+          (u) => u.item.id === i.id && u.item.media_type === i.media_type
         );
-        if (user) {
-          await supabase
-            .from('watch_history')
-            .update({ poster_path: path })
-            .eq('user_id', user.id)
-            .eq('media_id', item.id)
-            .eq('media_type', item.media_type);
-        }
+        return found ? { ...i, poster_path: found.path as string } : i;
       })
     );
+
+    // Single bulk upsert instead of N updates
+    if (user) {
+      const rows = updates.map(({ item, path }) => ({
+        user_id: user.id,
+        media_id: item.id,
+        media_type: item.media_type,
+        title: item.title,
+        poster_path: path as string,
+        season_number: item.season_number ?? null,
+        episode_number: item.episode_number ?? null,
+        progress: item.progress,
+        duration: Math.round(item.duration),
+        updated_at: new Date(item.last_watched).toISOString(),
+      }));
+      await supabase
+        .from('watch_history')
+        .upsert(rows as any, { onConflict: 'user_id, media_id, media_type' });
+    }
   };
 
   useEffect(() => {
