@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Play, Check, Plus } from 'lucide-react';
+import { X, Play, Check, Plus, Volume2, VolumeX } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -68,6 +68,11 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
   
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+
+  useEffect(() => {
+    setIsMuted(true);
+  }, [movie?.id]);
 
   useEffect(() => {
     const scrollContainer = document.querySelector('[data-radix-scroll-area-viewport]');
@@ -134,13 +139,21 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
       {/* Hero media - show trailer on desktop, backdrop on mobile */}
       <div className="relative w-full">
         {!isMobile && trailer ? (
-          <div className="w-full h-[220px] md:h-[280px] overflow-hidden bg-black">
+          <div className="w-full h-[220px] md:h-[280px] overflow-hidden bg-black relative">
             <iframe
-              src={`https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=1&controls=0&showinfo=0&rel=0`}
+              key={`${trailer.key}-${isMuted ? 'm' : 'u'}`}
+              src={`https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=${isMuted ? 1 : 0}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1`}
               className="w-full h-full"
               allow="autoplay; encrypted-media"
               allowFullScreen
             />
+            <button
+              onClick={() => setIsMuted((m) => !m)}
+              className="absolute bottom-3 right-3 z-10 p-2 rounded-full bg-background/70 hover:bg-background/90 transition-colors"
+              aria-label={isMuted ? 'Unmute trailer' : 'Mute trailer'}
+            >
+              {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+            </button>
           </div>
         ) : backdropUrl ? (
           <div className="w-full h-[220px] md:h-[280px] overflow-hidden bg-black">
