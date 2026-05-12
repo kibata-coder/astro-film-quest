@@ -45,7 +45,33 @@ const ContinueWatchingSection = ({ filterType, title = 'Continue Watching' }: Co
 
   const loadHistory = async () => {
     const data = await getWatchHistory();
-    setHistory(filterType ? data.filter((i) => i.media_type === filterType) : data);
+    const filtered = filterType ? data.filter((i) => i.media_type === filterType) : data;
+    setHistory(filtered);
+
+    // Backfill missing posters from TMDB
+    const missing = filtered.filter((i) => !i.poster_path);
+    if (missing.length === 0) return;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    await Promise.all(
+      missing.map(async (item) => {
+        const path = await fetchMissingPoster(item.id, item.media_type);
+        if (!path) return;
+        setHistory((prev) =>
+          prev.map((i) =>
+            i.id === item.id && i.media_type === item.media_type ? { ...i, poster_path: path } : i
+          )
+        );
+        if (user) {
+          await supabase
+            .from('watch_history')
+            .update({ poster_path: path })
+            .eq('user_id', user.id)
+            .eq('media_id', item.id)
+            .eq('media_type', item.media_type);
+        }
+      })
+    );
   };
 
   useEffect(() => {
