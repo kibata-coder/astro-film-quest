@@ -15,8 +15,24 @@ import {
 } from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { getImageUrl, Movie, TVShow } from '@/lib/tmdb';
+import { getImageUrl, getMovieDetails, getTVShowDetails, Movie, TVShow } from '@/lib/tmdb';
 import { useMedia } from '@/features/shared';
+
+const posterCache = new Map<string, string | null>();
+
+const fetchMissingPoster = async (id: number, mediaType: 'movie' | 'tv'): Promise<string | null> => {
+  const key = `${mediaType}-${id}`;
+  if (posterCache.has(key)) return posterCache.get(key) ?? null;
+  try {
+    const details = mediaType === 'movie' ? await getMovieDetails(id) : await getTVShowDetails(id);
+    const path = (details as any)?.poster_path ?? null;
+    posterCache.set(key, path);
+    return path;
+  } catch {
+    posterCache.set(key, null);
+    return null;
+  }
+};
 
 interface ContinueWatchingSectionProps {
   filterType?: 'movie' | 'tv';
@@ -29,7 +45,33 @@ const ContinueWatchingSection = ({ filterType, title = 'Continue Watching' }: Co
 
   const loadHistory = async () => {
     const data = await getWatchHistory();
-    setHistory(filterType ? data.filter((i) => i.media_type === filterType) : data);
+    const filtered = filterType ? data.filter((i) => i.media_type === filterType) : data;
+    setHistory(filtered);
+
+    // Backfill missing posters from TMDB
+    const missing = filtered.filter((i) => !i.poster_path);
+    if (missing.length === 0) return;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    await Promise.all(
+      missing.map(async (item) => {
+        const path = await fetchMissingPoster(item.id, item.media_type);
+        if (!path) return;
+        setHistory((prev) =>
+          prev.map((i) =>
+            i.id === item.id && i.media_type === item.media_type ? { ...i, poster_path: path } : i
+          )
+        );
+        if (user) {
+          await supabase
+            .from('watch_history')
+            .update({ poster_path: path })
+            .eq('user_id', user.id)
+            .eq('media_id', item.id)
+            .eq('media_type', item.media_type);
+        }
+      })
+    );
   };
 
   useEffect(() => {
