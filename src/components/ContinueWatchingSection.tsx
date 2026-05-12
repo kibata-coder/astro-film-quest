@@ -15,8 +15,24 @@ import {
 } from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { getImageUrl, Movie, TVShow } from '@/lib/tmdb';
+import { getImageUrl, getMovieDetails, getTVShowDetails, Movie, TVShow } from '@/lib/tmdb';
 import { useMedia } from '@/features/shared';
+
+const posterCache = new Map<string, string | null>();
+
+const fetchMissingPoster = async (id: number, mediaType: 'movie' | 'tv'): Promise<string | null> => {
+  const key = `${mediaType}-${id}`;
+  if (posterCache.has(key)) return posterCache.get(key) ?? null;
+  try {
+    const details = mediaType === 'movie' ? await getMovieDetails(id) : await getTVShowDetails(id);
+    const path = (details as any)?.poster_path ?? null;
+    posterCache.set(key, path);
+    return path;
+  } catch {
+    posterCache.set(key, null);
+    return null;
+  }
+};
 
 interface ContinueWatchingSectionProps {
   filterType?: 'movie' | 'tv';
