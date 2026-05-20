@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { X, Play, Check, Plus, Volume2, VolumeX } from 'lucide-react';
+import { X, Play, Check, Plus, Volume2, VolumeX, Info } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { toast } from '@/hooks/use-toast';
+
 import {
   Movie,
   Cast,
