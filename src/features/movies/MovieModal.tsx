@@ -274,43 +274,6 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
               </div>
             </div>
 
-            {recommendations.length > 0 && (
-              <div className="pt-4 border-t border-border/50">
-                <h3 className="text-base font-semibold mb-3">More Like This</h3>
-                <ScrollArea className="w-full whitespace-nowrap pb-4">
-                  <div className="flex space-x-3 pr-4">
-                    {recommendations.map((recMovie) => (
-                      <button
-                        key={recMovie.id}
-                        onClick={() => onSelectMovie && onSelectMovie(recMovie)}
-                        className="w-[120px] md:w-[150px] flex-none group relative transition-transform hover:scale-105 focus:outline-none"
-                      >
-                        <div className="aspect-[2/3] rounded-md overflow-hidden bg-muted mb-1.5 relative">
-                          {recMovie.poster_path ? (
-                            <img
-                              src={getImageUrl(recMovie.poster_path, 'w300') || ''}
-                              alt={recMovie.title}
-                              className="w-full h-full object-cover"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-xs p-2 text-center">
-                              {recMovie.title}
-                            </div>
-                          )}
-                        </div>
-                        <div className="whitespace-normal">
-                          <h4 className="text-xs font-medium leading-tight line-clamp-2 text-left">
-                            {recMovie.title}
-                          </h4>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                  <ScrollBar orientation="horizontal" />
-                </ScrollArea>
-              </div>
-            )}
           </>
         )}
       </div>
@@ -331,10 +294,11 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
 
   return (
     <Dialog open={isOpen} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-2xl p-0 overflow-hidden border-0 bg-background max-h-[90vh]">
+      <DialogContent className="max-w-4xl p-0 overflow-hidden border-0 bg-background max-h-[90vh]">
         <ScrollArea className="h-[90vh]">
            <Content />
         </ScrollArea>
+
       </DialogContent>
     </Dialog>
   );
