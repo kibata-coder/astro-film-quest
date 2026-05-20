@@ -51,21 +51,22 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const playMovie = useCallback(async (movie: Movie) => {
-    await addToHistory({
-      id: movie.id,
-      media_type: 'movie',
-      title: movie.title,
-      poster_path: movie.poster_path || '',
-    });
-    notifyHistoryUpdate();
     window.history.pushState({ player: true }, '', window.location.pathname);
-    setVideoState(prev => ({
-      ...prev,
+    setVideoState({
       isOpen: true,
       title: movie.title,
       mediaId: movie.id,
       mediaType: 'movie',
-    }));
+    });
+    // Fire-and-forget so the player opens instantly
+    addToHistory({
+      id: movie.id,
+      media_type: 'movie',
+      title: movie.title,
+      poster_path: movie.poster_path || '',
+    })
+      .then(notifyHistoryUpdate)
+      .catch((e) => console.error('addToHistory failed', e));
   }, []);
 
   const playEpisode = useCallback(async (
@@ -74,34 +75,8 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
     episodeNumber: number,
     episodeName: string
   ) => {
-    await addToHistory({
-      id: show.id,
-      media_type: 'tv',
-      title: show.name,
-      poster_path: show.poster_path || '',
-      season_number: seasonNumber,
-      episode_number: episodeNumber,
-    });
-    notifyHistoryUpdate();
-
-    try {
-      const seasonDetails = await getTVShowSeasonDetails(show.id, seasonNumber);
-      setEpisodeContext({
-        showId: show.id,
-        showName: show.name,
-        seasonNumber,
-        episodes: seasonDetails.episodes || [],
-        posterPath: show.poster_path,
-        backdropPath: show.backdrop_path || null,
-      });
-    } catch (error) {
-      console.error('Failed to fetch season details:', error);
-      setEpisodeContext(null);
-    }
-
     window.history.pushState({ player: true }, '', window.location.pathname);
-    setVideoState(prev => ({
-      ...prev,
+    setVideoState({
       isOpen: true,
       title: `${show.name} - ${episodeName}`,
       mediaId: show.id,
@@ -109,7 +84,35 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
       seasonNumber,
       episodeNumber,
       episodeName,
-    }));
+    });
+    setEpisodeContext(null);
+
+    addToHistory({
+      id: show.id,
+      media_type: 'tv',
+      title: show.name,
+      poster_path: show.poster_path || '',
+      season_number: seasonNumber,
+      episode_number: episodeNumber,
+    })
+      .then(notifyHistoryUpdate)
+      .catch((e) => console.error('addToHistory failed', e));
+
+    getTVShowSeasonDetails(show.id, seasonNumber)
+      .then((seasonDetails) => {
+        setEpisodeContext({
+          showId: show.id,
+          showName: show.name,
+          seasonNumber,
+          episodes: seasonDetails.episodes || [],
+          posterPath: show.poster_path,
+          backdropPath: show.backdrop_path || null,
+        });
+      })
+      .catch((error) => {
+        console.error('Failed to fetch season details:', error);
+        setEpisodeContext(null);
+      });
   }, []);
 
   const nextEpisode = useCallback(async () => {
