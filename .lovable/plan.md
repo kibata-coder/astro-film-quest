@@ -1,35 +1,34 @@
-# Restore SoudFlex + Switch to a Small Domain-Change Announcement
+## Problems
 
-## Goals
-1. Take the site out of "maintenance mode" — full UI/UX restored.
-2. Replace the full-screen black overlay with a small, non-blocking announcement informing users about the domain change (vsembed.ru → vsembed.su).
-3. Confirm streaming embed URLs use the new `vsembed.su` domain.
+**1. Clicking Play briefly returns to the homepage / feels slow**
+
+In `Layout.handlePlayMovie` (and the TV equivalent):
+```
+forceCloseMovieModal();     // closes modal + history.back()
+await playMovie(movie);     // awaits Supabase addToHistory, THEN pushes player state + opens UI
+```
+The `await addToHistory(...)` (Supabase round-trip) runs *before* the player UI is opened, so for 1–3 seconds the user sees the bare homepage. The history `back()` from the modal compounds the "I got sent home" feeling.
+
+**2. Player header shows a "Server 1" dropdown and an external-link button**
+
+The user wants both removed from the top bar in `VideoPlayer.tsx`.
 
 ## Changes
 
-### 1. `src/components/SiteAnnouncement.tsx` — rewrite
-Replace the full-screen maintenance overlay with a compact, dismissible toast/banner pinned to the bottom-right (above content, but not blocking). Behavior:
+### `src/features/player/VideoPlayerContext.tsx`
+- In `playMovie`: open the player **synchronously first** (set `videoState.isOpen = true`, push `{ player: true }` history entry), then fire `addToHistory(...)` in the background (no `await`) and dispatch `watch-history-updated` after it resolves. Same pattern for `playEpisode` — open the player UI immediately, then fetch season details and update `episodeContext` when ready (player can show "loading episodes" briefly; the iframe doesn't need season data to start).
+- Result: clicking Play opens the fullscreen player instantly; the homepage is no longer visible during the transition.
 
-- Small card (~max-w-sm), bottom-right on desktop, full-width bottom on mobile (`bottom-4 right-4 left-4 sm:left-auto`).
-- z-index high enough to float above content but below modals/player (`z-50`, NOT the max int).
-- No body scroll lock, no countdown, no ETA logic — remove all of that.
-- Content: short heading "Domain update" + message explaining one of our streaming providers moved from `vsembed.ru` to `vsembed.su` and everything is back to normal.
-- "Got it" button + close (X) icon. Both dismiss.
-- Dismissal stored in `localStorage` under `soudflex.announcement.domain-change.v1` so it doesn't reappear (no time expiry — once dismissed, gone).
-- Subtle styling consistent with dark theme: `bg-card border border-border` + small primary accent icon (Megaphone or Info from lucide-react).
+### `src/features/player/VideoPlayer.tsx`
+- Remove the `<Select>` provider switcher (Server 1/2/3/4 dropdown) from the header.
+- Remove the external-link `<Button>` (and the `ExternalLink` import).
+- Keep provider selection internally with the persisted default (so streams still work); just hide the UI controls. The header keeps only: title, episode info, prev/next episode (for TV), and close.
 
-### 2. Streaming embed domain — verify only
-`src/lib/vidsrc.ts` already uses `https://vsembed.su/...` for both movie and TV. No code change needed there. The domain change is already correct in code; the user's note about `vsembed.ru → vsembed.su` matches what's deployed.
+### Optional small win
+- In `Layout.handlePlayMovie` / `handlePlayTVShow`, no longer need `await` on `playMovie` since it becomes synchronous-ish; switch to fire-and-forget so the close + open feel instant.
 
-### 3. Memory update
-Project memory (`mem://features/streaming-service`) currently references `vsembed.ru`. Update it to `vsembed.su` to stay accurate. Also update `mem://index.md` Core line that mentions `vsembed.ru`.
+## What stays the same
 
-## Result
-- Full site UI restored exactly as before maintenance (Hero, rows, search, player, etc.) — no changes to App.tsx routing or layout.
-- A small announcement appears once on visit, can be dismissed permanently with "Got it" or the X button.
-- Streaming continues via `vsembed.su` (already in place).
-
-## Files touched
-- `src/components/SiteAnnouncement.tsx` (rewrite)
-- `mem://features/streaming-service` (update domain)
-- `mem://index.md` (update Core line)
+- Watch-history saving still happens (just non-blocking).
+- Streaming providers and the saved preference in `localStorage` are untouched — Server 1 remains the default; only the visible switcher is removed.
+- Modal close behavior, popstate handling, and the rest of the player UI are unchanged.
