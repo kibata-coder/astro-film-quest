@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { X, Play, Check, Plus, Volume2, VolumeX } from 'lucide-react';
+import { X, Play, Check, Plus, Volume2, VolumeX, Info } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { toast } from '@/hooks/use-toast';
+
 import {
   Movie,
   Cast,
@@ -136,41 +138,61 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
         <X className="w-5 h-5" />
       </button>
 
-      {/* Hero media - show trailer on desktop, backdrop on mobile */}
+      {/* Hero media - show full trailer when available */}
       <div className="relative w-full">
-        {!isMobile && trailer ? (
-          <div className="w-full h-[220px] md:h-[280px] overflow-hidden bg-black relative">
+        {trailer ? (
+          <div className="w-full aspect-video overflow-hidden bg-black relative">
             <iframe
               key={`${trailer.key}-${isMuted ? 'm' : 'u'}`}
-              src={`https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=${isMuted ? 1 : 0}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1`}
+              src={`https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=${isMuted ? 1 : 0}&controls=1&showinfo=0&rel=0&modestbranding=1&playsinline=1`}
               className="w-full h-full"
-              allow="autoplay; encrypted-media"
+              allow="autoplay; encrypted-media; fullscreen"
               allowFullScreen
             />
             <button
-              onClick={() => setIsMuted((m) => !m)}
-              className="absolute bottom-3 right-3 z-10 p-2 rounded-full bg-background/70 hover:bg-background/90 transition-colors"
+              onClick={() => {
+                const next = !isMuted;
+                setIsMuted(next);
+                if (!next) {
+                  toast({
+                    title: 'Unmuting trailer',
+                    description: "If you don't hear sound, click the video first, then unmute again.",
+                  });
+                }
+              }}
+              className="absolute top-4 right-16 z-30 flex items-center gap-2 px-3 py-2 rounded-full bg-background/90 hover:bg-background border border-border shadow-lg transition-colors text-sm font-medium"
               aria-label={isMuted ? 'Unmute trailer' : 'Mute trailer'}
             >
-              {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+              {isMuted ? (
+                <>
+                  <VolumeX className="w-4 h-4" />
+                  <span className="hidden sm:inline">Unmute</span>
+                </>
+              ) : (
+                <>
+                  <Volume2 className="w-4 h-4" />
+                  <span className="hidden sm:inline">Mute</span>
+                </>
+              )}
             </button>
           </div>
         ) : backdropUrl ? (
-          <div className="w-full h-[220px] md:h-[280px] overflow-hidden bg-black">
+          <div className="w-full aspect-video overflow-hidden bg-black">
             <img
               src={backdropUrl}
               alt={movie.title}
               className="w-full h-full object-cover"
             />
+            <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent" />
           </div>
         ) : (
-          <div className="w-full h-[220px] md:h-[280px] bg-muted" />
+          <div className="w-full aspect-video bg-muted" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
       </div>
 
-      {/* Title & actions below the image */}
-      <div className="px-5 md:px-6 -mt-12 relative z-10">
+      {/* Title & actions below the trailer */}
+      <div className="px-5 md:px-6 pt-5 relative z-10">
+
         <h2 className="text-xl md:text-2xl font-bold mb-3">{movie.title}</h2>
         <div className="flex items-center gap-3 mb-5">
           <Button
@@ -252,43 +274,6 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
               </div>
             </div>
 
-            {recommendations.length > 0 && (
-              <div className="pt-4 border-t border-border/50">
-                <h3 className="text-base font-semibold mb-3">More Like This</h3>
-                <ScrollArea className="w-full whitespace-nowrap pb-4">
-                  <div className="flex space-x-3 pr-4">
-                    {recommendations.map((recMovie) => (
-                      <button
-                        key={recMovie.id}
-                        onClick={() => onSelectMovie && onSelectMovie(recMovie)}
-                        className="w-[120px] md:w-[150px] flex-none group relative transition-transform hover:scale-105 focus:outline-none"
-                      >
-                        <div className="aspect-[2/3] rounded-md overflow-hidden bg-muted mb-1.5 relative">
-                          {recMovie.poster_path ? (
-                            <img
-                              src={getImageUrl(recMovie.poster_path, 'w300') || ''}
-                              alt={recMovie.title}
-                              className="w-full h-full object-cover"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-xs p-2 text-center">
-                              {recMovie.title}
-                            </div>
-                          )}
-                        </div>
-                        <div className="whitespace-normal">
-                          <h4 className="text-xs font-medium leading-tight line-clamp-2 text-left">
-                            {recMovie.title}
-                          </h4>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                  <ScrollBar orientation="horizontal" />
-                </ScrollArea>
-              </div>
-            )}
           </>
         )}
       </div>
@@ -309,10 +294,11 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
 
   return (
     <Dialog open={isOpen} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-2xl p-0 overflow-hidden border-0 bg-background max-h-[90vh]">
+      <DialogContent className="max-w-4xl p-0 overflow-hidden border-0 bg-background max-h-[90vh]">
         <ScrollArea className="h-[90vh]">
            <Content />
         </ScrollArea>
+
       </DialogContent>
     </Dialog>
   );
