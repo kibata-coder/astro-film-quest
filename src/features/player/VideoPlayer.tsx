@@ -166,31 +166,6 @@ const VideoPlayer = ({
         </div>
 
         <div className="flex items-center gap-1">
-          <Select value={String(providerIdx)} onValueChange={handleProviderChange}>
-            <SelectTrigger
-              className="h-8 w-auto gap-1 border-border/60 bg-transparent px-2 text-xs"
-              aria-label="Select streaming server"
-            >
-              <SelectValue placeholder="Server" />
-            </SelectTrigger>
-            <SelectContent>
-              {providers.map((p, i) => (
-                <SelectItem key={p.id} value={String(i)} className="text-xs">
-                  {p.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => window.open(embedUrl, '_blank', 'noopener,noreferrer')}
-            aria-label="Open stream in new tab"
-            title="Open in new tab"
-          >
-            <ExternalLink className="h-5 w-5" />
-          </Button>
 
           {isTVShow && totalEpisodes && (
             <>
