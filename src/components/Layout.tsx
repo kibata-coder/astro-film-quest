@@ -41,14 +41,14 @@ const Layout = memo(({ children, onSearch, searchQuery, showFooter = true }: Lay
     closePlayer,
   } = useVideoPlayer();
 
-  const handlePlayMovie = async () => {
+  const handlePlayMovie = () => {
     if (selectedMovie) {
       forceCloseMovieModal();
-      await playMovie(selectedMovie);
+      playMovie(selectedMovie);
     }
   };
 
-  const handlePlayTVShow = async (
+  const handlePlayTVShow = (
     showId: number,
     showName: string,
     seasonNumber: number,
@@ -58,7 +58,7 @@ const Layout = memo(({ children, onSearch, searchQuery, showFooter = true }: Lay
   ) => {
     if (selectedShow) {
       forceCloseTVModal();
-      await playEpisode(selectedShow, seasonNumber, episodeNumber, episodeName);
+      playEpisode(selectedShow, seasonNumber, episodeNumber, episodeName);
     }
   };
 
