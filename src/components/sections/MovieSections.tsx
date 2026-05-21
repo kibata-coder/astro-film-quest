@@ -121,6 +121,14 @@ export const EnglishTVSection = ({ onShowClick }: TVSectionProps) => (
   <DynamicSection title="English TV Shows" icon={Tv} useDataHook={useEnglishTVShows} onItemClick={onShowClick} />
 );
 
+// Anime
+export const AnimeTVSection = ({ onShowClick }: TVSectionProps) => (
+  <DynamicSection title="Anime Series" icon={Flame} useDataHook={useAnimeTVShows} onItemClick={onShowClick} />
+);
+export const AnimeMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
+  <DynamicSection title="Anime Movies" icon={Flame} useDataHook={useAnimeMovies} onItemClick={onMovieClick} />
+);
+
 // 4. Genre Sections
 export const ActionMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
   <DynamicSection title="Action" icon={Sword} useDataHook={useActionMovies} onItemClick={onMovieClick} />
