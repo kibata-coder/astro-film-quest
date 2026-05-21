@@ -82,6 +82,10 @@ export const useEnglishTVShows = (enabled = true) => {
   });
 };
 
+// --- Anime Hooks ---
+export const useAnimeTVShows = (enabled = true) => useQuery({ queryKey: ['tv', 'anime'], queryFn: () => getAnimeTVShows(), staleTime: 3600000, enabled });
+export const useAnimeMovies = (enabled = true) => useQuery({ queryKey: ['movies', 'anime'], queryFn: () => getAnimeMovies(), staleTime: 3600000, enabled });
+
 // --- Genre Hooks (Cached for 1 hour, with enabled flag) ---
 export const useActionMovies = (enabled = true) => useQuery({ queryKey: ['movies', 'genre_action'], queryFn: () => getActionMovies(), staleTime: 3600000, enabled });
 export const useAdventureMovies = (enabled = true) => useQuery({ queryKey: ['movies', 'genre_adventure'], queryFn: () => getAdventureMovies(), staleTime: 3600000, enabled });
