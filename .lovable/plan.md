@@ -1,31 +1,56 @@
-## The bug
+# Add Anime Pages
 
-The play flow currently does this:
+No new API or backend changes. The existing TMDB edge function already allows `/discover/tv` and `/discover/movie`, which is all anime needs.
 
-1. Modal is open → history stack has a `{ modal: 'movie' }` entry on top.
-2. User clicks Play → `forceCloseMovieModal()` runs `window.history.back()`. This is **asynchronous** — the `popstate` event fires on the next tick.
-3. Immediately after, `playMovie()` runs `window.history.pushState({ player: true }, ...)` and sets `videoState.isOpen = true`. The player opens.
-4. *Then* the queued `popstate` from step 2 fires. By this time, `isOpenRef.current` in `VideoPlayerContext` is already `true`, so its popstate handler closes the player.
+## Data strategy
+Use TMDB Discover with the broadest reliable anime filter so we catch **every anime available**:
 
-Net effect: player flashes open, then instantly closes, dropping the user back on the homepage. Same race exists for TV.
+- `with_genres=16` (Animation)
+- `with_original_language=ja` (Japanese original audio — catches anime regardless of country of production, more inclusive than `with_origin_country=JP`)
+- `sort_by=popularity.desc`
+- Pagination support (page param) so the grids can load more
 
-The previous "open synchronously" change didn't fix it because the race is between two history operations, not between state and history.
+This combination is the standard "all anime" query used across anime catalogs and avoids missing co-productions while still excluding Western animation.
 
-## Fix
+## Changes
 
-### `src/features/shared/MediaContext.tsx`
-- In `forceCloseMovieModal` and `forceCloseTVModal`, **stop calling `window.history.back()`**. Instead, if the current `history.state` is the modal entry, call `window.history.replaceState({}, '', window.location.pathname)` to overwrite it in place.
-- No popstate fires, so the player isn't collateral damage.
-- Modal UI still closes via the existing `setIs*ModalOpen(false)` calls.
+### 1. `src/lib/tmdb.ts`
+Add two fetchers:
+- `getAnimeTVShows(page = 1)` → `/discover/tv` with the filter above
+- `getAnimeMovies(page = 1)` → `/discover/movie` with the filter above
 
-### `src/features/player/VideoPlayerContext.tsx`
-- Add a defensive guard in the popstate handler: ignore the popstate if the new `window.history.state?.player === true` (means we're still on the player entry, not actually navigating away). Belt-and-suspenders against any other history race.
+### 2. `src/hooks/use-media.ts`
+Add `useAnimeTVShows(enabled)` and `useAnimeMovies(enabled)` mirroring the existing language hooks (1h staleTime).
 
-### `src/components/Layout.tsx`
-- Drop the `await` on `playMovie` / `playEpisode` in `handlePlayMovie` / `handlePlayTVShow` so the transition is fully synchronous from the user's perspective (functions are already fire-and-forget internally).
+### 3. `src/components/sections/MovieSections.tsx` (and TV sibling if present)
+Add `AnimeSection` (TV) and `AnimeMoviesSection` exports using `DynamicSection`, icon e.g. `Sparkles` or `Flame`.
 
-## What stays the same
+### 4. Homepage row
+Inject `<AnimeSection />` into `src/pages/Index.tsx` near the other trending/language rows.
 
-- Normal modal close (X / back button / Esc) still uses `history.back()` and the popstate handler — unchanged.
-- Player close (`closePlayer`) still uses `history.back()` to pop its own entry — unchanged.
-- Watch-history saving, providers, episode logic — untouched.
+### 5. New pages
+- `src/pages/Anime.tsx` — anime TV grid, paginated, opens `TVShowModal` via `openTVModal`
+- `src/pages/AnimeMovies.tsx` — anime movie grid, paginated, opens `MovieModal` via `openMovieModal`
+
+Both follow the existing `Movies.tsx` / `TVShows.tsx` pattern (FilterBar optional — start without it to keep scope tight; can be added later).
+
+### 6. Routing — `src/App.tsx`
+```tsx
+const Anime = lazy(() => import("./pages/Anime"));
+const AnimeMovies = lazy(() => import("./pages/AnimeMovies"));
+// ...
+<Route path="/anime" element={<Anime />} />
+<Route path="/anime-movies" element={<AnimeMovies />} />
+```
+
+### 7. Header nav — `src/components/Header.tsx`
+Add two nav links: **Anime** → `/anime`, **Anime Movies** → `/anime-movies`. Mirror existing Movies/TV NavLink styling and include them in the mobile dropdown.
+
+### 8. Memory update
+Update `mem://index.md` Core rule from "Only /movies and /tv routes" to also allow `/anime` and `/anime-movies`.
+
+## Out of scope
+- No edge function changes (already supports discover endpoints)
+- No backend/RLS changes
+- No new modal — reuses existing `MovieModal` and `TVShowModal`
+- FilterBar integration on anime pages (can be a follow-up)

@@ -19,6 +19,7 @@ import { FeedCustomizer } from '@/components/FeedCustomizer';
 import SignUpPrompt from '@/components/SignUpPrompt';
 import {
   TrendingMoviesSection, TrendingTVSection,
+  AnimeTVSection, AnimeMoviesSection,
   ActionMoviesSection, AdventureMoviesSection, ComedyMoviesSection,
   DramaMoviesSection, HorrorMoviesSection, SciFiMoviesSection,
   FantasyMoviesSection, RomanceMoviesSection, ThrillerMoviesSection,
@@ -70,6 +71,14 @@ const Index = () => {
 
               <SectionErrorBoundary sectionName="Trending Movies">
                 <TrendingMoviesSection onMovieClick={openMovieModal} />
+              </SectionErrorBoundary>
+
+              <SectionErrorBoundary sectionName="Anime Series">
+                <AnimeTVSection onShowClick={openTVModal} />
+              </SectionErrorBoundary>
+
+              <SectionErrorBoundary sectionName="Anime Movies">
+                <AnimeMoviesSection onMovieClick={openMovieModal} />
               </SectionErrorBoundary>
 
               {!prefsLoading && (

@@ -9,6 +9,8 @@ import {
   getEnglishTVShows,
   searchMovies,
   searchTVShows,
+  getAnimeTVShows,
+  getAnimeMovies,
   // Genres
   getActionMovies, getAdventureMovies, getComedyMovies, getDramaMovies, 
   getHorrorMovies, getSciFiMovies, getFantasyMovies, getRomanceMovies, 
@@ -79,6 +81,10 @@ export const useEnglishTVShows = (enabled = true) => {
     enabled,
   });
 };
+
+// --- Anime Hooks ---
+export const useAnimeTVShows = (enabled = true) => useQuery({ queryKey: ['tv', 'anime'], queryFn: () => getAnimeTVShows(), staleTime: 3600000, enabled });
+export const useAnimeMovies = (enabled = true) => useQuery({ queryKey: ['movies', 'anime'], queryFn: () => getAnimeMovies(), staleTime: 3600000, enabled });
 
 // --- Genre Hooks (Cached for 1 hour, with enabled flag) ---
 export const useActionMovies = (enabled = true) => useQuery({ queryKey: ['movies', 'genre_action'], queryFn: () => getActionMovies(), staleTime: 3600000, enabled });

@@ -1,5 +1,5 @@
 import { 
-  Film, Globe, Clapperboard, Sparkles, Tv, LucideIcon,
+  Film, Globe, Clapperboard, Sparkles, Tv, LucideIcon, Flame,
   Sword, Compass, Laugh, Theater, Ghost, Rocket, 
   Heart, Eye, Siren, Briefcase, ShieldAlert 
 } from 'lucide-react';
@@ -14,6 +14,8 @@ import {
   useTrendingTVShows,
   useIndianTVShows,
   useEnglishTVShows,
+  useAnimeTVShows,
+  useAnimeMovies,
   // Genres
   useActionMovies, useAdventureMovies, useComedyMovies, useDramaMovies, 
   useHorrorMovies, useSciFiMovies, useFantasyMovies, useRomanceMovies, 
@@ -117,6 +119,14 @@ export const IndianTVSection = ({ onShowClick }: TVSectionProps) => (
 );
 export const EnglishTVSection = ({ onShowClick }: TVSectionProps) => (
   <DynamicSection title="English TV Shows" icon={Tv} useDataHook={useEnglishTVShows} onItemClick={onShowClick} />
+);
+
+// Anime
+export const AnimeTVSection = ({ onShowClick }: TVSectionProps) => (
+  <DynamicSection title="Anime Series" icon={Flame} useDataHook={useAnimeTVShows} onItemClick={onShowClick} />
+);
+export const AnimeMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
+  <DynamicSection title="Anime Movies" icon={Flame} useDataHook={useAnimeMovies} onItemClick={onMovieClick} />
 );
 
 // 4. Genre Sections
