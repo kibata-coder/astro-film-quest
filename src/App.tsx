@@ -19,6 +19,8 @@ const ForYou = lazy(() => import("./pages/ForYou"));
 
 const Genre = lazy(() => import("./pages/Genre"));
 const Profile = lazy(() => import("./pages/Profile"));
+const Anime = lazy(() => import("./pages/Anime"));
+const AnimeMovies = lazy(() => import("./pages/AnimeMovies"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
