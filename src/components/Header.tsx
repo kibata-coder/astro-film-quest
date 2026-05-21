@@ -206,6 +206,8 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
                 <NavLink to="/">Home</NavLink>
                 <NavLink to="/movies">Movies</NavLink>
                 <NavLink to="/tv">TV Shows</NavLink>
+                <NavLink to="/anime">Anime</NavLink>
+                <NavLink to="/anime-movies">Anime Movies</NavLink>
                 
                 {user && <NavLink to="/mylist">My List</NavLink>}
                 
