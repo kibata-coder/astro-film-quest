@@ -214,6 +214,26 @@ export const getOtherTVShows = async (page = 1) => {
   });
 };
 
+// --- ANIME FETCHERS (Animation genre + Japanese original audio) ---
+
+export const getAnimeTVShows = async (page = 1) => {
+  return callTMDB<TVShow>('/discover/tv', {
+    page,
+    with_genres: '16',
+    with_original_language: 'ja',
+    sort_by: 'popularity.desc',
+  });
+};
+
+export const getAnimeMovies = async (page = 1) => {
+  return callTMDB<Movie>('/discover/movie', {
+    page,
+    with_genres: '16',
+    with_original_language: 'ja',
+    sort_by: 'popularity.desc',
+  });
+};
+
 // --- GENRE FETCHERS ---
 
 export const getActionMovies = async (page = 1) => callTMDB<Movie>('/discover/movie', { page, with_genres: '28', sort_by: 'popularity.desc' });
