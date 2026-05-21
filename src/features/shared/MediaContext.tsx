@@ -105,7 +105,7 @@ export function MediaProvider({ children }: { children: ReactNode }) {
     setIsTVModalOpen(false);
     setTimeout(() => setSelectedShow(null), 300);
     if (window.history.state?.modal === 'tv') {
-      window.history.back();
+      window.history.replaceState({}, '', window.location.pathname);
     }
   }, []);
 
