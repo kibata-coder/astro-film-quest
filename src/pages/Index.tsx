@@ -19,6 +19,7 @@ import { FeedCustomizer } from '@/components/FeedCustomizer';
 import SignUpPrompt from '@/components/SignUpPrompt';
 import {
   TrendingMoviesSection, TrendingTVSection,
+  AnimeTVSection, AnimeMoviesSection,
   ActionMoviesSection, AdventureMoviesSection, ComedyMoviesSection,
   DramaMoviesSection, HorrorMoviesSection, SciFiMoviesSection,
   FantasyMoviesSection, RomanceMoviesSection, ThrillerMoviesSection,
