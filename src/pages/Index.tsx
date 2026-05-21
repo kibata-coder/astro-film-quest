@@ -73,6 +73,14 @@ const Index = () => {
                 <TrendingMoviesSection onMovieClick={openMovieModal} />
               </SectionErrorBoundary>
 
+              <SectionErrorBoundary sectionName="Anime Series">
+                <AnimeTVSection onShowClick={openTVModal} />
+              </SectionErrorBoundary>
+
+              <SectionErrorBoundary sectionName="Anime Movies">
+                <AnimeMoviesSection onMovieClick={openMovieModal} />
+              </SectionErrorBoundary>
+
               {!prefsLoading && (
                 <>
                   {preferences.action && <SectionErrorBoundary sectionName="Action"><ActionMoviesSection onMovieClick={openMovieModal} /></SectionErrorBoundary>}
