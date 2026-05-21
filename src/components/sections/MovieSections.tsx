@@ -1,5 +1,5 @@
 import { 
-  Film, Globe, Clapperboard, Sparkles, Tv, LucideIcon,
+  Film, Globe, Clapperboard, Sparkles, Tv, LucideIcon, Flame,
   Sword, Compass, Laugh, Theater, Ghost, Rocket, 
   Heart, Eye, Siren, Briefcase, ShieldAlert 
 } from 'lucide-react';
@@ -14,6 +14,8 @@ import {
   useTrendingTVShows,
   useIndianTVShows,
   useEnglishTVShows,
+  useAnimeTVShows,
+  useAnimeMovies,
   // Genres
   useActionMovies, useAdventureMovies, useComedyMovies, useDramaMovies, 
   useHorrorMovies, useSciFiMovies, useFantasyMovies, useRomanceMovies, 
