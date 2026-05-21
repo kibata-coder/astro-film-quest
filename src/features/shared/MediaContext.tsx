@@ -77,9 +77,10 @@ export function MediaProvider({ children }: { children: ReactNode }) {
   const forceCloseMovieModal = useCallback(() => {
     setIsMovieModalOpen(false);
     setTimeout(() => setSelectedMovie(null), 300);
-    // Pop the modal's history entry silently
+    // Overwrite the modal history entry in place to avoid triggering popstate
+    // (which would otherwise close the player that's opening right after).
     if (window.history.state?.modal === 'movie') {
-      window.history.back();
+      window.history.replaceState({}, '', window.location.pathname);
     }
   }, []);
 
@@ -104,7 +105,7 @@ export function MediaProvider({ children }: { children: ReactNode }) {
     setIsTVModalOpen(false);
     setTimeout(() => setSelectedShow(null), 300);
     if (window.history.state?.modal === 'tv') {
-      window.history.back();
+      window.history.replaceState({}, '', window.location.pathname);
     }
   }, []);
 

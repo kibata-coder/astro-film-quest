@@ -41,6 +41,9 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const handler = () => {
+      // Ignore popstate if we're still on the player history entry
+      // (defensive against history-race conditions).
+      if (window.history.state?.player) return;
       if (isOpenRef.current) {
         setVideoState(prev => ({ ...prev, isOpen: false }));
         setEpisodeContext(null);
