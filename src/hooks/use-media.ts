@@ -9,6 +9,8 @@ import {
   getEnglishTVShows,
   searchMovies,
   searchTVShows,
+  getAnimeTVShows,
+  getAnimeMovies,
   // Genres
   getActionMovies, getAdventureMovies, getComedyMovies, getDramaMovies, 
   getHorrorMovies, getSciFiMovies, getFantasyMovies, getRomanceMovies, 
