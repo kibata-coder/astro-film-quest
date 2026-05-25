@@ -71,6 +71,25 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
     }
   }, [show, isOpen]);
 
+  // Fetch anime mapping (titles + dub flags) when the show is anime
+  useEffect(() => {
+    if (!show || !isOpen) {
+      setAnimeResolve(null);
+      return;
+    }
+    if (!isAnimeMedia(show as unknown as Parameters<typeof isAnimeMedia>[0])) {
+      setAnimeResolve(null);
+      return;
+    }
+    let cancelled = false;
+    resolveAnime(show.id, 'tv').then((r) => {
+      if (!cancelled) setAnimeResolve(r);
+    });
+    return () => { cancelled = true; };
+  }, [show, isOpen]);
+
+
+
   useEffect(() => {
     if (show && selectedSeason >= 0) {
       getTVShowSeasonDetails(show.id, selectedSeason)
