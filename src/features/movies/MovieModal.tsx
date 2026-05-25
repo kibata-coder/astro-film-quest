@@ -21,6 +21,8 @@ import {
   getMovieRecommendations,
 } from '@/lib/tmdb';
 import { checkIsBookmarked, toggleBookmark } from '@/lib/bookmarks';
+import { isAnimeMedia } from '@/lib/anime';
+import { Badge } from '@/components/ui/badge';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ThumbsRating from '@/components/ThumbsRating';
 import AddToCollectionDialog from '@/components/AddToCollectionDialog';
