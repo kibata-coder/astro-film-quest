@@ -166,7 +166,12 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
             />
           )}
           <div className="flex-1 min-w-0">
-            <h2 className="text-xl md:text-2xl font-bold mb-2">{show.name}</h2>
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
+              <h2 className="text-xl md:text-2xl font-bold">{show.name}</h2>
+              {isAnime && (
+                <Badge variant="default" className="text-[10px] uppercase">Anime</Badge>
+              )}
+            </div>
             <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
               <span className="flex items-center gap-1">
                 <Calendar className="w-3.5 h-3.5" />
