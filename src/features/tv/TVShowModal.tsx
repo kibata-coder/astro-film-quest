@@ -37,6 +37,10 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
 
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
+  const [animeResolve, setAnimeResolve] = useState<AnimeResolve | null>(null);
+
+  const isAnime = show ? isAnimeMedia(show as unknown as Parameters<typeof isAnimeMedia>[0]) : false;
+
 
   useEffect(() => {
     const scrollContainer = document.querySelector('[data-radix-scroll-area-viewport]');
