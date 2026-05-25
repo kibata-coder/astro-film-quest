@@ -3,14 +3,17 @@ import { X, Play, Star, Calendar, Tv, Plus, Check } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getBackdropUrl, getImageUrl, getTVShowDetails, getTVShowSeasonDetails, getTVShowRecommendations } from '@/lib/tmdb';
 import type { TVShow, TVShowDetails, Episode } from '@/lib/tmdb';
 import { checkIsBookmarked, toggleBookmark } from '@/lib/bookmarks';
+import { isAnimeMedia, resolveAnime, type AnimeResolve } from '@/lib/anime';
 import ThumbsRating from '@/components/ThumbsRating';
 import AddToCollectionDialog from '@/components/AddToCollectionDialog';
+
 
 interface TVShowModalProps {
   show: TVShow | null;
@@ -34,6 +37,10 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
 
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
+  const [animeResolve, setAnimeResolve] = useState<AnimeResolve | null>(null);
+
+  const isAnime = show ? isAnimeMedia(show as unknown as Parameters<typeof isAnimeMedia>[0]) : false;
+
 
   useEffect(() => {
     const scrollContainer = document.querySelector('[data-radix-scroll-area-viewport]');
@@ -63,6 +70,25 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
         .finally(() => setIsLoading(false));
     }
   }, [show, isOpen]);
+
+  // Fetch anime mapping (titles + dub flags) when the show is anime
+  useEffect(() => {
+    if (!show || !isOpen) {
+      setAnimeResolve(null);
+      return;
+    }
+    if (!isAnimeMedia(show as unknown as Parameters<typeof isAnimeMedia>[0])) {
+      setAnimeResolve(null);
+      return;
+    }
+    let cancelled = false;
+    resolveAnime(show.id, 'tv').then((r) => {
+      if (!cancelled) setAnimeResolve(r);
+    });
+    return () => { cancelled = true; };
+  }, [show, isOpen]);
+
+
 
   useEffect(() => {
     if (show && selectedSeason >= 0) {
@@ -140,7 +166,12 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
             />
           )}
           <div className="flex-1 min-w-0">
-            <h2 className="text-xl md:text-2xl font-bold mb-2">{show.name}</h2>
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
+              <h2 className="text-xl md:text-2xl font-bold">{show.name}</h2>
+              {isAnime && (
+                <Badge variant="default" className="text-[10px] uppercase">Anime</Badge>
+              )}
+            </div>
             <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
               <span className="flex items-center gap-1">
                 <Calendar className="w-3.5 h-3.5" />
@@ -223,7 +254,10 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
             {episodes.length === 0 ? (
               <p className="text-muted-foreground text-sm">No episodes available.</p>
             ) : (
-              episodes.map((episode) => (
+              episodes.map((episode) => {
+                const animeEp = animeResolve?.episodes.find(e => e.number === episode.episode_number);
+                const displayName = animeEp?.title || episode.name;
+                return (
                 <div
                   key={episode.id}
                   ref={(el) => { episodeRefs.current[episode.episode_number] = el; }}
@@ -234,13 +268,13 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
                     show.name,
                     selectedSeason,
                     episode.episode_number,
-                    episode.name,
+                    displayName,
                     show.poster_path
                   )}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
-                      onPlay(show.id, show.name, selectedSeason, episode.episode_number, episode.name, show.poster_path);
+                      onPlay(show.id, show.name, selectedSeason, episode.episode_number, displayName, show.poster_path);
                     }
                   }}
                   className={`flex items-center gap-3 p-2.5 rounded-lg transition-colors border cursor-pointer ${
@@ -253,7 +287,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
                     {episode.still_path ? (
                       <img
                         src={getImageUrl(episode.still_path, 'w300') || ''}
-                        alt={episode.name}
+                        alt={displayName}
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -263,9 +297,19 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm">
-                      {episode.episode_number}. {episode.name}
-                    </p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-medium text-sm">
+                        {episode.episode_number}. {displayName}
+                      </p>
+                      {animeEp && (
+                        <>
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0">SUB</Badge>
+                          {animeEp.hasDub && (
+                            <Badge variant="default" className="text-[10px] px-1.5 py-0">DUB</Badge>
+                          )}
+                        </>
+                      )}
+                    </div>
                     {episode.overview && (
                       <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
                         {episode.overview}
@@ -281,14 +325,15 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
                       show.name,
                       selectedSeason,
                       episode.episode_number,
-                      episode.name,
+                      displayName,
                       show.poster_path
                     )}
                   >
                     <Play className="w-4 h-4" />
                   </Button>
                 </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>

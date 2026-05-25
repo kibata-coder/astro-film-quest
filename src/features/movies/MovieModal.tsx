@@ -21,6 +21,8 @@ import {
   getMovieRecommendations,
 } from '@/lib/tmdb';
 import { checkIsBookmarked, toggleBookmark } from '@/lib/bookmarks';
+import { isAnimeMedia } from '@/lib/anime';
+import { Badge } from '@/components/ui/badge';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ThumbsRating from '@/components/ThumbsRating';
 import AddToCollectionDialog from '@/components/AddToCollectionDialog';
@@ -193,7 +195,12 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
       {/* Title & actions below the trailer */}
       <div className="px-5 md:px-6 pt-5 relative z-10">
 
-        <h2 className="text-xl md:text-2xl font-bold mb-3">{movie.title}</h2>
+        <div className="flex items-center gap-2 mb-3 flex-wrap">
+          <h2 className="text-xl md:text-2xl font-bold">{movie.title}</h2>
+          {isAnimeMedia(movie as unknown as Parameters<typeof isAnimeMedia>[0]) && (
+            <Badge variant="default" className="text-[10px] uppercase">Anime</Badge>
+          )}
+        </div>
         <div className="flex items-center gap-3 mb-5">
           <Button
             onClick={onPlay}
