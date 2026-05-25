@@ -249,7 +249,10 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
             {episodes.length === 0 ? (
               <p className="text-muted-foreground text-sm">No episodes available.</p>
             ) : (
-              episodes.map((episode) => (
+              episodes.map((episode) => {
+                const animeEp = animeResolve?.episodes.find(e => e.number === episode.episode_number);
+                const displayName = animeEp?.title || episode.name;
+                return (
                 <div
                   key={episode.id}
                   ref={(el) => { episodeRefs.current[episode.episode_number] = el; }}
@@ -260,13 +263,13 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
                     show.name,
                     selectedSeason,
                     episode.episode_number,
-                    episode.name,
+                    displayName,
                     show.poster_path
                   )}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
-                      onPlay(show.id, show.name, selectedSeason, episode.episode_number, episode.name, show.poster_path);
+                      onPlay(show.id, show.name, selectedSeason, episode.episode_number, displayName, show.poster_path);
                     }
                   }}
                   className={`flex items-center gap-3 p-2.5 rounded-lg transition-colors border cursor-pointer ${
@@ -279,7 +282,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
                     {episode.still_path ? (
                       <img
                         src={getImageUrl(episode.still_path, 'w300') || ''}
-                        alt={episode.name}
+                        alt={displayName}
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -289,9 +292,19 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm">
-                      {episode.episode_number}. {episode.name}
-                    </p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-medium text-sm">
+                        {episode.episode_number}. {displayName}
+                      </p>
+                      {animeEp && (
+                        <>
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0">SUB</Badge>
+                          {animeEp.hasDub && (
+                            <Badge variant="default" className="text-[10px] px-1.5 py-0">DUB</Badge>
+                          )}
+                        </>
+                      )}
+                    </div>
                     {episode.overview && (
                       <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
                         {episode.overview}
@@ -307,14 +320,15 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
                       show.name,
                       selectedSeason,
                       episode.episode_number,
-                      episode.name,
+                      displayName,
                       show.poster_path
                     )}
                   >
                     <Play className="w-4 h-4" />
                   </Button>
                 </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>
