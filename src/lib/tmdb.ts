@@ -2,6 +2,10 @@ import { supabase } from '@/integrations/supabase/client';
 
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p';
 
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
+const SUPABASE_ANON = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
+const TMDB_FN_URL = `${SUPABASE_URL}/functions/v1/tmdb`;
+
 export const getImageUrl = (path: string | null, size: 'w300' | 'w500' | 'w780' | 'original' = 'w500') => {
   if (!path) return null;
   return `${IMAGE_BASE_URL}/${size}${path}`;
@@ -22,16 +26,30 @@ interface TMDBResponse<T> {
 }
 
 async function callTMDB<T>(endpoint: string, params?: Record<string, string | number>): Promise<TMDBResponse<T> & T> {
-  const { data, error } = await supabase.functions.invoke('tmdb', {
-    body: { endpoint, params }
-  });
+  // Use cacheable GET so the browser HTTP cache (and any CDN in front of the
+  // edge function) can serve repeats instantly. The edge function also
+  // caches in-memory per isolate.
+  try {
+    const qs = new URLSearchParams({ endpoint });
+    if (params) qs.set('params', JSON.stringify(params));
 
-  if (error) {
-    console.error('TMDB API error:', error);
-    throw error;
+    const res = await fetch(`${TMDB_FN_URL}?${qs.toString()}`, {
+      method: 'GET',
+      headers: {
+        apikey: SUPABASE_ANON,
+        Authorization: `Bearer ${SUPABASE_ANON}`,
+      },
+    });
+    if (!res.ok) throw new Error(`TMDB ${endpoint} ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.warn('TMDB GET failed, falling back to invoke', err);
+    const { data, error } = await supabase.functions.invoke('tmdb', {
+      body: { endpoint, params },
+    });
+    if (error) throw error;
+    return data;
   }
-
-  return data;
 }
 
 export interface Movie {
