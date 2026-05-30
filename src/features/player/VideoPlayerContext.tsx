@@ -207,103 +207,61 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const nextEpisode = useCallback(async () => {
+  const stepEpisode = useCallback(async (delta: 1 | -1) => {
     // Anime mode → walk animeResolve.episodes
     if (videoState.mode === 'anime' && animeResolve && videoState.animeEpisodeId) {
       const idx = animeResolve.episodes.findIndex(e => e.id === videoState.animeEpisodeId);
-      if (idx === -1 || idx >= animeResolve.episodes.length - 1) return;
-      const next = animeResolve.episodes[idx + 1];
+      const targetIdx = idx + delta;
+      if (idx === -1 || targetIdx < 0 || targetIdx >= animeResolve.episodes.length) return;
+      const target = animeResolve.episodes[targetIdx];
+      const showName = videoState.title.split(' - ')[0];
       await addToHistory({
         id: videoState.mediaId,
         media_type: 'tv',
-        title: videoState.title.split(' - ')[0],
+        title: showName,
         poster_path: episodeContext?.posterPath || '',
         season_number: videoState.seasonNumber,
-        episode_number: next.number,
+        episode_number: target.number,
       });
       notifyHistoryUpdate();
       setVideoState(prev => ({
         ...prev,
-        episodeNumber: next.number,
-        episodeName: next.title || `Episode ${next.number}`,
-        title: `${prev.title.split(' - ')[0]} - ${next.title || `Episode ${next.number}`}`,
-        animeEpisodeId: next.id,
-        animeHasDub: next.hasDub,
+        episodeNumber: target.number,
+        episodeName: target.title || `Episode ${target.number}`,
+        title: `${showName} - ${target.title || `Episode ${target.number}`}`,
+        animeEpisodeId: target.id,
+        animeHasDub: target.hasDub,
       }));
       return;
     }
 
-    // Iframe mode → existing TMDB logic
+    // Iframe mode → TMDB episode list
     if (!episodeContext || !videoState.episodeNumber) return;
-    const currentEpIndex = episodeContext.episodes.findIndex(
+    const currentIdx = episodeContext.episodes.findIndex(
       ep => ep.episode_number === videoState.episodeNumber
     );
-    if (currentEpIndex === -1 || currentEpIndex >= episodeContext.episodes.length - 1) return;
-    const nextEp = episodeContext.episodes[currentEpIndex + 1];
+    const targetIdx = currentIdx + delta;
+    if (currentIdx === -1 || targetIdx < 0 || targetIdx >= episodeContext.episodes.length) return;
+    const target = episodeContext.episodes[targetIdx];
     await addToHistory({
       id: episodeContext.showId,
       media_type: 'tv',
       title: episodeContext.showName,
       poster_path: episodeContext.posterPath || '',
       season_number: episodeContext.seasonNumber,
-      episode_number: nextEp.episode_number,
+      episode_number: target.episode_number,
     });
     notifyHistoryUpdate();
     setVideoState(prev => ({
       ...prev,
-      title: `${episodeContext.showName} - ${nextEp.name}`,
-      episodeNumber: nextEp.episode_number,
-      episodeName: nextEp.name,
+      title: `${episodeContext.showName} - ${target.name}`,
+      episodeNumber: target.episode_number,
+      episodeName: target.name,
     }));
   }, [episodeContext, videoState, animeResolve]);
 
-  const previousEpisode = useCallback(async () => {
-    if (videoState.mode === 'anime' && animeResolve && videoState.animeEpisodeId) {
-      const idx = animeResolve.episodes.findIndex(e => e.id === videoState.animeEpisodeId);
-      if (idx <= 0) return;
-      const prev = animeResolve.episodes[idx - 1];
-      await addToHistory({
-        id: videoState.mediaId,
-        media_type: 'tv',
-        title: videoState.title.split(' - ')[0],
-        poster_path: episodeContext?.posterPath || '',
-        season_number: videoState.seasonNumber,
-        episode_number: prev.number,
-      });
-      notifyHistoryUpdate();
-      setVideoState(prevState => ({
-        ...prevState,
-        episodeNumber: prev.number,
-        episodeName: prev.title || `Episode ${prev.number}`,
-        title: `${prevState.title.split(' - ')[0]} - ${prev.title || `Episode ${prev.number}`}`,
-        animeEpisodeId: prev.id,
-        animeHasDub: prev.hasDub,
-      }));
-      return;
-    }
-
-    if (!episodeContext || !videoState.episodeNumber) return;
-    const currentEpIndex = episodeContext.episodes.findIndex(
-      ep => ep.episode_number === videoState.episodeNumber
-    );
-    if (currentEpIndex <= 0) return;
-    const prevEp = episodeContext.episodes[currentEpIndex - 1];
-    await addToHistory({
-      id: episodeContext.showId,
-      media_type: 'tv',
-      title: episodeContext.showName,
-      poster_path: episodeContext.posterPath || '',
-      season_number: episodeContext.seasonNumber,
-      episode_number: prevEp.episode_number,
-    });
-    notifyHistoryUpdate();
-    setVideoState(prev => ({
-      ...prev,
-      title: `${episodeContext.showName} - ${prevEp.name}`,
-      episodeNumber: prevEp.episode_number,
-      episodeName: prevEp.name,
-    }));
-  }, [episodeContext, videoState, animeResolve]);
+  const nextEpisode = useCallback(() => stepEpisode(1), [stepEpisode]);
+  const previousEpisode = useCallback(() => stepEpisode(-1), [stepEpisode]);
 
   const switchAnimeCategory = useCallback((category: 'sub' | 'dub') => {
     setVideoState(prev => ({ ...prev, animeCategory: category }));

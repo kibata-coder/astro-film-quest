@@ -168,29 +168,20 @@ export const getWatchProviders = async (movieId: number) => {
   return data.results?.US || null;
 };
 
-export const getIndianMovies = async (page = 1) => {
-  return callTMDB<Movie>('/discover/movie', {
-    page,
-    with_original_language: 'hi|ta|te|ml|kn',
-    sort_by: 'popularity.desc'
-  });
-};
+// --- DISCOVER HELPERS ---
 
-export const getEnglishMovies = async (page = 1) => {
-  return callTMDB<Movie>('/discover/movie', {
-    page,
-    with_original_language: 'en',
-    sort_by: 'popularity.desc'
-  });
-};
+const INDIAN_LANGS = 'hi|ta|te|ml|kn';
+const NON_INDIAN_EN_LANGS = 'en,hi,ta,te,ml,kn';
 
-export const getOtherMovies = async (page = 1) => {
-  return callTMDB<Movie>('/discover/movie', {
-    page,
-    without_original_language: 'en,hi,ta,te,ml,kn',
-    sort_by: 'popularity.desc'
-  });
-};
+const discoverMovie = (params: Record<string, string | number>, page = 1) =>
+  callTMDB<Movie>('/discover/movie', { page, sort_by: 'popularity.desc', ...params });
+
+const discoverTV = (params: Record<string, string | number>, page = 1) =>
+  callTMDB<TVShow>('/discover/tv', { page, sort_by: 'popularity.desc', ...params });
+
+export const getIndianMovies = (page = 1) => discoverMovie({ with_original_language: INDIAN_LANGS }, page);
+export const getEnglishMovies = (page = 1) => discoverMovie({ with_original_language: 'en' }, page);
+export const getOtherMovies = (page = 1) => discoverMovie({ without_original_language: NON_INDIAN_EN_LANGS }, page);
 
 export const getTrendingTVShows = async (page = 1) => {
   return callTMDB<TVShow>('/trending/tv/week', { page });
@@ -208,64 +199,37 @@ export const getTVShowSeasonDetails = async (tvId: number, seasonNumber: number)
   return callTMDB<{ episodes: Episode[] }>(`/tv/${tvId}/season/${seasonNumber}`);
 };
 
-export const getIndianTVShows = async (page = 1) => {
-  return callTMDB<TVShow>('/discover/tv', {
-    page,
-    with_original_language: 'hi|ta|te|ml|kn',
-    sort_by: 'popularity.desc'
-  });
-};
-
-export const getEnglishTVShows = async (page = 1) => {
-  return callTMDB<TVShow>('/discover/tv', {
-    page,
-    with_original_language: 'en',
-    sort_by: 'popularity.desc'
-  });
-};
-
-export const getOtherTVShows = async (page = 1) => {
-  return callTMDB<TVShow>('/discover/tv', {
-    page,
-    without_original_language: 'en,hi,ta,te,ml,kn',
-    sort_by: 'popularity.desc'
-  });
-};
+export const getIndianTVShows = (page = 1) => discoverTV({ with_original_language: INDIAN_LANGS }, page);
+export const getEnglishTVShows = (page = 1) => discoverTV({ with_original_language: 'en' }, page);
+export const getOtherTVShows = (page = 1) => discoverTV({ without_original_language: NON_INDIAN_EN_LANGS }, page);
 
 // --- ANIME FETCHERS (Animation genre + Japanese original audio) ---
 
-export const getAnimeTVShows = async (page = 1) => {
-  return callTMDB<TVShow>('/discover/tv', {
-    page,
-    with_genres: '16',
-    with_original_language: 'ja',
-    sort_by: 'popularity.desc',
-  });
-};
-
-export const getAnimeMovies = async (page = 1) => {
-  return callTMDB<Movie>('/discover/movie', {
-    page,
-    with_genres: '16',
-    with_original_language: 'ja',
-    sort_by: 'popularity.desc',
-  });
-};
+export const getAnimeTVShows = (page = 1) => discoverTV({ with_genres: '16', with_original_language: 'ja' }, page);
+export const getAnimeMovies = (page = 1) => discoverMovie({ with_genres: '16', with_original_language: 'ja' }, page);
 
 // --- GENRE FETCHERS ---
 
-export const getActionMovies = async (page = 1) => callTMDB<Movie>('/discover/movie', { page, with_genres: '28', sort_by: 'popularity.desc' });
-export const getAdventureMovies = async (page = 1) => callTMDB<Movie>('/discover/movie', { page, with_genres: '12', sort_by: 'popularity.desc' });
-export const getComedyMovies = async (page = 1) => callTMDB<Movie>('/discover/movie', { page, with_genres: '35', sort_by: 'popularity.desc' });
-export const getDramaMovies = async (page = 1) => callTMDB<Movie>('/discover/movie', { page, with_genres: '18', sort_by: 'popularity.desc' });
-export const getHorrorMovies = async (page = 1) => callTMDB<Movie>('/discover/movie', { page, with_genres: '27', sort_by: 'popularity.desc' });
-export const getSciFiMovies = async (page = 1) => callTMDB<Movie>('/discover/movie', { page, with_genres: '878', sort_by: 'popularity.desc' });
-export const getFantasyMovies = async (page = 1) => callTMDB<Movie>('/discover/movie', { page, with_genres: '14', sort_by: 'popularity.desc' });
-export const getRomanceMovies = async (page = 1) => callTMDB<Movie>('/discover/movie', { page, with_genres: '10749', sort_by: 'popularity.desc' });
-export const getThrillerMovies = async (page = 1) => callTMDB<Movie>('/discover/movie', { page, with_genres: '53', sort_by: 'popularity.desc' });
-export const getWesternMovies = async (page = 1) => callTMDB<Movie>('/discover/movie', { page, with_genres: '37', sort_by: 'popularity.desc' });
-export const getCrimeMovies = async (page = 1) => callTMDB<Movie>('/discover/movie', { page, with_genres: '80', sort_by: 'popularity.desc' });
-export const getWarMovies = async (page = 1) => callTMDB<Movie>('/discover/movie', { page, with_genres: '10752', sort_by: 'popularity.desc' });
+const GENRE_IDS = {
+  action: '28', adventure: '12', comedy: '35', drama: '18',
+  horror: '27', scifi: '878', fantasy: '14', romance: '10749',
+  thriller: '53', western: '37', crime: '80', war: '10752',
+} as const;
+
+const byGenre = (id: string) => (page = 1) => discoverMovie({ with_genres: id }, page);
+
+export const getActionMovies = byGenre(GENRE_IDS.action);
+export const getAdventureMovies = byGenre(GENRE_IDS.adventure);
+export const getComedyMovies = byGenre(GENRE_IDS.comedy);
+export const getDramaMovies = byGenre(GENRE_IDS.drama);
+export const getHorrorMovies = byGenre(GENRE_IDS.horror);
+export const getSciFiMovies = byGenre(GENRE_IDS.scifi);
+export const getFantasyMovies = byGenre(GENRE_IDS.fantasy);
+export const getRomanceMovies = byGenre(GENRE_IDS.romance);
+export const getThrillerMovies = byGenre(GENRE_IDS.thriller);
+export const getWesternMovies = byGenre(GENRE_IDS.western);
+export const getCrimeMovies = byGenre(GENRE_IDS.crime);
+export const getWarMovies = byGenre(GENRE_IDS.war);
 
 // --- DISCOVER WITH FILTERS ---
 
@@ -278,35 +242,29 @@ export interface DiscoverFilters {
   page?: number;
 }
 
-export const discoverMovies = async (filters: DiscoverFilters = {}) => {
+const buildDiscoverParams = (
+  filters: DiscoverFilters,
+  dateField: 'primary_release_date' | 'first_air_date',
+): Record<string, string | number> => {
   const params: Record<string, string | number> = {
     sort_by: filters.sortBy || 'popularity.desc',
     page: filters.page || 1,
   };
   if (filters.genre) params.with_genres = filters.genre;
   if (filters.year) {
-    params['primary_release_date.gte'] = `${filters.year}-01-01`;
-    params['primary_release_date.lte'] = `${filters.year}-12-31`;
+    params[`${dateField}.gte`] = `${filters.year}-01-01`;
+    params[`${dateField}.lte`] = `${filters.year}-12-31`;
   }
   if (filters.rating) params['vote_average.gte'] = filters.rating;
   if (filters.language) params.with_original_language = filters.language;
-  return callTMDB<Movie>('/discover/movie', params);
+  return params;
 };
 
-export const discoverTVShows = async (filters: DiscoverFilters = {}) => {
-  const params: Record<string, string | number> = {
-    sort_by: filters.sortBy || 'popularity.desc',
-    page: filters.page || 1,
-  };
-  if (filters.genre) params.with_genres = filters.genre;
-  if (filters.year) {
-    params['first_air_date.gte'] = `${filters.year}-01-01`;
-    params['first_air_date.lte'] = `${filters.year}-12-31`;
-  }
-  if (filters.rating) params['vote_average.gte'] = filters.rating;
-  if (filters.language) params.with_original_language = filters.language;
-  return callTMDB<TVShow>('/discover/tv', params);
-};
+export const discoverMovies = (filters: DiscoverFilters = {}) =>
+  callTMDB<Movie>('/discover/movie', buildDiscoverParams(filters, 'primary_release_date'));
+
+export const discoverTVShows = (filters: DiscoverFilters = {}) =>
+  callTMDB<TVShow>('/discover/tv', buildDiscoverParams(filters, 'first_air_date'));
 
 // --- SMART RECOMMENDATION ENGINE ---
 

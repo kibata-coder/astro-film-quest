@@ -39,10 +39,6 @@ export const isLowEndDevice = (): boolean => {
   return false;
 };
 
-/** Pick the best poster size for the current network. */
-export const pickPosterSize = (): 'w300' | 'w500' => {
-  return isSlowConnection() ? 'w300' : 'w300'; // posters already small
-};
 
 /** Pick the best backdrop size for the current network/viewport. */
 export const pickBackdropSize = (): 'w780' | 'w1280' => {
