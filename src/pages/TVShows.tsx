@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import Layout from '@/components/Layout';
 import { useSearchMedia } from '@/hooks/use-media';
 import { useDebounce } from '@/hooks/use-debounce';
-import MediaCard from '@/components/MediaCard';
+import MediaGrid from '@/components/MediaGrid';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import SectionErrorBoundary from '@/components/SectionErrorBoundary';
 import { useMedia } from '@/features/shared';
