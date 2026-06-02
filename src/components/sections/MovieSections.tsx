@@ -129,40 +129,24 @@ export const AnimeMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
   <DynamicSection title="Anime Movies" icon={Flame} useDataHook={useAnimeMovies} onItemClick={onMovieClick} />
 );
 
-// 4. Genre Sections
-export const ActionMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
-  <DynamicSection title="Action" icon={Sword} useDataHook={useActionMovies} onItemClick={onMovieClick} />
+// 4. Genre Sections — factory to avoid 12 duplicate component bodies
+const makeGenreSection = (
+  title: string,
+  icon: LucideIcon,
+  useDataHook: (enabled?: boolean) => { data: any; isLoading: boolean },
+) => ({ onMovieClick }: MovieSectionProps) => (
+  <DynamicSection title={title} icon={icon} useDataHook={useDataHook} onItemClick={onMovieClick} />
 );
-export const AdventureMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
-  <DynamicSection title="Adventure" icon={Compass} useDataHook={useAdventureMovies} onItemClick={onMovieClick} />
-);
-export const ComedyMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
-  <DynamicSection title="Comedy" icon={Laugh} useDataHook={useComedyMovies} onItemClick={onMovieClick} />
-);
-export const DramaMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
-  <DynamicSection title="Drama" icon={Theater} useDataHook={useDramaMovies} onItemClick={onMovieClick} />
-);
-export const HorrorMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
-  <DynamicSection title="Horror" icon={Ghost} useDataHook={useHorrorMovies} onItemClick={onMovieClick} />
-);
-export const SciFiMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
-  <DynamicSection title="Science Fiction" icon={Rocket} useDataHook={useSciFiMovies} onItemClick={onMovieClick} />
-);
-export const FantasyMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
-  <DynamicSection title="Fantasy" icon={Sparkles} useDataHook={useFantasyMovies} onItemClick={onMovieClick} />
-);
-export const RomanceMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
-  <DynamicSection title="Romance" icon={Heart} useDataHook={useRomanceMovies} onItemClick={onMovieClick} />
-);
-export const ThrillerMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
-  <DynamicSection title="Thriller & Suspense" icon={Eye} useDataHook={useThrillerMovies} onItemClick={onMovieClick} />
-);
-export const WesternMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
-  <DynamicSection title="Western" icon={ShieldAlert} useDataHook={useWesternMovies} onItemClick={onMovieClick} />
-);
-export const CrimeMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
-  <DynamicSection title="Crime" icon={Briefcase} useDataHook={useCrimeMovies} onItemClick={onMovieClick} />
-);
-export const WarMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
-  <DynamicSection title="War" icon={Siren} useDataHook={useWarMovies} onItemClick={onMovieClick} />
-);
+
+export const ActionMoviesSection    = makeGenreSection('Action',             Sword,        useActionMovies);
+export const AdventureMoviesSection = makeGenreSection('Adventure',          Compass,      useAdventureMovies);
+export const ComedyMoviesSection    = makeGenreSection('Comedy',             Laugh,        useComedyMovies);
+export const DramaMoviesSection     = makeGenreSection('Drama',              Theater,      useDramaMovies);
+export const HorrorMoviesSection    = makeGenreSection('Horror',             Ghost,        useHorrorMovies);
+export const SciFiMoviesSection     = makeGenreSection('Science Fiction',    Rocket,       useSciFiMovies);
+export const FantasyMoviesSection   = makeGenreSection('Fantasy',            Sparkles,     useFantasyMovies);
+export const RomanceMoviesSection   = makeGenreSection('Romance',            Heart,        useRomanceMovies);
+export const ThrillerMoviesSection  = makeGenreSection('Thriller & Suspense',Eye,          useThrillerMovies);
+export const WesternMoviesSection   = makeGenreSection('Western',            ShieldAlert,  useWesternMovies);
+export const CrimeMoviesSection     = makeGenreSection('Crime',              Briefcase,    useCrimeMovies);
+export const WarMoviesSection       = makeGenreSection('War',                Siren,        useWarMovies);
