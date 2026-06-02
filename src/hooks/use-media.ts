@@ -82,23 +82,28 @@ export const useEnglishTVShows = (enabled = true) => {
   });
 };
 
-// --- Anime Hooks ---
-export const useAnimeTVShows = (enabled = true) => useQuery({ queryKey: ['tv', 'anime'], queryFn: () => getAnimeTVShows(), staleTime: 3600000, enabled });
-export const useAnimeMovies = (enabled = true) => useQuery({ queryKey: ['movies', 'anime'], queryFn: () => getAnimeMovies(), staleTime: 3600000, enabled });
+// --- Anime + Genre Hooks (factory keeps each as a stable, individually-named hook) ---
+const ONE_HOUR = 1000 * 60 * 60;
 
-// --- Genre Hooks (Cached for 1 hour, with enabled flag) ---
-export const useActionMovies = (enabled = true) => useQuery({ queryKey: ['movies', 'genre_action'], queryFn: () => getActionMovies(), staleTime: 3600000, enabled });
-export const useAdventureMovies = (enabled = true) => useQuery({ queryKey: ['movies', 'genre_adventure'], queryFn: () => getAdventureMovies(), staleTime: 3600000, enabled });
-export const useComedyMovies = (enabled = true) => useQuery({ queryKey: ['movies', 'genre_comedy'], queryFn: () => getComedyMovies(), staleTime: 3600000, enabled });
-export const useDramaMovies = (enabled = true) => useQuery({ queryKey: ['movies', 'genre_drama'], queryFn: () => getDramaMovies(), staleTime: 3600000, enabled });
-export const useHorrorMovies = (enabled = true) => useQuery({ queryKey: ['movies', 'genre_horror'], queryFn: () => getHorrorMovies(), staleTime: 3600000, enabled });
-export const useSciFiMovies = (enabled = true) => useQuery({ queryKey: ['movies', 'genre_scifi'], queryFn: () => getSciFiMovies(), staleTime: 3600000, enabled });
-export const useFantasyMovies = (enabled = true) => useQuery({ queryKey: ['movies', 'genre_fantasy'], queryFn: () => getFantasyMovies(), staleTime: 3600000, enabled });
-export const useRomanceMovies = (enabled = true) => useQuery({ queryKey: ['movies', 'genre_romance'], queryFn: () => getRomanceMovies(), staleTime: 3600000, enabled });
-export const useThrillerMovies = (enabled = true) => useQuery({ queryKey: ['movies', 'genre_thriller'], queryFn: () => getThrillerMovies(), staleTime: 3600000, enabled });
-export const useWesternMovies = (enabled = true) => useQuery({ queryKey: ['movies', 'genre_western'], queryFn: () => getWesternMovies(), staleTime: 3600000, enabled });
-export const useCrimeMovies = (enabled = true) => useQuery({ queryKey: ['movies', 'genre_crime'], queryFn: () => getCrimeMovies(), staleTime: 3600000, enabled });
-export const useWarMovies = (enabled = true) => useQuery({ queryKey: ['movies', 'genre_war'], queryFn: () => getWarMovies(), staleTime: 3600000, enabled });
+const makeListHook = <T,>(key: readonly string[], fn: () => Promise<T>) =>
+  (enabled = true) =>
+    useQuery({ queryKey: [...key], queryFn: fn, staleTime: ONE_HOUR, enabled });
+
+export const useAnimeTVShows = makeListHook(['tv', 'anime'], getAnimeTVShows);
+export const useAnimeMovies = makeListHook(['movies', 'anime'], getAnimeMovies);
+
+export const useActionMovies     = makeListHook(['movies', 'genre_action'],    getActionMovies);
+export const useAdventureMovies  = makeListHook(['movies', 'genre_adventure'], getAdventureMovies);
+export const useComedyMovies     = makeListHook(['movies', 'genre_comedy'],    getComedyMovies);
+export const useDramaMovies      = makeListHook(['movies', 'genre_drama'],     getDramaMovies);
+export const useHorrorMovies     = makeListHook(['movies', 'genre_horror'],    getHorrorMovies);
+export const useSciFiMovies      = makeListHook(['movies', 'genre_scifi'],     getSciFiMovies);
+export const useFantasyMovies    = makeListHook(['movies', 'genre_fantasy'],   getFantasyMovies);
+export const useRomanceMovies    = makeListHook(['movies', 'genre_romance'],   getRomanceMovies);
+export const useThrillerMovies   = makeListHook(['movies', 'genre_thriller'],  getThrillerMovies);
+export const useWesternMovies    = makeListHook(['movies', 'genre_western'],   getWesternMovies);
+export const useCrimeMovies      = makeListHook(['movies', 'genre_crime'],     getCrimeMovies);
+export const useWarMovies        = makeListHook(['movies', 'genre_war'],       getWarMovies);
 
 // --- Search Hooks ---
 
