@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import Layout from '@/components/Layout';
 import { useSearchMedia } from '@/hooks/use-media';
 import { useDebounce } from '@/hooks/use-debounce';
-import MediaCard from '@/components/MediaCard';
+import MediaGrid from '@/components/MediaGrid';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import SectionErrorBoundary from '@/components/SectionErrorBoundary';
 import { useMedia } from '@/features/shared';
@@ -59,11 +59,7 @@ const Movies = () => {
                 ))}
               </div>
             ) : searchResults?.movies?.length ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                {searchResults.movies.map((movie) => (
-                  <MediaCard key={movie.id} item={movie} onClick={() => openMovieModal(movie)} />
-                ))}
-              </div>
+              <MediaGrid items={searchResults.movies} onItemClick={openMovieModal} />
             ) : (
               <p className="text-muted-foreground">No movies found.</p>
             )}
@@ -74,11 +70,7 @@ const Movies = () => {
             {isFiltering ? (
               <LoadingSpinner />
             ) : filteredResults?.results?.length ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                {filteredResults.results.map((movie) => (
-                  <MediaCard key={movie.id} item={movie} onClick={() => openMovieModal(movie)} />
-                ))}
-              </div>
+              <MediaGrid items={filteredResults.results} onItemClick={openMovieModal} />
             ) : (
               <p className="text-muted-foreground">No movies match your filters.</p>
             )}
