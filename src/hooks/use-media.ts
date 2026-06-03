@@ -106,16 +106,18 @@ export const useCrimeMovies      = makeListHook(['movies', 'genre_crime'],     g
 export const useWarMovies        = makeListHook(['movies', 'genre_war'],       getWarMovies);
 
 // --- Search Hooks ---
+// react-query passes an AbortSignal that fires when the query key changes
+// (e.g. user keeps typing). Propagating it cancels in-flight TMDB requests.
 
 export const useSearchMedia = (query: string) => {
   return useQuery({
     queryKey: ['search', query],
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       if (!query) return { movies: [], tvShows: [] };
-      
+
       const results = await Promise.allSettled([
-        searchMovies(query),
-        searchTVShows(query)
+        searchMovies(query, 1, signal),
+        searchTVShows(query, 1, signal),
       ]);
 
       const movies = results[0].status === 'fulfilled' ? results[0].value.results || [] : [];
