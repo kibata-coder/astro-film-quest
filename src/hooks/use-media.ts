@@ -87,7 +87,9 @@ const ONE_HOUR = 1000 * 60 * 60;
 
 const makeListHook = <T,>(key: readonly string[], fn: () => Promise<T>) =>
   (enabled = true) =>
-    useQuery({ queryKey: [...key], queryFn: fn, staleTime: ONE_HOUR, enabled });
+    // Wrap fn so react-query's QueryFunctionContext isn't forwarded as
+    // the `page` argument (TMDB rejects it with "Invalid page").
+    useQuery({ queryKey: [...key], queryFn: () => fn(), staleTime: ONE_HOUR, enabled });
 
 export const useAnimeTVShows = makeListHook(['tv', 'anime'], getAnimeTVShows);
 export const useAnimeMovies = makeListHook(['movies', 'anime'], getAnimeMovies);
