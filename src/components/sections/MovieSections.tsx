@@ -5,7 +5,6 @@ import {
 } from 'lucide-react';
 import MediaCard from '@/components/MediaCard';
 import ScrollableSection from '@/components/ScrollableSection';
-import LazySection from '@/components/LazySection';
 import { 
   useTrendingMovies,
   useIndianMovies, 
@@ -69,24 +68,9 @@ const DynamicSectionInner = ({ title, icon, useDataHook, onItemClick, enabled }:
   );
 };
 
-const DynamicSection = ({ title, icon, useDataHook, onItemClick, isTrending = false }: DynamicSectionProps) => {
-  // Trending sections always eager. Other sections still use LazySection
-  // for the visual placeholder, but we trigger data fetching immediately so
-  // cards render as soon as react-query resolves — previously the
-  // IntersectionObserver could skip sections that never intersected on
-  // short viewports, leaving the home page with only the trending row.
-  if (isTrending) {
-    return <DynamicSectionInner title={title} icon={icon} useDataHook={useDataHook} onItemClick={onItemClick} enabled={true} />;
-  }
-
-  return (
-    <LazySection>
-      {() => (
-        <DynamicSectionInner title={title} icon={icon} useDataHook={useDataHook} onItemClick={onItemClick} enabled={true} />
-      )}
-    </LazySection>
-  );
-};
+const DynamicSection = ({ title, icon, useDataHook, onItemClick }: DynamicSectionProps) => (
+  <DynamicSectionInner title={title} icon={icon} useDataHook={useDataHook} onItemClick={onItemClick} enabled={true} />
+);
 
 // --- Exported Sections ---
 
