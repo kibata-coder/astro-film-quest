@@ -70,16 +70,19 @@ const DynamicSectionInner = ({ title, icon, useDataHook, onItemClick, enabled }:
 };
 
 const DynamicSection = ({ title, icon, useDataHook, onItemClick, isTrending = false }: DynamicSectionProps) => {
-  // Trending sections load immediately (no lazy wrapper)
+  // Trending sections always eager. Other sections still use LazySection
+  // for the visual placeholder, but we trigger data fetching immediately so
+  // cards render as soon as react-query resolves — previously the
+  // IntersectionObserver could skip sections that never intersected on
+  // short viewports, leaving the home page with only the trending row.
   if (isTrending) {
     return <DynamicSectionInner title={title} icon={icon} useDataHook={useDataHook} onItemClick={onItemClick} enabled={true} />;
   }
 
-  // Non-trending sections: lazy load data when visible
   return (
     <LazySection>
-      {({ isVisible }) => (
-        <DynamicSectionInner title={title} icon={icon} useDataHook={useDataHook} onItemClick={onItemClick} enabled={isVisible} />
+      {() => (
+        <DynamicSectionInner title={title} icon={icon} useDataHook={useDataHook} onItemClick={onItemClick} enabled={true} />
       )}
     </LazySection>
   );

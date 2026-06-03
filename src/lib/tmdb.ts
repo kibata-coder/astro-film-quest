@@ -25,10 +25,15 @@ interface TMDBResponse<T> {
   [key: string]: unknown;
 }
 
-async function callTMDB<T>(endpoint: string, params?: Record<string, string | number>): Promise<TMDBResponse<T> & T> {
+async function callTMDB<T>(
+  endpoint: string,
+  params?: Record<string, string | number>,
+  signal?: AbortSignal,
+): Promise<TMDBResponse<T> & T> {
   // Use cacheable GET so the browser HTTP cache (and any CDN in front of the
   // edge function) can serve repeats instantly. The edge function also
-  // caches in-memory per isolate.
+  // caches in-memory per isolate. AbortSignal cancels in-flight requests
+  // (e.g. when a debounced search query supersedes a previous one).
   try {
     const qs = new URLSearchParams({ endpoint });
     if (params) qs.set('params', JSON.stringify(params));
@@ -39,10 +44,13 @@ async function callTMDB<T>(endpoint: string, params?: Record<string, string | nu
         apikey: SUPABASE_ANON,
         Authorization: `Bearer ${SUPABASE_ANON}`,
       },
+      signal,
     });
     if (!res.ok) throw new Error(`TMDB ${endpoint} ${res.status}`);
     return await res.json();
   } catch (err) {
+    // Propagate aborts so react-query treats them as cancellations, not errors
+    if ((err as { name?: string })?.name === 'AbortError') throw err;
     console.warn('TMDB GET failed, falling back to invoke', err);
     const { data, error } = await supabase.functions.invoke('tmdb', {
       body: { endpoint, params },
@@ -146,8 +154,8 @@ export const getTrendingMovies = async (page = 1) => {
   return callTMDB<Movie>('/trending/movie/week', { page });
 };
 
-export const searchMovies = async (query: string, page = 1) => {
-  return callTMDB<Movie>('/search/movie', { query, page });
+export const searchMovies = async (query: string, page = 1, signal?: AbortSignal) => {
+  return callTMDB<Movie>('/search/movie', { query, page }, signal);
 };
 
 export const getMovieDetails = async (movieId: number) => {
@@ -187,8 +195,8 @@ export const getTrendingTVShows = async (page = 1) => {
   return callTMDB<TVShow>('/trending/tv/week', { page });
 };
 
-export const searchTVShows = async (query: string, page = 1) => {
-  return callTMDB<TVShow>('/search/tv', { query, page });
+export const searchTVShows = async (query: string, page = 1, signal?: AbortSignal) => {
+  return callTMDB<TVShow>('/search/tv', { query, page }, signal);
 };
 
 export const getTVShowDetails = async (tvId: number): Promise<TVShowDetails> => {

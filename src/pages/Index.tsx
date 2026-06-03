@@ -28,7 +28,7 @@ import {
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const debouncedSearch = useDebounce(searchQuery, 500);
+  const debouncedSearch = useDebounce(searchQuery, 300);
 
   const { openMovieModal, openTVModal } = useMedia();
   const { playMovie } = useVideoPlayer();
