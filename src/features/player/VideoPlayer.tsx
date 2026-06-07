@@ -216,10 +216,6 @@ const VideoPlayer = ({
               allowFullScreen
               allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope"
               referrerPolicy="no-referrer"
-              // Block top-level navigation hijacks from the embed (ads/overlays
-              // that try to redirect window.top), while still allowing scripts,
-              // popups, fullscreen, and forms the player needs.
-              sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-popups allow-popups-to-escape-sandbox allow-orientation-lock"
             />
             {showNextEpisodeButton && (
               <Button
