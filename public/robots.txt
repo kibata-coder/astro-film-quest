@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://astro-film-quest.lovable.app/sitemap.xml
+Sitemap: https://soudflex.pages.dev/sitemap.xml
