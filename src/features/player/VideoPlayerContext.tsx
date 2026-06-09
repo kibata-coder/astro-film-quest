@@ -113,7 +113,6 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
 
   const playMovie = useCallback(async (movie: Movie) => {
     playerPathRef.current = getCurrentPath();
-    enterFullscreen();
 
     // Fire-and-forget history
     addToHistory({
@@ -171,7 +170,6 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
     episodeName: string
   ) => {
     playerPathRef.current = getCurrentPath();
-    enterFullscreen();
     setEpisodeContext(null);
 
     addToHistory({
@@ -317,7 +315,6 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
     setEpisodeContext(null);
     setAnimeResolve(null);
     playerPathRef.current = null;
-    exitFullscreen();
   }, []);
 
   return (
