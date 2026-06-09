@@ -40,6 +40,48 @@ const initialVideoState: ExtendedVideoState = {
   mode: 'iframe',
 };
 
+type FullscreenDocument = Document & {
+  webkitFullscreenElement?: Element | null;
+  webkitExitFullscreen?: () => Promise<void> | void;
+};
+
+type FullscreenElement = HTMLElement & {
+  webkitRequestFullscreen?: () => Promise<void> | void;
+};
+
+const getCurrentPath = () => `${window.location.pathname}${window.location.search}${window.location.hash}`;
+
+const enterFullscreen = () => {
+  const target = document.documentElement as FullscreenElement;
+  const requestFullscreen = target.requestFullscreen || target.webkitRequestFullscreen;
+  if (!requestFullscreen) return;
+
+  try {
+    const result = requestFullscreen.call(target);
+    if (result && 'catch' in result) {
+      (result as Promise<void>).catch(() => undefined);
+    }
+  } catch {
+    // Some TV browsers only allow fullscreen on their native player surface.
+  }
+};
+
+const exitFullscreen = () => {
+  const fullscreenDocument = document as FullscreenDocument;
+  if (!document.fullscreenElement && !fullscreenDocument.webkitFullscreenElement) return;
+
+  try {
+    const result = document.exitFullscreen
+      ? document.exitFullscreen()
+      : fullscreenDocument.webkitExitFullscreen?.();
+    if (result && 'catch' in result) {
+      (result as Promise<void>).catch(() => undefined);
+    }
+  } catch {
+    // Ignore unsupported fullscreen exits on embedded TV browsers.
+  }
+};
+
 const VideoPlayerContext = createContext<VideoPlayerContextType | undefined>(undefined);
 
 export function VideoPlayerProvider({ children }: { children: ReactNode }) {
@@ -48,6 +90,7 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
   const [animeResolve, setAnimeResolve] = useState<AnimeResolve | null>(null);
 
   const isOpenRef = useRef(false);
+  const playerPathRef = useRef<string | null>(null);
   useEffect(() => { isOpenRef.current = videoState.isOpen; }, [videoState.isOpen]);
 
   const notifyHistoryUpdate = () => {
@@ -56,12 +99,18 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const handler = () => {
-      if (window.history.state?.player) return;
-      if (isOpenRef.current) {
-        setVideoState(prev => ({ ...prev, isOpen: false }));
-        setEpisodeContext(null);
-        setAnimeResolve(null);
+      if (!isOpenRef.current) return;
+
+      const playerPath = playerPathRef.current;
+      if (playerPath && getCurrentPath() !== playerPath) {
+        window.history.pushState(window.history.state ?? {}, '', playerPath);
       }
+
+      setVideoState(prev => ({ ...prev, isOpen: false }));
+      setEpisodeContext(null);
+      setAnimeResolve(null);
+      playerPathRef.current = null;
+      exitFullscreen();
     };
     window.addEventListener('popstate', handler);
     return () => window.removeEventListener('popstate', handler);
@@ -73,7 +122,8 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
   };
 
   const playMovie = useCallback(async (movie: Movie) => {
-    window.history.pushState({ player: true }, '', window.location.pathname);
+    playerPathRef.current = getCurrentPath();
+    enterFullscreen();
 
     // Fire-and-forget history
     addToHistory({
@@ -130,7 +180,8 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
     episodeNumber: number,
     episodeName: string
   ) => {
-    window.history.pushState({ player: true }, '', window.location.pathname);
+    playerPathRef.current = getCurrentPath();
+    enterFullscreen();
     setEpisodeContext(null);
 
     addToHistory({
@@ -272,13 +323,11 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const closePlayer = useCallback(() => {
-    if (window.history.state?.player) {
-      window.history.back();
-    } else {
-      setVideoState(prev => ({ ...prev, isOpen: false }));
-      setEpisodeContext(null);
-      setAnimeResolve(null);
-    }
+    setVideoState(prev => ({ ...prev, isOpen: false }));
+    setEpisodeContext(null);
+    setAnimeResolve(null);
+    playerPathRef.current = null;
+    exitFullscreen();
   }, []);
 
   return (
