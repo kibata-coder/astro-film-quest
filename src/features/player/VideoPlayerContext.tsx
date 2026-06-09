@@ -58,9 +58,7 @@ const enterFullscreen = () => {
 
   try {
     const result = requestFullscreen.call(target);
-    if (result && 'catch' in result) {
-      (result as Promise<void>).catch(() => undefined);
-    }
+    void Promise.resolve(result).catch(() => undefined);
   } catch {
     // Some TV browsers only allow fullscreen on their native player surface.
   }
@@ -74,9 +72,7 @@ const exitFullscreen = () => {
     const result = document.exitFullscreen
       ? document.exitFullscreen()
       : fullscreenDocument.webkitExitFullscreen?.();
-    if (result && 'catch' in result) {
-      (result as Promise<void>).catch(() => undefined);
-    }
+    void Promise.resolve(result).catch(() => undefined);
   } catch {
     // Ignore unsupported fullscreen exits on embedded TV browsers.
   }
@@ -105,12 +101,6 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
       if (playerPath && getCurrentPath() !== playerPath) {
         window.history.pushState(window.history.state ?? {}, '', playerPath);
       }
-
-      setVideoState(prev => ({ ...prev, isOpen: false }));
-      setEpisodeContext(null);
-      setAnimeResolve(null);
-      playerPathRef.current = null;
-      exitFullscreen();
     };
     window.addEventListener('popstate', handler);
     return () => window.removeEventListener('popstate', handler);
