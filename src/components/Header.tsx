@@ -84,6 +84,16 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
             <NavLink to="/anime">Anime</NavLink>
             <NavLink to="/anime-movies">Anime Movies</NavLink>
             {user && <NavLink to="/mylist">My List</NavLink>}
+            <a
+              href="https://soudsports.pages.dev/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1"
+              title="SoudSport — live sports streams"
+            >
+              SoudSport
+              <span className="text-[10px] uppercase tracking-wider bg-primary/15 text-primary px-1.5 py-0.5 rounded">Sports</span>
+            </a>
 
             {/* GENRES DROPDOWN (With Icons) */}
             <DropdownMenu>
@@ -210,6 +220,16 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
                 <NavLink to="/anime-movies">Anime Movies</NavLink>
                 
                 {user && <NavLink to="/mylist">My List</NavLink>}
+                <a
+                  href="https://soudsports.pages.dev/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-2"
+                >
+                  SoudSport
+                  <span className="text-[10px] uppercase tracking-wider bg-primary/15 text-primary px-1.5 py-0.5 rounded">Sports</span>
+                </a>
+                
                 
 
                 {user ? (

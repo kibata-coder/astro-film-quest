@@ -7,7 +7,7 @@ const Footer = memo(() => {
   return (
     <footer className="border-t border-border bg-card/50 mt-16 md:mt-20">
       <div className="px-5 md:px-16 py-10 md:py-14">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-12 mb-10">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-10 md:gap-12 mb-10">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
@@ -37,6 +37,26 @@ const Footer = memo(() => {
               <li className="hover:text-foreground transition-colors cursor-pointer">Indian</li>
               <li className="hover:text-foreground transition-colors cursor-pointer">English</li>
               <li className="hover:text-foreground transition-colors cursor-pointer">International</li>
+            </ul>
+          </div>
+
+          {/* Our Network */}
+          <div>
+            <h3 className="font-semibold mb-3">Our Network</h3>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li>
+                <a
+                  href="https://soudsports.pages.dev/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-primary transition-colors"
+                >
+                  SoudSport
+                </a>
+                <p className="text-xs text-muted-foreground/70 mt-1">
+                  Live sports, highlights & more.
+                </p>
+              </li>
             </ul>
           </div>
 
