@@ -17,6 +17,7 @@ import { useVideoPlayer } from '@/features/player';
 import { useAuth } from '@/features/auth';
 import { FeedCustomizer } from '@/components/FeedCustomizer';
 import SignUpPrompt from '@/components/SignUpPrompt';
+import SoudSportBanner from '@/components/SoudSportBanner';
 import {
   TrendingMoviesSection, TrendingTVSection,
   AnimeTVSection, AnimeMoviesSection,
@@ -56,7 +57,8 @@ const Index = () => {
         <>
           <SignUpPrompt />
           <HeroBanner movies={trendingMovies} onPlay={playMovie} onInfo={openMovieModal} />
-          <main className="px-5 md:px-16 pb-16 -mt-20 md:-mt-32 relative z-10">
+          <SoudSportBanner />
+          <main className="px-5 md:px-16 pb-16 mt-6 md:mt-8 relative z-10">
             <div className="space-y-6 md:space-y-10">
               {user && (
                 <div className="flex justify-end mb-2">
