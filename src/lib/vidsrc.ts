@@ -1,8 +1,9 @@
-// Streaming providers — simplified to exactly two options as requested.
+// Streaming providers — updated to include 3 reliable servers.
 //
 // API reference:
-// Vidsrc Docs: https://vidsrcme.su/embed/movie?tmdb=ID
-// Superembed Docs: https://multiembed.mov/?video_id=ID&tmdb=1
+// Server 1 Docs: https://vidsrcme.su/embed/movie?tmdb=ID
+// Server 2 Docs: https://multiembed.mov/?video_id=ID&tmdb=1
+// Server 3 Docs: https://vidnest.fun/movie/[TMDB_ID]
 
 export interface StreamProvider {
   id: string;
@@ -14,7 +15,7 @@ export interface StreamProvider {
 const PROVIDERS: StreamProvider[] = [
   {
     id: 'vidsrc',
-    name: 'Server 1 (big server)',
+    name: 'Server 1 (Big Server)',
     // Uses standard Vidsrc URL formatting
     movie: (id: number) => 
       `https://vidsrcme.su/embed/movie?tmdb=${id}&autoplay=1`,
@@ -23,12 +24,21 @@ const PROVIDERS: StreamProvider[] = [
   },
   {
     id: 'superembed',
-    name: 'Server 2 (multi servers)',
-    // Uses the highly reliable standard multiembed endpoint
+    name: 'Server 2 (Mini Servers)',
+    // Uses the highly reliable standard root multiembed endpoint
     movie: (id: number) => 
       `https://multiembed.mov/?video_id=${id}&tmdb=1`,
     tv: (id: number, s: number, e: number) => 
       `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`,
+  },
+  {
+    id: 'vidfun',
+    name: 'Server 3 (Last option)',
+    // Uses Vidnest's clean URL path format (no query parameters needed)
+    movie: (id: number) => 
+      `https://vidnest.fun/movie/${id}`,
+    tv: (id: number, s: number, e: number) => 
+      `https://vidnest.fun/tv/${id}/${s}/${e}`,
   },
 ];
 
