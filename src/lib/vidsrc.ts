@@ -1,10 +1,8 @@
-// Streaming providers — mirrors of Vidsrc and alternative premium embeds.
-// Users can switch between them in the player UI if one isn't responding.
+// Streaming providers — simplified to exactly two options as requested.
 //
-// API reference (per user-provided docs):
-//   /embed/movie?tmdb=ID
-//   /embed/tv?tmdb=ID&season=S&episode=E
-// Optional: autoplay=1, autonext=1, ds_lang=xx
+// API reference:
+// Vidsrc Docs: https://vidsrcme.su/embed/movie?tmdb=ID
+// Superembed Docs: https://multiembed.mov/directstream.php?video_id=ID&tmdb=1
 
 export interface StreamProvider {
   id: string;
@@ -13,41 +11,20 @@ export interface StreamProvider {
   tv: (tmdbId: number, season: number, episode: number) => string;
 }
 
-const buildMovie = (host: string) => (id: number) =>
-  `https://${host}/embed/movie?tmdb=${id}&autoplay=1`;
-
-const buildTv = (host: string) => (id: number, s: number, e: number) =>
-  `https://${host}/embed/tv?tmdb=${id}&season=${s}&episode=${e}&autoplay=1&autonext=1`;
-
 const PROVIDERS: StreamProvider[] = [
   {
-    id: 'vsembed-su',
-    name: 'Server 1',
-    movie: buildMovie('vsembed.su'),
-    tv: buildTv('vsembed.su'),
+    id: 'vidsrc',
+    name: 'Server 1 (Vidsrc)',
+    // Uses standard Vidsrc URL formatting
+    movie: (id: number) => 
+      `https://vidsrcme.su/embed/movie?tmdb=${id}&autoplay=1`,
+    tv: (id: number, s: number, e: number) => 
+      `https://vidsrcme.su/embed/tv?tmdb=${id}&season=${s}&episode=${e}&autoplay=1&autonext=1`,
   },
   {
-    id: 'vidsrc-embed-su',
-    name: 'Server 2',
-    movie: buildMovie('vidsrc-embed.su'),
-    tv: buildTv('vidsrc-embed.su'),
-  },
-  {
-    id: 'vidsrcme-su',
-    name: 'Server 3',
-    movie: buildMovie('vidsrcme.su'),
-    tv: buildTv('vidsrcme.su'),
-  },
-  {
-    id: 'vsrc-su',
-    name: 'Server 4',
-    movie: buildMovie('vsrc.su'),
-    tv: buildTv('vsrc.su'),
-  },
-  {
-    id: 'multiembed-vip',
-    name: 'Server 5 (VIP Multi)',
-    // Implements custom handler for Multiembed query structures using the VIP Player config
+    id: 'superembed',
+    name: 'Server 2 (Superembed)',
+    // Uses the Superembed VIP Player endpoint for fast HLS streaming & fewer ads
     movie: (id: number) => 
       `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1`,
     tv: (id: number, s: number, e: number) => 
@@ -57,6 +34,7 @@ const PROVIDERS: StreamProvider[] = [
 
 export const getProviders = (): StreamProvider[] => PROVIDERS;
 
+// Safely defaults to Server 1 if an invalid index is somehow passed
 const safeIndex = (i: number) =>
   Math.max(0, Math.min(PROVIDERS.length - 1, Number.isFinite(i) ? i : 0));
 
