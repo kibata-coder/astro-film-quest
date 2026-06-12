@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { X, Play, Check, Plus, Volume2, VolumeX, Info } from 'lucide-react';
+import { X, Play, Check, Plus, Volume2, VolumeX } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from '@/hooks/use-toast';
 
@@ -22,6 +22,7 @@ import {
 } from '@/lib/tmdb';
 import { checkIsBookmarked, toggleBookmark } from '@/lib/bookmarks';
 import { isAnimeMedia } from '@/lib/anime';
+import { getProviders } from '@/lib/vidsrc';
 import { Badge } from '@/components/ui/badge';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ThumbsRating from '@/components/ThumbsRating';
@@ -34,6 +35,8 @@ interface MovieModalProps {
   onPlay: () => void;
   onSelectMovie?: (movie: Movie) => void;
 }
+
+const PROVIDER_STORAGE_KEY = 'soudflex.preferredProvider';
 
 const getTrailerScore = (video: Video) => {
   const name = video.name.toLowerCase();
@@ -73,6 +76,22 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
+
+  // Server selection interception state
+  const [showServerDialog, setShowServerDialog] = useState(false);
+  const streamProviders = getProviders();
+
+  const handlePlayClick = () => {
+    setShowServerDialog(true);
+  };
+
+  const handleServerSelect = (index: number) => {
+    try {
+      window.localStorage.setItem(PROVIDER_STORAGE_KEY, String(index));
+    } catch {}
+    setShowServerDialog(false);
+    onPlay();
+  };
 
   useEffect(() => {
     setIsMuted(true);
@@ -140,7 +159,6 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
         <X className="w-5 h-5" />
       </button>
 
-      {/* Hero media - show full trailer when available */}
       <div className="relative w-full">
         {trailer ? (
           <div className="w-full aspect-video overflow-hidden bg-black relative">
@@ -163,7 +181,6 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
                 }
               }}
               className="absolute top-4 right-16 z-30 flex items-center gap-2 px-3 py-2 rounded-full bg-background/90 hover:bg-background border border-border shadow-lg transition-colors text-sm font-medium"
-              aria-label={isMuted ? 'Unmute trailer' : 'Mute trailer'}
             >
               {isMuted ? (
                 <>
@@ -192,24 +209,24 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
         )}
       </div>
 
-      {/* Title & actions below the trailer */}
       <div className="px-5 md:px-6 pt-5 relative z-10">
-
         <div className="flex items-center gap-2 mb-3 flex-wrap">
           <h2 className="text-xl md:text-2xl font-bold">{movie.title}</h2>
           {isAnimeMedia(movie as unknown as Parameters<typeof isAnimeMedia>[0]) && (
             <Badge variant="default" className="text-[10px] uppercase">Anime</Badge>
           )}
         </div>
-        <div className="flex items-center gap-3 mb-5">
+        <div className="flex items-center gap-3 mb-5 flex-wrap">
+          
           <Button
-            onClick={onPlay}
+            onClick={handlePlayClick}
             size={isMobile ? "default" : "lg"}
             className="gap-2 bg-foreground text-background hover:bg-foreground/90 font-semibold"
           >
             <Play className="w-4 h-4 fill-current" />
             Play
           </Button>
+          
           <Button
             variant="secondary"
             size={isMobile ? "default" : "lg"}
@@ -262,28 +279,37 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
                     <span className="text-xs">{details.genres.map((g) => g.name).join(', ')}</span>
                   </div>
                 )}
-                {providers && providers.length > 0 && (
-                  <div>
-                    <span className="text-muted-foreground text-xs block mb-1">Where to Watch:</span>
-                    <div className="flex gap-2 flex-wrap">
-                      {providers.map((p) => (
-                        <img
-                          key={p.provider_id}
-                          src={getImageUrl(p.logo_path, 'w300') || ''}
-                          alt={p.provider_name}
-                          title={p.provider_name}
-                          className="w-8 h-8 rounded-md"
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
-
           </>
         )}
       </div>
+
+      {/* Server Selection Interception Popup */}
+      <Dialog open={showServerDialog} onOpenChange={setShowServerDialog}>
+        <DialogContent className="sm:max-w-md bg-background border-border z-[200]">
+          <div className="p-2 space-y-5">
+            <h3 className="text-xl font-bold text-center text-foreground">Select a Server</h3>
+            <p className="text-sm text-muted-foreground text-center">
+              Choose a streaming server to start playing. If the video ever buffers or doesn't load, you can always try switching servers!
+            </p>
+            <div className="grid gap-3">
+              {streamProviders.map((provider, index) => (
+                <Button
+                  key={provider.id}
+                  variant="outline"
+                  size="lg"
+                  className="w-full justify-start text-left font-medium hover:bg-primary hover:text-primary-foreground transition-colors"
+                  onClick={() => handleServerSelect(index)}
+                >
+                  <Play className="w-4 h-4 mr-3 opacity-70" />
+                  {provider.name}
+                </Button>
+              ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 
@@ -305,7 +331,6 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
         <ScrollArea className="h-[90vh]">
            <Content />
         </ScrollArea>
-
       </DialogContent>
     </Dialog>
   );
