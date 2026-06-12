@@ -11,9 +11,9 @@ import { getBackdropUrl, getImageUrl, getTVShowDetails, getTVShowSeasonDetails, 
 import type { TVShow, TVShowDetails, Episode } from '@/lib/tmdb';
 import { checkIsBookmarked, toggleBookmark } from '@/lib/bookmarks';
 import { isAnimeMedia, resolveAnime, type AnimeResolve } from '@/lib/anime';
+import { getProviders } from '@/lib/vidsrc';
 import ThumbsRating from '@/components/ThumbsRating';
 import AddToCollectionDialog from '@/components/AddToCollectionDialog';
-
 
 interface TVShowModalProps {
   show: TVShow | null;
@@ -24,6 +24,8 @@ interface TVShowModalProps {
   initialSeason?: number;
   initialEpisode?: number;
 }
+
+const PROVIDER_STORAGE_KEY = 'soudflex.preferredProvider';
 
 const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeason, initialEpisode }: TVShowModalProps) => {
   const isMobile = useIsMobile();
@@ -41,6 +43,34 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
 
   const isAnime = show ? isAnimeMedia(show as unknown as Parameters<typeof isAnimeMedia>[0]) : false;
 
+  // Server selection interception state
+  const [showServerDialog, setShowServerDialog] = useState(false);
+  // Temporarily store play arguments while the user picks a server
+  const [pendingPlayArgs, setPendingPlayArgs] = useState<any>(null);
+  const streamProviders = getProviders();
+
+  const handlePlayClick = (showId: number, showName: string, seasonNumber: number, episodeNumber: number, episodeName: string, posterPath: string | null) => {
+    setPendingPlayArgs({ showId, showName, seasonNumber, episodeNumber, episodeName, posterPath });
+    setShowServerDialog(true);
+  };
+
+  const handleServerSelect = (index: number) => {
+    try {
+      window.localStorage.setItem(PROVIDER_STORAGE_KEY, String(index));
+    } catch {}
+    setShowServerDialog(false);
+    if (pendingPlayArgs) {
+      onPlay(
+        pendingPlayArgs.showId,
+        pendingPlayArgs.showName,
+        pendingPlayArgs.seasonNumber,
+        pendingPlayArgs.episodeNumber,
+        pendingPlayArgs.episodeName,
+        pendingPlayArgs.posterPath
+      );
+      setPendingPlayArgs(null);
+    }
+  };
 
   useEffect(() => {
     const scrollContainer = document.querySelector('[data-radix-scroll-area-viewport]');
@@ -71,7 +101,6 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
     }
   }, [show, isOpen]);
 
-  // Fetch anime mapping (titles + dub flags) when the show is anime
   useEffect(() => {
     if (!show || !isOpen) {
       setAnimeResolve(null);
@@ -88,15 +117,12 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
     return () => { cancelled = true; };
   }, [show, isOpen]);
 
-
-
   useEffect(() => {
     if (show && selectedSeason >= 0) {
       getTVShowSeasonDetails(show.id, selectedSeason)
         .then((data) => {
           const eps = data.episodes || [];
           setEpisodes(eps);
-          // If this is the initial season from Continue Watching, highlight and scroll to the episode
           if (initialEpisode !== undefined && selectedSeason === initialSeason) {
             setHighlightedEpisode(initialEpisode);
             setTimeout(() => {
@@ -139,7 +165,6 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
         <X className="w-5 h-5" />
       </button>
 
-      {/* Backdrop */}
       <div className="relative w-full">
         <div className="w-full h-[220px] md:h-[280px] overflow-hidden bg-black">
           {backdropUrl ? (
@@ -155,7 +180,6 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
       </div>
 
-      {/* Title & meta */}
       <div className="px-5 md:px-6 -mt-12 relative z-10">
         <div className="flex gap-4 items-end">
           {!isMobile && posterUrl && (
@@ -192,7 +216,8 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-3 mt-4 mb-1">
+        
+        <div className="flex flex-wrap items-center gap-3 mt-4 mb-1">
           <Button
             onClick={() => {
               const resumeEp = initialEpisode !== undefined
@@ -200,7 +225,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
                 : undefined;
               const ep = resumeEp || episodes?.[0];
               if (ep && show) {
-                onPlay(show.id, show.name, selectedSeason, ep.episode_number, ep.name || `Episode ${ep.episode_number}`, show.poster_path);
+                handlePlayClick(show.id, show.name, selectedSeason, ep.episode_number, ep.name || `Episode ${ep.episode_number}`, show.poster_path);
               }
             }}
             size={isMobile ? "default" : "lg"}
@@ -209,6 +234,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
             <Play className="w-4 h-4 fill-current" />
             {initialEpisode !== undefined && selectedSeason === initialSeason ? 'Resume' : 'Play'}
           </Button>
+
           <Button
             variant="secondary"
             size={isMobile ? "default" : "lg"}
@@ -247,7 +273,6 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
           </Select>
         )}
 
-        {/* Episodes */}
         <div>
           <h3 className="text-base font-semibold mb-3">Episodes</h3>
           <div className="space-y-2 max-h-64 overflow-y-auto rounded-md border border-border/50 bg-muted/20 p-3">
@@ -263,7 +288,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
                   ref={(el) => { episodeRefs.current[episode.episode_number] = el; }}
                   role="button"
                   tabIndex={0}
-                  onClick={() => onPlay(
+                  onClick={() => handlePlayClick(
                     show.id,
                     show.name,
                     selectedSeason,
@@ -274,7 +299,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
-                      onPlay(show.id, show.name, selectedSeason, episode.episode_number, displayName, show.poster_path);
+                      handlePlayClick(show.id, show.name, selectedSeason, episode.episode_number, displayName, show.poster_path);
                     }
                   }}
                   className={`flex items-center gap-3 p-2.5 rounded-lg transition-colors border cursor-pointer ${
@@ -320,14 +345,10 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
                     size="sm"
                     variant="ghost"
                     className="hover:bg-primary/20 hover:text-primary flex-shrink-0"
-                    onClick={() => onPlay(
-                      show.id,
-                      show.name,
-                      selectedSeason,
-                      episode.episode_number,
-                      displayName,
-                      show.poster_path
-                    )}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePlayClick(show.id, show.name, selectedSeason, episode.episode_number, displayName, show.poster_path);
+                    }}
                   >
                     <Play className="w-4 h-4" />
                   </Button>
@@ -377,6 +398,32 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
           </div>
         )}
       </div>
+
+      {/* Server Selection Interception Popup */}
+      <Dialog open={showServerDialog} onOpenChange={setShowServerDialog}>
+        <DialogContent className="sm:max-w-md bg-background border-border z-[200]">
+          <div className="p-2 space-y-5">
+            <h3 className="text-xl font-bold text-center text-foreground">Select a Server</h3>
+            <p className="text-sm text-muted-foreground text-center">
+              Choose a streaming server to start playing. If the video ever buffers or doesn't load, you can always try switching servers!
+            </p>
+            <div className="grid gap-3">
+              {streamProviders.map((provider, index) => (
+                <Button
+                  key={provider.id}
+                  variant="outline"
+                  size="lg"
+                  className="w-full justify-start text-left font-medium hover:bg-primary hover:text-primary-foreground transition-colors"
+                  onClick={() => handleServerSelect(index)}
+                >
+                  <Play className="w-4 h-4 mr-3 opacity-70" />
+                  {provider.name}
+                </Button>
+              ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 
