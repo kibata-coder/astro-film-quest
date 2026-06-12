@@ -2,7 +2,7 @@
 //
 // API reference:
 // Vidsrc Docs: https://vidsrcme.su/embed/movie?tmdb=ID
-// Superembed Docs: https://multiembed.mov/directstream.php?video_id=ID&tmdb=1
+// Superembed Docs: https://multiembed.mov/?video_id=ID&tmdb=1
 
 export interface StreamProvider {
   id: string;
@@ -24,11 +24,11 @@ const PROVIDERS: StreamProvider[] = [
   {
     id: 'superembed',
     name: 'Server 2 (Superembed)',
-    // Uses the Superembed VIP Player endpoint for fast HLS streaming & fewer ads
+    // Uses the highly reliable standard multiembed endpoint
     movie: (id: number) => 
-      `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1`,
+      `https://multiembed.mov/?video_id=${id}&tmdb=1`,
     tv: (id: number, s: number, e: number) => 
-      `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1&s=${s}&e=${e}`,
+      `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`,
   },
 ];
 
