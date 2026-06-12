@@ -4,6 +4,13 @@ import { Button } from '@/components/ui/button';
 import { getMovieEmbedUrl, getTVShowEmbedUrl, getProviders } from '@/lib/vidsrc';
 import { saveWatchProgress } from '@/lib/watchHistory';
 import { getMovieDetails, getTVShowDetails } from '@/lib/tmdb';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface VideoPlayerProps {
   isOpen: boolean;
@@ -165,7 +172,20 @@ const VideoPlayer = ({
           )}
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
+          {/* Server / Mirror Switcher Component */}
+          <Select value={String(providerIdx)} onValueChange={handleProviderChange}>
+            <SelectTrigger className="h-8 w-[140px] text-xs bg-muted/50 border-border/40">
+              <SelectValue placeholder="Select Server" />
+            </SelectTrigger>
+            <SelectContent>
+              {providers.map((provider, index) => (
+                <SelectItem key={provider.id} value={String(index)} className="text-xs">
+                  {provider.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
           {isTVShow && totalEpisodes && (
             <>
@@ -213,8 +233,15 @@ const VideoPlayer = ({
               key={`${mediaId}-${seasonNumber ?? 'm'}-${episodeNumber ?? 'm'}-${providerIdx}`}
               src={embedUrl}
               className="h-full w-full border-0"
-              allowFullScreen
-              allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope"
+              
+              // Wildcards (*) force the browser to keep fullscreen alive when changing server domains
+              allow="autoplay *; fullscreen *; picture-in-picture *; encrypted-media *; accelerometer; gyroscope"
+              
+              // Dual-property declarations handle both React and direct browser parsing
+              allowFullScreen={true}
+              // @ts-ignore - Explicit lowercase fallback for older embedded webviews
+              allowfullscreen="true"
+              
               referrerPolicy="no-referrer"
             />
             {showNextEpisodeButton && (
