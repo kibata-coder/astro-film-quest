@@ -1,4 +1,4 @@
-// Streaming providers — all mirrors of the same Vidsrc API on different domains.
+// Streaming providers — mirrors of Vidsrc and alternative premium embeds.
 // Users can switch between them in the player UI if one isn't responding.
 //
 // API reference (per user-provided docs):
@@ -43,6 +43,15 @@ const PROVIDERS: StreamProvider[] = [
     name: 'Server 4',
     movie: buildMovie('vsrc.su'),
     tv: buildTv('vsrc.su'),
+  },
+  {
+    id: 'multiembed-vip',
+    name: 'Server 5 (VIP Multi)',
+    // Implements custom handler for Multiembed query structures using the VIP Player config
+    movie: (id: number) => 
+      `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1`,
+    tv: (id: number, s: number, e: number) => 
+      `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1&s=${s}&e=${e}`,
   },
 ];
 
