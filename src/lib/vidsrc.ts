@@ -14,7 +14,7 @@ export interface StreamProvider {
 const PROVIDERS: StreamProvider[] = [
   {
     id: 'vidsrc',
-    name: 'Server 1 (Vidsrc)',
+    name: 'Server 1 (big server)',
     // Uses standard Vidsrc URL formatting
     movie: (id: number) => 
       `https://vidsrcme.su/embed/movie?tmdb=${id}&autoplay=1`,
@@ -23,7 +23,7 @@ const PROVIDERS: StreamProvider[] = [
   },
   {
     id: 'superembed',
-    name: 'Server 2 (Superembed)',
+    name: 'Server 2 (multi servers)',
     // Uses the highly reliable standard multiembed endpoint
     movie: (id: number) => 
       `https://multiembed.mov/?video_id=${id}&tmdb=1`,
