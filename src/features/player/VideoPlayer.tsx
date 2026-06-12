@@ -4,13 +4,6 @@ import { Button } from '@/components/ui/button';
 import { getMovieEmbedUrl, getTVShowEmbedUrl, getProviders } from '@/lib/vidsrc';
 import { saveWatchProgress } from '@/lib/watchHistory';
 import { getMovieDetails, getTVShowDetails } from '@/lib/tmdb';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 
 interface VideoPlayerProps {
   isOpen: boolean;
@@ -51,6 +44,19 @@ const VideoPlayer = ({
   });
   const startTimeRef = useRef<number>(0);
   const durationRef = useRef<number>(0);
+
+  // Sync provider immediately when the player opens (in case it was changed in the Modal dialog)
+  useEffect(() => {
+    if (isOpen && typeof window !== 'undefined') {
+      const stored = window.localStorage.getItem(PROVIDER_STORAGE_KEY);
+      if (stored) {
+        const n = parseInt(stored, 10);
+        if (Number.isFinite(n) && n >= 0 && n < providers.length) {
+          setProviderIdx(n);
+        }
+      }
+    }
+  }, [isOpen, providers.length]);
 
   useEffect(() => {
     if (isOpen) {
@@ -116,17 +122,6 @@ const VideoPlayer = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, onClose, mediaId, mediaType, title, seasonNumber, episodeNumber]);
 
-  const handleProviderChange = (value: string) => {
-    const idx = parseInt(value, 10);
-    if (!Number.isFinite(idx)) return;
-    setProviderIdx(idx);
-    try {
-      window.localStorage.setItem(PROVIDER_STORAGE_KEY, String(idx));
-    } catch {
-      // ignore quota / privacy errors
-    }
-  };
-
   const handleClose = () => {
     if (startTimeRef.current > 0 && durationRef.current > 0) {
       const timeSpentSeconds = (Date.now() - startTimeRef.current) / 1000;
@@ -172,20 +167,7 @@ const VideoPlayer = ({
           )}
         </div>
 
-        <div className="flex items-center gap-2">
-          {/* Server / Mirror Switcher Component */}
-          <Select value={String(providerIdx)} onValueChange={handleProviderChange}>
-            <SelectTrigger className="h-8 w-[140px] text-xs bg-muted/50 border-border/40">
-              <SelectValue placeholder="Select Server" />
-            </SelectTrigger>
-            <SelectContent>
-              {providers.map((provider, index) => (
-                <SelectItem key={provider.id} value={String(index)} className="text-xs">
-                  {provider.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="flex items-center gap-1">
 
           {isTVShow && totalEpisodes && (
             <>
@@ -234,10 +216,10 @@ const VideoPlayer = ({
               src={embedUrl}
               className="h-full w-full border-0"
               
-              // Wildcards (*) force the browser to keep fullscreen alive when changing server domains
+              // 1. Wildcards (*) force the browser to keep fullscreen alive when changing server domains
               allow="autoplay *; fullscreen *; picture-in-picture *; encrypted-media *; accelerometer; gyroscope"
               
-              // Dual-property declarations handle both React and direct browser parsing
+              // 2. Dual-property declarations handle both React and direct browser parsing
               allowFullScreen={true}
               // @ts-ignore - Explicit lowercase fallback for older embedded webviews
               allowfullscreen="true"
