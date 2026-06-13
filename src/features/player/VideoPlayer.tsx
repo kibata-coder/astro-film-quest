@@ -34,7 +34,6 @@ const VideoPlayer = ({
   onNextEpisode,
   onPreviousEpisode,
 }: VideoPlayerProps) => {
-  const [isConnecting, setIsConnecting] = useState(true);
   const providers = getProviders();
   const [providerIdx, setProviderIdx] = useState<number>(() => {
     if (typeof window === 'undefined') return 0;
@@ -45,7 +44,6 @@ const VideoPlayer = ({
   const startTimeRef = useRef<number>(0);
   const durationRef = useRef<number>(0);
 
-  // Sync provider immediately when the player opens (in case it was changed in the Modal dialog)
   useEffect(() => {
     if (isOpen && typeof window !== 'undefined') {
       const stored = window.localStorage.getItem(PROVIDER_STORAGE_KEY);
@@ -98,15 +96,6 @@ const VideoPlayer = ({
       startTimeRef.current = 0;
     }
   }, [isOpen]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    setIsConnecting(true);
-    const timer = setTimeout(() => setIsConnecting(false), 1200);
-
-    return () => clearTimeout(timer);
-  }, [isOpen, mediaId, seasonNumber, episodeNumber, providerIdx]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -168,7 +157,6 @@ const VideoPlayer = ({
         </div>
 
         <div className="flex items-center gap-1">
-
           {isTVShow && totalEpisodes && (
             <>
               <Button
@@ -198,45 +186,25 @@ const VideoPlayer = ({
         </div>
       </div>
 
-      <div className="relative flex-1">
-        {isConnecting ? (
-          <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
-            <div className="loading-spinner h-12 w-12" />
-            <div>
-              <p className="text-base font-medium text-foreground">Connecting stream...</p>
-              <p className="text-sm text-muted-foreground">
-                {title} · {providers[providerIdx].name}
-              </p>
-            </div>
-          </div>
-        ) : (
-          <>
-            <iframe
-              key={`${mediaId}-${seasonNumber ?? 'm'}-${episodeNumber ?? 'm'}-${providerIdx}`}
-              src={embedUrl}
-              className="h-full w-full border-0"
-              
-              // 1. Wildcards (*) force the browser to keep fullscreen alive when changing server domains
-              allow="autoplay *; fullscreen *; picture-in-picture *; encrypted-media *; accelerometer; gyroscope"
-              
-              // 2. Dual-property declarations handle both React and direct browser parsing
-              allowFullScreen={true}
-              // @ts-ignore - Explicit lowercase fallback for older embedded webviews
-              allowfullscreen="true"
-              
-              referrerPolicy="no-referrer"
-            />
-            {showNextEpisodeButton && (
-              <Button
-                size="lg"
-                onClick={onNextEpisode}
-                className="absolute bottom-20 right-6 gap-2 rounded-full bg-white px-6 font-semibold text-black shadow-lg hover:bg-white/90"
-              >
-                <SkipForward className="h-5 w-5" />
-                Next Episode
-              </Button>
-            )}
-          </>
+      <div className="relative flex-1 bg-black">
+        <iframe
+          key={`${mediaId}-${seasonNumber ?? 'm'}-${episodeNumber ?? 'm'}-${providerIdx}`}
+          src={embedUrl}
+          className="h-full w-full border-0"
+          allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope"
+          allowFullScreen={true}
+          allowfullscreen="true"
+          referrerPolicy="no-referrer"
+        />
+        {showNextEpisodeButton && (
+          <Button
+            size="lg"
+            onClick={onNextEpisode}
+            className="absolute bottom-20 right-6 gap-2 rounded-full bg-white px-6 font-semibold text-black shadow-lg hover:bg-white/90"
+          >
+            <SkipForward className="h-5 w-5" />
+            Next Episode
+          </Button>
         )}
       </div>
     </div>
