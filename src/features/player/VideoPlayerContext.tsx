@@ -56,7 +56,11 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const handler = () => {
+      // SHIELD: If the hash is still '#player', this is a rogue event fired by the iframe.
+      // Do not close the player modal!
+      if (window.location.hash === '#player') return;
       if (window.history.state?.player) return;
+      
       if (isOpenRef.current) {
         setVideoState(prev => ({ ...prev, isOpen: false }));
         setEpisodeContext(null);
@@ -73,7 +77,8 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
   };
 
   const playMovie = useCallback(async (movie: Movie) => {
-    window.history.pushState({ player: true }, '', window.location.pathname);
+    // Append #player to the URL path
+    window.history.pushState({ player: true }, '', window.location.pathname + '#player');
 
     // Fire-and-forget history
     addToHistory({
@@ -130,7 +135,8 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
     episodeNumber: number,
     episodeName: string
   ) => {
-    window.history.pushState({ player: true }, '', window.location.pathname);
+    // Append #player to the URL path
+    window.history.pushState({ player: true }, '', window.location.pathname + '#player');
     setEpisodeContext(null);
 
     addToHistory({
@@ -272,12 +278,14 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const closePlayer = useCallback(() => {
-    if (window.history.state?.player) {
+    // 1. Force the UI to close IMMEDIATELY to prevent the double-click bug
+    setVideoState(prev => ({ ...prev, isOpen: false }));
+    setEpisodeContext(null);
+    setAnimeResolve(null);
+
+    // 2. Silently clean up the browser history in the background
+    if (window.history.state?.player || window.location.hash === '#player') {
       window.history.back();
-    } else {
-      setVideoState(prev => ({ ...prev, isOpen: false }));
-      setEpisodeContext(null);
-      setAnimeResolve(null);
     }
   }, []);
 
