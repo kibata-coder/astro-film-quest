@@ -12,6 +12,7 @@ interface ExtendedVideoState extends VideoState {
   animeEpisodeId?: string;
   animeCategory?: 'sub' | 'dub';
   animeHasDub?: boolean;
+  anilistId?: number; // <-- ADDED: Stores the AniList ID for Miruro!
 }
 
 interface VideoPlayerContextType {
@@ -129,6 +130,7 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
           animeEpisodeId: ep.id,
           animeCategory: 'sub',
           animeHasDub: ep.hasDub,
+          anilistId: resolved.anilistId, // <-- ADDED: Saved into state here!
         });
         return;
       }
@@ -211,6 +213,7 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
           animeEpisodeId: ep.id,
           animeCategory: 'sub',
           animeHasDub: ep.hasDub,
+          anilistId: resolved.anilistId, // <-- ADDED: Saved into state here!
         });
         return;
       }
