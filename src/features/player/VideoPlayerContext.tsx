@@ -278,6 +278,9 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const closePlayer = useCallback(() => {
+    // Force the ref to false instantly so the popstate listener doesn't race us
+    isOpenRef.current = false;
+    
     // 1. Force the UI to close IMMEDIATELY to prevent the double-click bug
     setVideoState(prev => ({ ...prev, isOpen: false }));
     setEpisodeContext(null);
