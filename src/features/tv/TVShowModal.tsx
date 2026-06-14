@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { toast } from '@/hooks/use-toast';
 import { getBackdropUrl, getImageUrl, getTVShowDetails, getTVShowSeasonDetails, getTVShowRecommendations } from '@/lib/tmdb';
 import type { TVShow, TVShowDetails, Episode } from '@/lib/tmdb';
 import { checkIsBookmarked, toggleBookmark } from '@/lib/bookmarks';
@@ -43,18 +44,29 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
 
   const isAnime = show ? isAnimeMedia(show as unknown as Parameters<typeof isAnimeMedia>[0]) : false;
 
-  // Server selection interception state
   const [showServerDialog, setShowServerDialog] = useState(false);
-  // Temporarily store play arguments while the user picks a server
   const [pendingPlayArgs, setPendingPlayArgs] = useState<any>(null);
   const streamProviders = getProviders();
 
+  // ALWAYS OPEN THE DIALOG (NO BYPASS)
   const handlePlayClick = (showId: number, showName: string, seasonNumber: number, episodeNumber: number, episodeName: string, posterPath: string | null) => {
     setPendingPlayArgs({ showId, showName, seasonNumber, episodeNumber, episodeName, posterPath });
     setShowServerDialog(true);
   };
 
   const handleServerSelect = (index: number) => {
+    const selectedProvider = streamProviders[index];
+
+    // INTERCEPTION GUARD: Block Server 4 if they try to click it on a normal TV Show
+    if (selectedProvider?.id === 'anikoto' && !isAnime) {
+      toast({
+        variant: "destructive",
+        title: "Anime Server Only",
+        description: "This server is exclusive to Japanese Anime streams. Please pick Server 1, 2, or 3 for standard shows!",
+      });
+      return;
+    }
+
     try {
       window.localStorage.setItem(PROVIDER_STORAGE_KEY, String(index));
     } catch {}
