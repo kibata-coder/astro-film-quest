@@ -17,6 +17,7 @@ interface VideoPlayerProps {
   episodeName?: string;
   onNextEpisode?: () => void;
   onPreviousEpisode?: () => void;
+  anilistId?: number; // <-- ADDED: Props interface
 }
 
 const PROVIDER_STORAGE_KEY = 'soudflex.preferredProvider';
@@ -33,6 +34,7 @@ const VideoPlayer = ({
   episodeName,
   onNextEpisode,
   onPreviousEpisode,
+  anilistId, // <-- ADDED: Destructured from props
 }: VideoPlayerProps) => {
   const providers = getProviders();
   const [providerIdx, setProviderIdx] = useState<number>(() => {
@@ -134,8 +136,8 @@ const VideoPlayer = ({
 
   const embedUrl =
     mediaType === 'tv' && seasonNumber && episodeNumber
-      ? getTVShowEmbedUrl(mediaId, seasonNumber, episodeNumber, providerIdx)
-      : getMovieEmbedUrl(mediaId, providerIdx);
+      ? getTVShowEmbedUrl(mediaId, seasonNumber, episodeNumber, providerIdx, title, anilistId) // <-- Pass title and ID down
+      : getMovieEmbedUrl(mediaId, providerIdx, title, anilistId); // <-- Pass title and ID down
 
   const isTVShow = mediaType === 'tv' && seasonNumber && episodeNumber;
   const isFirstEpisode = episodeNumber === 1;
