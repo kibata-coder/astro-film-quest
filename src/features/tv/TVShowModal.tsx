@@ -48,7 +48,6 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
   const [pendingPlayArgs, setPendingPlayArgs] = useState<any>(null);
   const streamProviders = getProviders();
 
-  // ALWAYS OPEN THE DIALOG (NO BYPASS)
   const handlePlayClick = (showId: number, showName: string, seasonNumber: number, episodeNumber: number, episodeName: string, posterPath: string | null) => {
     setPendingPlayArgs({ showId, showName, seasonNumber, episodeNumber, episodeName, posterPath });
     setShowServerDialog(true);
@@ -57,8 +56,8 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
   const handleServerSelect = (index: number) => {
     const selectedProvider = streamProviders[index];
 
-    // INTERCEPTION GUARD: Block Server 4 if they try to click it on a normal TV Show
-    if (selectedProvider?.id === 'anikoto' && !isAnime) {
+    // INTERCEPTION GUARD: Block Miruro if they try to click it on a standard TV series
+    if (selectedProvider?.id === 'miruro' && !isAnime) {
       toast({
         variant: "destructive",
         title: "Anime Server Only",
@@ -411,7 +410,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
         )}
       </div>
 
-      {/* Server Selection Interception Popup */}
+      {/* Server Selection Popup Box */}
       <Dialog open={showServerDialog} onOpenChange={setShowServerDialog}>
         <DialogContent className="sm:max-w-md bg-background border-border z-[200]">
           <div className="p-2 space-y-5">
