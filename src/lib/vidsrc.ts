@@ -2,8 +2,8 @@
 export interface StreamProvider {
   id: string;
   name: string;
-  movie: (tmdbId: number, title?: string) => string;
-  tv: (tmdbId: number, season: number, episode: number, title?: string) => string;
+  movie: (tmdbId: number, title?: string, anilistId?: number) => string;
+  tv: (tmdbId: number, season: number, episode: number, title?: string, anilistId?: number) => string;
 }
 
 // Helper function to cleanly convert "My Hero Academia" into "my-hero-academia"
@@ -26,7 +26,7 @@ const PROVIDERS: StreamProvider[] = [
   },
   {
     id: 'superembed',
-    name: 'Server 2 (second option)',
+    name: 'Server 2 (Second option)',
     movie: (id: number) => `https://multiembed.mov/?video_id=${id}&tmdb=1`,
     tv: (id: number, s: number, e: number) => `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`,
   },
@@ -37,11 +37,13 @@ const PROVIDERS: StreamProvider[] = [
     tv: (id: number, s: number, e: number) => `https://vidnest.fun/tv/${id}/${s}/${e}`,
   },
   {
-    id: 'anikoto',
-    // Marketing name that shows up consistently everywhere to announce your anime focus!
+    id: 'miruro',
     name: 'Server 4 (Only for Anime)',
-    movie: (id: number, title?: string) => `https://anikototv.to/watch/${convertToSlug(title)}/movie`,
-    tv: (id: number, s: number, e: number, title?: string) => `https://anikototv.to/watch/${convertToSlug(title)}/ep-${e}`,
+    // Uses the AniList ID to accurately route to Miruro's premium player
+    movie: (id: number, title?: string, anilistId?: number) => 
+      `https://www.miruro.to/watch/${anilistId || id}/${convertToSlug(title)}`,
+    tv: (id: number, s: number, e: number, title?: string, anilistId?: number) => 
+      `https://www.miruro.to/watch/${anilistId || id}/${convertToSlug(title)}?ep=${e}`,
   },
 ];
 
@@ -50,16 +52,17 @@ export const getProviders = (): StreamProvider[] => PROVIDERS;
 const safeIndex = (i: number) =>
   Math.max(0, Math.min(PROVIDERS.length - 1, Number.isFinite(i) ? i : 0));
 
-export const getMovieEmbedUrl = (tmdbId: number, providerIndex = 0, title?: string): string =>
-  PROVIDERS[safeIndex(providerIndex)].movie(tmdbId, title);
+export const getMovieEmbedUrl = (tmdbId: number, providerIndex = 0, title?: string, anilistId?: number): string =>
+  PROVIDERS[safeIndex(providerIndex)].movie(tmdbId, title, anilistId);
 
 export const getTVShowEmbedUrl = (
   tmdbId: number,
   season?: number,
   episode?: number,
   providerIndex = 0,
-  title?: string
+  title?: string,
+  anilistId?: number
 ): string => {
   const provider = PROVIDERS[safeIndex(providerIndex)];
-  return provider.tv(tmdbId, season ?? 1, episode ?? 1, title);
+  return provider.tv(tmdbId, season ?? 1, episode ?? 1, title, anilistId);
 };
