@@ -80,7 +80,6 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
   const [showServerDialog, setShowServerDialog] = useState(false);
   const streamProviders = getProviders();
 
-  // ALWAYS OPEN THE DIALOG (NO BYPASS)
   const handlePlayClick = () => {
     setShowServerDialog(true);
   };
@@ -89,8 +88,8 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
     const selectedProvider = streamProviders[index];
     const isAnime = isAnimeMedia(movie as unknown as Parameters<typeof isAnimeMedia>[0]);
 
-    // INTERCEPTION GUARD: Block Server 4 if they try to click it on a normal movie
-    if (selectedProvider?.id === 'anikoto' && !isAnime) {
+    // INTERCEPTION GUARD: Block Miruro if they try to click it on a normal movie
+    if (selectedProvider?.id === 'miruro' && !isAnime) {
       toast({
         variant: "destructive",
         title: "Anime Server Only",
@@ -298,7 +297,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
         )}
       </div>
 
-      {/* Server Selection Interception Popup */}
+      {/* Server Selection Popup Box */}
       <Dialog open={showServerDialog} onOpenChange={setShowServerDialog}>
         <DialogContent className="sm:max-w-md bg-background border-border z-[200]">
           <div className="p-2 space-y-5">
