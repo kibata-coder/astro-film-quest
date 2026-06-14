@@ -55,9 +55,8 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    const handler = () => {
-      // SHIELD: If the hash is still '#player', this is a rogue event fired by the iframe.
-      // Do not close the player modal!
+    // SHIELD 1: The Hash Guard (Stops the player from crashing)
+    const handlePopState = () => {
       if (window.location.hash === '#player') return;
       if (window.history.state?.player) return;
       
@@ -67,8 +66,24 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
         setAnimeResolve(null);
       }
     };
-    window.addEventListener('popstate', handler);
-    return () => window.removeEventListener('popstate', handler);
+
+    // SHIELD 2: The Hijack Blocker (Stops the ad from opening)
+    // On LG WebOS, ads try to hijack the main window. This physically blocks them.
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isOpenRef.current) {
+        e.preventDefault();
+        e.returnValue = ''; // Required by the browser engine to block the ad redirect
+        return '';
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, []);
 
   const findAnimeEpisodeId = (resolve: AnimeResolve, episodeNumber: number) => {
@@ -278,7 +293,7 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const closePlayer = useCallback(() => {
-    // Force the ref to false instantly so the popstate listener doesn't race us
+    // Force the ref to false instantly so the popstate/unload listeners don't race us
     isOpenRef.current = false;
     
     // 1. Force the UI to close IMMEDIATELY to prevent the double-click bug
