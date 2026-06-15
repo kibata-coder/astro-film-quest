@@ -17,7 +17,7 @@ interface VideoPlayerProps {
   episodeName?: string;
   onNextEpisode?: () => void;
   onPreviousEpisode?: () => void;
-  anilistId?: number; // <-- ADDED: Props interface
+  anilistId?: number;
 }
 
 const PROVIDER_STORAGE_KEY = 'soudflex.preferredProvider';
@@ -34,7 +34,7 @@ const VideoPlayer = ({
   episodeName,
   onNextEpisode,
   onPreviousEpisode,
-  anilistId, // <-- ADDED: Destructured from props
+  anilistId,
 }: VideoPlayerProps) => {
   const providers = getProviders();
   const [providerIdx, setProviderIdx] = useState<number>(() => {
@@ -43,6 +43,7 @@ const VideoPlayer = ({
     const n = stored ? parseInt(stored, 10) : 0;
     return Number.isFinite(n) && n >= 0 && n < providers.length ? n : 0;
   });
+  const [audioTrack, setAudioTrack] = useState<'sub' | 'dub'>('sub');
   const startTimeRef = useRef<number>(0);
   const durationRef = useRef<number>(0);
 
@@ -136,8 +137,8 @@ const VideoPlayer = ({
 
   const embedUrl =
     mediaType === 'tv' && seasonNumber && episodeNumber
-      ? getTVShowEmbedUrl(mediaId, seasonNumber, episodeNumber, providerIdx, title, anilistId) // <-- Pass title and ID down
-      : getMovieEmbedUrl(mediaId, providerIdx, title, anilistId); // <-- Pass title and ID down
+      ? getTVShowEmbedUrl(mediaId, seasonNumber, episodeNumber, providerIdx, title, anilistId, audioTrack)
+      : getMovieEmbedUrl(mediaId, providerIdx, title, anilistId, audioTrack);
 
   const isTVShow = mediaType === 'tv' && seasonNumber && episodeNumber;
   const isFirstEpisode = episodeNumber === 1;
@@ -158,7 +159,52 @@ const VideoPlayer = ({
           )}
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
+          {/* Server Selector Dropdown */}
+          <select
+            value={providerIdx}
+            onChange={(e) => {
+              const idx = parseInt(e.target.value, 10);
+              setProviderIdx(idx);
+              window.localStorage.setItem(PROVIDER_STORAGE_KEY, String(idx));
+            }}
+            className="rounded bg-secondary text-secondary-foreground px-2 py-1 text-xs font-medium border border-border/40 focus:outline-none focus:ring-1 focus:ring-primary"
+          >
+            {providers.map((p, index) => (
+              <option key={p.id} value={index}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+
+          {/* SUB / DUB Toggle Selection Component (Triggered explicitly for Anime files) */}
+          {anilistId && (
+            <div className="flex overflow-hidden rounded border border-border bg-secondary/50 text-xs">
+              <button
+                type="button"
+                onClick={() => setAudioTrack('sub')}
+                className={`px-2 py-1 font-semibold transition-colors ${
+                  audioTrack === 'sub'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                SUB
+              </button>
+              <button
+                type="button"
+                onClick={() => setAudioTrack('dub')}
+                className={`px-2 py-1 font-semibold transition-colors ${
+                  audioTrack === 'dub'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                DUB
+              </button>
+            </div>
+          )}
+
           {isTVShow && totalEpisodes && (
             <>
               <Button
@@ -190,7 +236,7 @@ const VideoPlayer = ({
 
       <div className="relative flex-1 bg-black">
         <iframe
-          key={`${mediaId}-${seasonNumber ?? 'm'}-${episodeNumber ?? 'm'}-${providerIdx}`}
+          key={`${mediaId}-${seasonNumber ?? 'm'}-${episodeNumber ?? 'm'}-${providerIdx}-${audioTrack}`}
           src={embedUrl}
           className="h-full w-full border-0"
           allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope"
