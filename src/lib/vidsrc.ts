@@ -1,4 +1,4 @@
-// Streaming providers — updated to include robust Anime fallbacks and sub/dub support.
+// Streaming providers — updated to include exactly 4 consistent servers.
 export interface StreamProvider {
   id: string;
   name: string;
@@ -26,36 +26,13 @@ const PROVIDERS: StreamProvider[] = [
     tv: (id: number, s: number, e: number) => `https://vidnest.fun/tv/${id}/${s}/${e}`,
   },
   {
-    id: '4animo-hd1',
-    name: 'Server 4 (Anime HD-1)',
+    id: '4animo',
+    name: 'Server 4 (Only for Anime)',
+    // Dynamically routes AniList IDs and sets the audio track
     movie: (id: number, title?: string, anilistId?: number, type?: 'sub' | 'dub') => 
       `https://cdn.4animo.xyz/embed/hd-1/ani/${anilistId || id}/1/${type || 'sub'}?k=1&autoPlay=1&skipIntro=1&skipOutro=1`,
     tv: (id: number, s: number, e: number, title?: string, anilistId?: number, type?: 'sub' | 'dub') => 
       `https://cdn.4animo.xyz/embed/hd-1/ani/${anilistId || id}/${e}/${type || 'sub'}?k=1&autoPlay=1&skipIntro=1&skipOutro=1`,
-  },
-  {
-    id: '4animo-hd2',
-    name: 'Server 5 (Anime HD-2)',
-    movie: (id: number, title?: string, anilistId?: number, type?: 'sub' | 'dub') => 
-      `https://cdn.4animo.xyz/embed/hd-2/ani/${anilistId || id}/1/${type || 'sub'}?k=1&autoPlay=1&skipIntro=1&skipOutro=1`,
-    tv: (id: number, s: number, e: number, title?: string, anilistId?: number, type?: 'sub' | 'dub') => 
-      `https://cdn.4animo.xyz/embed/hd-2/ani/${anilistId || id}/${e}/${type || 'sub'}?k=1&autoPlay=1&skipIntro=1&skipOutro=1`,
-  },
-  {
-    id: '4animo-hd3',
-    name: 'Server 6 (Anime HD-3)',
-    movie: (id: number, title?: string, anilistId?: number, type?: 'sub' | 'dub') => 
-      `https://cdn.4animo.xyz/embed/hd-3/ani/${anilistId || id}/1/${type || 'sub'}?k=1&autoPlay=1&skipIntro=1&skipOutro=1`,
-    tv: (id: number, s: number, e: number, title?: string, anilistId?: number, type?: 'sub' | 'dub') => 
-      `https://cdn.4animo.xyz/embed/hd-3/ani/${anilistId || id}/${e}/${type || 'sub'}?k=1&autoPlay=1&skipIntro=1&skipOutro=1`,
-  },
-  {
-    id: '4animo-hd4',
-    name: 'Server 7 (Anime HD-4)',
-    movie: (id: number, title?: string, anilistId?: number, type?: 'sub' | 'dub') => 
-      `https://cdn.4animo.xyz/embed/hd-4/ani/${anilistId || id}/1/${type || 'sub'}?k=1&autoPlay=1&skipIntro=1&skipOutro=1`,
-    tv: (id: number, s: number, e: number, title?: string, anilistId?: number, type?: 'sub' | 'dub') => 
-      `https://cdn.4animo.xyz/embed/hd-4/ani/${anilistId || id}/${e}/${type || 'sub'}?k=1&autoPlay=1&skipIntro=1&skipOutro=1`,
   },
 ];
 
