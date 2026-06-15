@@ -28,11 +28,15 @@ const PROVIDERS: StreamProvider[] = [
   {
     id: '4animo',
     name: 'Server 4 (Only for Anime)',
-    // Dynamically routes AniList IDs and sets the audio track
+    // Dynamically checks for AniList ID. If none exists (e.g. regular TV show), safely falls back to Server 1.
     movie: (id: number, title?: string, anilistId?: number, type?: 'sub' | 'dub') => 
-      `https://cdn.4animo.xyz/embed/hd-1/ani/${anilistId || id}/1/${type || 'sub'}?k=1&autoPlay=1&skipIntro=1&skipOutro=1`,
+      anilistId
+        ? `https://cdn.4animo.xyz/embed/hd-1/ani/${anilistId}/1/${type || 'sub'}?k=1&autoPlay=1&skipIntro=1&skipOutro=1`
+        : `https://vidsrcme.su/embed/movie?tmdb=${id}&autoplay=1`,
     tv: (id: number, s: number, e: number, title?: string, anilistId?: number, type?: 'sub' | 'dub') => 
-      `https://cdn.4animo.xyz/embed/hd-1/ani/${anilistId || id}/${e}/${type || 'sub'}?k=1&autoPlay=1&skipIntro=1&skipOutro=1`,
+      anilistId
+        ? `https://cdn.4animo.xyz/embed/hd-1/ani/${anilistId}/${e}/${type || 'sub'}?k=1&autoPlay=1&skipIntro=1&skipOutro=1`
+        : `https://vidsrcme.su/embed/tv?tmdb=${id}&season=${s}&episode=${e}&autoplay=1&autonext=1`,
   },
 ];
 
