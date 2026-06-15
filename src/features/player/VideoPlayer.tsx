@@ -52,30 +52,25 @@ const VideoPlayer = ({
   const animoTimeRef = useRef<number>(0);
   const animoDurationRef = useRef<number>(0);
 
-  // Safety Fallback: If user tries to load a 4Animo server on a non-anime, force fallback to Server 1
+  // Safety Fallback: If user tries to load Server 4 on a non-anime, force fallback to Server 1
   useEffect(() => {
     if (isOpen && typeof window !== 'undefined') {
       const currentProvider = providers[providerIdx];
-      if (currentProvider?.id.includes('4animo') && !anilistId) {
+      if (currentProvider?.id === '4animo' && !anilistId) {
         setProviderIdx(0);
       }
     }
   }, [isOpen, providerIdx, anilistId, providers]);
 
-  // Player Events: Listen for 4Animo postMessage broadcasts
+  // Player Events: Listen for 4Animo postMessage broadcasts (Auto-next & Progress)
   useEffect(() => {
     if (!isOpen) return;
 
     const handleMessage = (event: MessageEvent) => {
       let data = event.data;
       
-      // Parse stringified JSON if necessary (per 4Animo docs)
       if (typeof data === 'string') {
-        try {
-          data = JSON.parse(data);
-        } catch (e) {
-          return;
-        }
+        try { data = JSON.parse(data); } catch (e) { return; }
       }
 
       if (data && typeof data === 'object') {
@@ -222,8 +217,8 @@ const VideoPlayer = ({
             className="rounded bg-secondary text-secondary-foreground px-2 py-1 text-xs font-medium border border-border/40 focus:outline-none focus:ring-1 focus:ring-primary"
           >
             {providers.map((p, index) => {
-              // Hide 4Animo servers dynamically if the current media is NOT an anime
-              if (p.id.includes('4animo') && !anilistId) return null;
+              // Hide Server 4 dynamically if the current media is NOT an anime
+              if (p.id === '4animo' && !anilistId) return null;
               return (
                 <option key={p.id} value={index}>
                   {p.name}
@@ -232,7 +227,7 @@ const VideoPlayer = ({
             })}
           </select>
 
-          {/* SUB / DUB Toggle Selection Component */}
+          {/* SUB / DUB Toggle Selection Component (Only shown for anime) */}
           {anilistId && (
             <div className="flex overflow-hidden rounded border border-border bg-secondary/50 text-xs">
               <button
@@ -290,6 +285,7 @@ const VideoPlayer = ({
       </div>
 
       <div className="relative flex-1 bg-black">
+        {/* NO iframe sandbox attribute used to preserve full messaging and encryption contexts */}
         <iframe
           key={`${mediaId}-${seasonNumber ?? 'm'}-${episodeNumber ?? 'm'}-${providerIdx}-${audioTrack}`}
           src={embedUrl}
