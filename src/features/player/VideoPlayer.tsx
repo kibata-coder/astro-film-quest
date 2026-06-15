@@ -43,10 +43,60 @@ const VideoPlayer = ({
     const n = stored ? parseInt(stored, 10) : 0;
     return Number.isFinite(n) && n >= 0 && n < providers.length ? n : 0;
   });
+  
   const [audioTrack, setAudioTrack] = useState<'sub' | 'dub'>('sub');
   const startTimeRef = useRef<number>(0);
   const durationRef = useRef<number>(0);
+  
+  // 4Animo Exact Progress Tracking Refs
+  const animoTimeRef = useRef<number>(0);
+  const animoDurationRef = useRef<number>(0);
 
+  // Safety Fallback: If user tries to load a 4Animo server on a non-anime, force fallback to Server 1
+  useEffect(() => {
+    if (isOpen && typeof window !== 'undefined') {
+      const currentProvider = providers[providerIdx];
+      if (currentProvider?.id.includes('4animo') && !anilistId) {
+        setProviderIdx(0);
+      }
+    }
+  }, [isOpen, providerIdx, anilistId, providers]);
+
+  // Player Events: Listen for 4Animo postMessage broadcasts
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleMessage = (event: MessageEvent) => {
+      let data = event.data;
+      
+      // Parse stringified JSON if necessary (per 4Animo docs)
+      if (typeof data === 'string') {
+        try {
+          data = JSON.parse(data);
+        } catch (e) {
+          return;
+        }
+      }
+
+      if (data && typeof data === 'object') {
+        if (data.event === 'complete') {
+          // Trigger Auto-Next instantly when episode ends
+          if (mediaType === 'tv' && totalEpisodes && episodeNumber !== totalEpisodes && onNextEpisode) {
+            onNextEpisode();
+          }
+        } else if (data.event === 'time') {
+          // Sync exact watch time directly from the 4Animo iframe
+          if (typeof data.time === 'number') animoTimeRef.current = data.time;
+          if (typeof data.duration === 'number') animoDurationRef.current = data.duration;
+        }
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [isOpen, mediaType, totalEpisodes, episodeNumber, onNextEpisode]);
+
+  // Standard setup listeners
   useEffect(() => {
     if (isOpen && typeof window !== 'undefined') {
       const stored = window.localStorage.getItem(PROVIDER_STORAGE_KEY);
@@ -60,15 +110,9 @@ const VideoPlayer = ({
   }, [isOpen, providers.length]);
 
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
+    if (isOpen) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = 'unset';
+    return () => { document.body.style.overflow = 'unset'; };
   }, [isOpen]);
 
   useEffect(() => {
@@ -81,7 +125,6 @@ const VideoPlayer = ({
           durationRef.current = (details.runtime || 0) * 60;
           return;
         }
-
         const details = await getTVShowDetails(mediaId);
         durationRef.current = (details.episode_run_time?.[0] || 45) * 60;
       } catch (error) {
@@ -97,27 +140,32 @@ const VideoPlayer = ({
   useEffect(() => {
     if (!isOpen) {
       startTimeRef.current = 0;
+      animoTimeRef.current = 0;
+      animoDurationRef.current = 0;
     }
   }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
-
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        handleClose();
-      }
+      if (event.key === 'Escape') handleClose();
     };
-
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, onClose, mediaId, mediaType, title, seasonNumber, episodeNumber]);
 
   const handleClose = () => {
-    if (startTimeRef.current > 0 && durationRef.current > 0) {
-      const timeSpentSeconds = (Date.now() - startTimeRef.current) / 1000;
+    let timeSpentSeconds = (Date.now() - startTimeRef.current) / 1000;
+    let duration = durationRef.current;
 
+    // Override local timer with exact 4Animo tracking data if present
+    if (animoTimeRef.current > 0) {
+      timeSpentSeconds = animoTimeRef.current;
+      if (animoDurationRef.current > 0) duration = animoDurationRef.current;
+    }
+
+    if (startTimeRef.current > 0 && duration > 0) {
       saveWatchProgress(
         {
           id: mediaId,
@@ -128,10 +176,13 @@ const VideoPlayer = ({
           episode_number: episodeNumber,
         },
         timeSpentSeconds,
-        durationRef.current
+        duration
       );
     }
 
+    // Reset tracking blocks for next play session
+    animoTimeRef.current = 0;
+    animoDurationRef.current = 0;
     onClose();
   };
 
@@ -170,14 +221,18 @@ const VideoPlayer = ({
             }}
             className="rounded bg-secondary text-secondary-foreground px-2 py-1 text-xs font-medium border border-border/40 focus:outline-none focus:ring-1 focus:ring-primary"
           >
-            {providers.map((p, index) => (
-              <option key={p.id} value={index}>
-                {p.name}
-              </option>
-            ))}
+            {providers.map((p, index) => {
+              // Hide 4Animo servers dynamically if the current media is NOT an anime
+              if (p.id.includes('4animo') && !anilistId) return null;
+              return (
+                <option key={p.id} value={index}>
+                  {p.name}
+                </option>
+              );
+            })}
           </select>
 
-          {/* SUB / DUB Toggle Selection Component (Triggered explicitly for Anime files) */}
+          {/* SUB / DUB Toggle Selection Component */}
           {anilistId && (
             <div className="flex overflow-hidden rounded border border-border bg-secondary/50 text-xs">
               <button
