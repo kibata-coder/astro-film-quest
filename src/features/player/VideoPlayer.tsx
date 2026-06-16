@@ -1,11 +1,10 @@
-// src/features/player/VideoPlayer.tsx
-
 import { useState, useEffect, useRef } from 'react';
 import { X, ChevronLeft, ChevronRight, SkipForward } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getMovieEmbedUrl, getTVShowEmbedUrl, getProviders } from '@/lib/vidsrc';
 import { saveWatchProgress } from '@/lib/watchHistory';
 import { getMovieDetails, getTVShowDetails } from '@/lib/tmdb';
+import { toast } from '@/hooks/use-toast'; // Added for mapping errors
 
 interface VideoPlayerProps {
   isOpen: boolean;
@@ -39,9 +38,14 @@ const VideoPlayer = ({
   anilistId,
 }: VideoPlayerProps) => {
   const providers = getProviders();
-  const [providerIdx, setProviderIdx] = useState<number>(0);
-  const [audioTrack, setAudioTrack] = useState<'sub' | 'dub'>('sub');
+  const [providerIdx, setProviderIdx] = useState<number>(() => {
+    if (typeof window === 'undefined') return 0;
+    const stored = window.localStorage.getItem(PROVIDER_STORAGE_KEY);
+    const n = stored ? parseInt(stored, 10) : 0;
+    return Number.isFinite(n) && n >= 0 && n < providers.length ? n : 0;
+  });
 
+  const [audioTrack, setAudioTrack] = useState<'sub' | 'dub'>('sub');
   const startTimeRef = useRef<number>(0);
   const durationRef = useRef<number>(0);
   const animoTimeRef = useRef<number>(0);
@@ -52,15 +56,24 @@ const VideoPlayer = ({
       const stored = window.localStorage.getItem(PROVIDER_STORAGE_KEY);
       if (stored) {
         const n = parseInt(stored, 10);
-        // SAFETY: Prevents Server 4 from silently hiding and executing Server 1 if anilistId is missing
-        if (n === 3 && !anilistId) {
-          setProviderIdx(0); 
-        } else if (Number.isFinite(n) && n >= 0 && n < providers.length) {
+        if (Number.isFinite(n) && n >= 0 && n < providers.length) {
           setProviderIdx(n);
         }
       }
     }
-  }, [isOpen, providers.length, anilistId]);
+  }, [isOpen, providers.length]);
+
+  // Fallback Safety: If 4Animo is selected but the DB couldn't find an AniList ID, inform the user why it's switching to Server 1.
+  useEffect(() => {
+    if (isOpen && providerIdx === 3 && !anilistId) {
+      toast({
+        title: "Anime DB Map Failed",
+        description: "Could not find a matching AniList ID for this show. Automatically falling back to Server 1.",
+      });
+      setProviderIdx(0);
+      if (typeof window !== 'undefined') window.localStorage.setItem(PROVIDER_STORAGE_KEY, '0');
+    }
+  }, [isOpen, providerIdx, anilistId]);
 
   useEffect(() => {
     if (isOpen) document.body.style.overflow = 'hidden';
@@ -104,8 +117,8 @@ const VideoPlayer = ({
         try { data = JSON.parse(data); } catch (e) { return; }
       }
       if (data && typeof data === 'object') {
-        if (data.event === 'complete' && onNextEpisode && episodeNumber !== totalEpisodes) {
-          onNextEpisode();
+        if (data.event === 'complete') {
+          if (onNextEpisode && episodeNumber !== totalEpisodes) onNextEpisode();
         } else if (data.event === 'time') {
           if (typeof data.time === 'number') animoTimeRef.current = data.time;
           if (typeof data.duration === 'number') animoDurationRef.current = data.duration;
@@ -118,10 +131,10 @@ const VideoPlayer = ({
 
   useEffect(() => {
     if (!isOpen) return;
-    const onKeyDown = (e: KeyboardEvent) => { if (e.key === 'Escape') handleClose(); };
+    const onKeyDown = (event: KeyboardEvent) => { if (event.key === 'Escape') handleClose(); };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, mediaId, mediaType, title, seasonNumber, episodeNumber]);
 
   const handleClose = () => {
     let timeSpentSeconds = (Date.now() - startTimeRef.current) / 1000;
@@ -154,49 +167,34 @@ const VideoPlayer = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col bg-[#0f0f0f]">
-      <div className="flex items-center justify-between gap-2 border-b border-white/10 bg-[#0f0f0f]/95 px-3 py-2 backdrop-blur supports-[backdrop-filter]:bg-[#0f0f0f]/80">
+    <div className="fixed inset-0 z-[100] flex flex-col bg-background">
+      <div className="flex items-center justify-between gap-2 border-b border-border/60 bg-background/95 px-3 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/80">
         <div className="min-w-0">
-          <h2 className="truncate text-sm font-semibold text-white">{title}</h2>
-          {isTVShow && <p className="truncate text-xs text-white/60">S{seasonNumber} E{episodeNumber}: {episodeName}</p>}
+          <h2 className="truncate text-sm font-semibold text-foreground">{title}</h2>
+          {isTVShow && <p className="truncate text-xs text-muted-foreground">S{seasonNumber} E{episodeNumber}: {episodeName}</p>}
         </div>
 
         <div className="flex items-center gap-1">
-          <select
-            value={providerIdx}
-            onChange={(e) => {
-              const val = parseInt(e.target.value, 10);
-              setProviderIdx(val);
-              if (typeof window !== 'undefined') window.localStorage.setItem(PROVIDER_STORAGE_KEY, val.toString());
-            }}
-            className="mr-3 h-7 cursor-pointer rounded-md border border-white/20 bg-black/40 px-2 text-xs text-white/80 outline-none transition-colors hover:border-white/40 hover:text-white focus:ring-1 focus:ring-[#2563eb]"
-          >
-            {providers.map((p, idx) => {
-              if (p.id === '4animo' && !anilistId) return null;
-              return <option key={p.id} value={idx} className="bg-[#0f0f0f] text-white">{p.name}</option>;
-            })}
-          </select>
-
           {anilistId && providerIdx === 3 && (
             <div className="mr-2 flex overflow-hidden rounded-full border border-white/20 bg-black/40 text-xs">
-              <button type="button" onClick={() => setAudioTrack('sub')} className={`px-3 py-1 transition-colors ${audioTrack === 'sub' ? 'bg-[#2563eb] text-white' : 'text-white/70 hover:text-white hover:bg-white/10'}`}>SUB</button>
-              <button type="button" onClick={() => setAudioTrack('dub')} className={`px-3 py-1 transition-colors ${audioTrack === 'dub' ? 'bg-[#2563eb] text-white' : 'text-white/70 hover:text-white hover:bg-white/10'}`}>DUB</button>
+              <button type="button" onClick={() => setAudioTrack('sub')} className={`px-3 py-1 transition-colors ${audioTrack === 'sub' ? 'bg-primary text-primary-foreground' : 'text-white/70 hover:text-white'}`}>SUB</button>
+              <button type="button" onClick={() => setAudioTrack('dub')} className={`px-3 py-1 transition-colors ${audioTrack === 'dub' ? 'bg-primary text-primary-foreground' : 'text-white/70 hover:text-white'}`}>DUB</button>
             </div>
           )}
 
           {isTVShow && totalEpisodes && (
             <>
-              <Button variant="ghost" size="icon" onClick={onPreviousEpisode} disabled={isFirstEpisode} className="text-white hover:bg-white/10 hover:text-white"><ChevronLeft className="h-5 w-5" /></Button>
-              <Button variant="ghost" size="icon" onClick={onNextEpisode} disabled={isLastEpisode} className="text-white hover:bg-white/10 hover:text-white"><ChevronRight className="h-5 w-5" /></Button>
+              <Button variant="ghost" size="icon" onClick={onPreviousEpisode} disabled={isFirstEpisode} aria-label="Previous episode"><ChevronLeft className="h-5 w-5" /></Button>
+              <Button variant="ghost" size="icon" onClick={onNextEpisode} disabled={isLastEpisode} aria-label="Next episode"><ChevronRight className="h-5 w-5" /></Button>
             </>
           )}
 
-          <Button variant="ghost" size="icon" onClick={handleClose} className="text-white hover:bg-white/10 hover:text-white"><X className="h-5 w-5" /></Button>
+          <Button variant="ghost" size="icon" onClick={handleClose} aria-label="Close player"><X className="h-5 w-5" /></Button>
         </div>
       </div>
 
       <div className="relative flex-1 bg-black">
-        {/* CHANGED: referrerPolicy is now 'origin' so 4Animo knows it's an iframe embed and doesn't block it! */}
+        {/* referrerPolicy="origin" is REQUIRED for 4Animo. Removing it breaks the CDN feed. */}
         <iframe
           key={`${mediaId}-${seasonNumber ?? 'm'}-${episodeNumber ?? 'm'}-${providerIdx}-${audioTrack}`}
           src={embedUrl}
@@ -204,11 +202,12 @@ const VideoPlayer = ({
           allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope"
           allowFullScreen={true}
           allowfullscreen="true"
-          referrerPolicy="origin" 
+          referrerPolicy="origin"
         />
         {showNextEpisodeButton && (
           <Button size="lg" onClick={onNextEpisode} className="absolute bottom-20 right-6 gap-2 rounded-full bg-white px-6 font-semibold text-black shadow-lg hover:bg-white/90">
-            <SkipForward className="h-5 w-5" /> Next Episode
+            <SkipForward className="h-5 w-5" />
+            Next Episode
           </Button>
         )}
       </div>
