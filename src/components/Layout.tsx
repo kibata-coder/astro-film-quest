@@ -117,7 +117,6 @@ const Layout = memo(({ children, onSearch, searchQuery, showFooter = true }: Lay
         totalEpisodes={episodeContext?.episodes.length}
         onNextEpisode={nextEpisode}
         onPreviousEpisode={previousEpisode}
-        anilistId={videoState.anilistId} // <-- ADDED: Passes down to the iframe successfully!
       />
     );
   };

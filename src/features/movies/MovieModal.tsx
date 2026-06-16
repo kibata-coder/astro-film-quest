@@ -1,5 +1,3 @@
-// src/features/movies/MovieModal.tsx
-
 import { useState, useEffect } from 'react';
 import { X, Play, Check, Plus, Volume2, VolumeX } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -15,6 +13,7 @@ import {
   Video,
   WatchProvider,
   getBackdropUrl,
+  getImageUrl,
   getMovieDetails,
   getMovieCredits,
   getMovieVideos,
@@ -81,6 +80,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
   const [showServerDialog, setShowServerDialog] = useState(false);
   const streamProviders = getProviders();
 
+  // ALWAYS OPEN THE DIALOG (NO BYPASS)
   const handlePlayClick = () => {
     setShowServerDialog(true);
   };
@@ -89,8 +89,8 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
     const selectedProvider = streamProviders[index];
     const isAnime = isAnimeMedia(movie as unknown as Parameters<typeof isAnimeMedia>[0]);
 
-    // INTERCEPTION GUARD: Block 4Animo if they try to click it on a normal movie
-    if (selectedProvider?.id === '4animo' && !isAnime) {
+    // INTERCEPTION GUARD: Block Server 4 if they try to click it on a normal movie
+    if (selectedProvider?.id === 'anikoto' && !isAnime) {
       toast({
         variant: "destructive",
         title: "Anime Server Only",
@@ -298,7 +298,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
         )}
       </div>
 
-      {/* Server Selection Popup Box */}
+      {/* Server Selection Interception Popup */}
       <Dialog open={showServerDialog} onOpenChange={setShowServerDialog}>
         <DialogContent className="sm:max-w-md bg-background border-border z-[200]">
           <div className="p-2 space-y-5">
