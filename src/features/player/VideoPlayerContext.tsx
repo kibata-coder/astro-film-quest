@@ -1,5 +1,3 @@
-// src/features/player/VideoPlayerContext.tsx
-
 import { createContext, useContext, useState, useCallback, ReactNode, useEffect, useRef } from 'react';
 import { getTVShowSeasonDetails } from '@/lib/tmdb';
 import { addToHistory } from '@/lib/watchHistory';
@@ -97,13 +95,11 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
     window.history.pushState({ player: true }, '', window.location.pathname + '#player');
 
     addToHistory({
-      id: movie.id,
-      media_type: 'movie',
-      title: movie.title,
-      poster_path: movie.poster_path || '',
+      id: movie.id, media_type: 'movie', title: movie.title, poster_path: movie.poster_path || '',
     }).then(notifyHistoryUpdate).catch((e) => console.error('addToHistory failed', e));
 
     let finalAnilistId: number | undefined = undefined;
+    const prefProvider = typeof window !== 'undefined' ? parseInt(window.localStorage.getItem('soudflex.preferredProvider') || '0', 10) : 0;
 
     if (isAnimeMedia(movie)) {
       setVideoState({
@@ -114,7 +110,9 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
       const resolved = await resolveAnime(movie.id, 'movie');
       if (resolved) {
         finalAnilistId = resolved.anilistId;
-        if (resolved.episodes.length > 0) {
+        
+        // Skip Native Player and force iframe if they explicitly chose Server 4
+        if (prefProvider !== 3 && resolved.episodes.length > 0) {
           const ep = resolved.episodes[0];
           setAnimeResolve(resolved);
           setVideoState({
@@ -126,7 +124,7 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    // FIX: anilistId successfully propagated to iframe mode ensuring Server 4 doesn't panic
+    // Pass the Anilist ID to the iframe so Server 4 can actually use it!
     setVideoState({
       isOpen: true, title: movie.title, mediaId: movie.id, mediaType: 'movie', mode: 'iframe', anilistId: finalAnilistId,
     });
@@ -142,17 +140,17 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
       id: show.id, media_type: 'tv', title: show.name, poster_path: show.poster_path || '', season_number: seasonNumber, episode_number: episodeNumber,
     }).then(notifyHistoryUpdate).catch((e) => console.error('addToHistory failed', e));
 
-    getTVShowSeasonDetails(show.id, seasonNumber)
-      .then((seasonDetails) => {
-        setEpisodeContext({
-          showId: show.id, showName: show.name, seasonNumber, episodes: seasonDetails.episodes || [], posterPath: show.poster_path, backdropPath: show.backdrop_path || null,
-        });
-      }).catch((error) => {
-        console.error('Failed to fetch season details:', error);
-        setEpisodeContext(null);
+    getTVShowSeasonDetails(show.id, seasonNumber).then((seasonDetails) => {
+      setEpisodeContext({
+        showId: show.id, showName: show.name, seasonNumber, episodes: seasonDetails.episodes || [], posterPath: show.poster_path, backdropPath: show.backdrop_path || null,
       });
+    }).catch((error) => {
+      console.error('Failed to fetch season details:', error);
+      setEpisodeContext(null);
+    });
 
     let finalAnilistId: number | undefined = undefined;
+    const prefProvider = typeof window !== 'undefined' ? parseInt(window.localStorage.getItem('soudflex.preferredProvider') || '0', 10) : 0;
 
     if (isAnimeMedia(show)) {
       setVideoState({
@@ -163,7 +161,9 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
       const resolved = await resolveAnime(show.id, 'tv');
       if (resolved) {
         finalAnilistId = resolved.anilistId;
-        if (resolved.episodes.length > 0) {
+        
+        // Skip Native Player and force iframe if they explicitly chose Server 4
+        if (prefProvider !== 3 && resolved.episodes.length > 0) {
           const ep = findAnimeEpisodeId(resolved, episodeNumber);
           setAnimeResolve(resolved);
           setVideoState({
@@ -175,7 +175,7 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    // FIX: anilistId successfully propagated to iframe mode ensuring Server 4 doesn't panic
+    // Pass the Anilist ID to the iframe so Server 4 can actually use it!
     setVideoState({
       isOpen: true, title: `${show.name} - ${episodeName}`, mediaId: show.id, mediaType: 'tv', seasonNumber, episodeNumber, episodeName, mode: 'iframe', anilistId: finalAnilistId,
     });
