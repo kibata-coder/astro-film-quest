@@ -1,3 +1,5 @@
+// src/features/tv/TVShowModal.tsx
+
 import { useState, useEffect, useRef } from 'react';
 import { X, Play, Star, Calendar, Tv, Plus, Check } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -56,8 +58,8 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
   const handleServerSelect = (index: number) => {
     const selectedProvider = streamProviders[index];
 
-    // INTERCEPTION GUARD: Block Miruro if they try to click it on a standard TV series
-    if (selectedProvider?.id === 'miruro' && !isAnime) {
+    // INTERCEPTION GUARD: Block 4Animo if they try to click it on a standard TV series
+    if (selectedProvider?.id === '4animo' && !isAnime) {
       toast({
         variant: "destructive",
         title: "Anime Server Only",
