@@ -29,7 +29,7 @@ const PROVIDERS: StreamProvider[] = [
   {
     id: '4animo',
     name: 'Server 4 (Only for Anime)',
-    // If an AniList ID exists, we use the 4Animo API (episode 1 for movies). If not, fallback to Server 1 securely.
+    // If anilistId exists, perfectly construct the 4Animo URL.
     movie: (id: number, title?: string, anilistId?: number, type?: 'sub' | 'dub') => 
       anilistId
         ? `https://cdn.4animo.xyz/embed/hd-1/ani/${anilistId}/1/${type || 'sub'}?k=1&autoPlay=1&skipIntro=1&skipOutro=1`
@@ -43,7 +43,6 @@ const PROVIDERS: StreamProvider[] = [
 
 export const getProviders = (): StreamProvider[] => PROVIDERS;
 
-// Helper to ensure we don't crash if an invalid index is passed
 const safeIndex = (i: number) =>
   Math.max(0, Math.min(PROVIDERS.length - 1, Number.isFinite(i) ? i : 0));
 
