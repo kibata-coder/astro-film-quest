@@ -1,3 +1,5 @@
+// src/features/player/VideoPlayer.tsx
+
 import { useState, useEffect, useRef } from 'react';
 import { X, ChevronLeft, ChevronRight, SkipForward } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -76,6 +78,7 @@ const VideoPlayer = ({
     };
   }, [isOpen]);
 
+  // Fetch standard TMDB durations as a fallback
   useEffect(() => {
     if (!isOpen || !mediaId) return;
 
@@ -107,7 +110,8 @@ const VideoPlayer = ({
     }
   }, [isOpen]);
 
-  // Player Events: Listen for 4Animo postMessage broadcasts (Auto-next & Progress)
+  // 4Animo postMessage Broadcast Listener
+  // Captures the auto-next triggers and exact runtime progress without iframe sandboxing
   useEffect(() => {
     if (!isOpen) return;
 
@@ -119,7 +123,7 @@ const VideoPlayer = ({
 
       if (data && typeof data === 'object') {
         if (data.event === 'complete') {
-          // Trigger Auto-Next instantly when episode ends
+          // Trigger Auto-Next instantly when 4Animo player reports episode completion
           if (onNextEpisode && episodeNumber !== totalEpisodes) {
             onNextEpisode();
           }
@@ -161,6 +165,7 @@ const VideoPlayer = ({
       }
     }
 
+    // Save watch history instantly
     if (startTimeRef.current > 0 && duration > 0) {
       saveWatchProgress(
         {
@@ -176,6 +181,7 @@ const VideoPlayer = ({
       );
     }
 
+    // Instant teardown
     onClose();
   };
 
@@ -192,19 +198,43 @@ const VideoPlayer = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col bg-background">
-      <div className="flex items-center justify-between gap-2 border-b border-border/60 bg-background/95 px-3 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+    <div className="fixed inset-0 z-[100] flex flex-col bg-[#0f0f0f]">
+      <div className="flex items-center justify-between gap-2 border-b border-white/10 bg-[#0f0f0f]/95 px-3 py-2 backdrop-blur supports-[backdrop-filter]:bg-[#0f0f0f]/80">
         <div className="min-w-0">
-          <h2 className="truncate text-sm font-semibold text-foreground">{title}</h2>
+          <h2 className="truncate text-sm font-semibold text-white">{title}</h2>
           {isTVShow && (
-            <p className="truncate text-xs text-muted-foreground">
+            <p className="truncate text-xs text-white/60">
               S{seasonNumber} E{episodeNumber}: {episodeName}
             </p>
           )}
         </div>
 
         <div className="flex items-center gap-1">
-          {/* Sub/Dub toggle ONLY shown when using Server 4 (Index 3) and tracking an anime */}
+          {/* Server Selector: Allows users to actually pick Server 4 */}
+          <select
+            value={providerIdx}
+            onChange={(e) => {
+              const val = parseInt(e.target.value, 10);
+              setProviderIdx(val);
+              if (typeof window !== 'undefined') {
+                window.localStorage.setItem(PROVIDER_STORAGE_KEY, val.toString());
+              }
+            }}
+            className="mr-3 h-7 cursor-pointer rounded-md border border-white/20 bg-black/40 px-2 text-xs text-white/80 outline-none transition-colors hover:border-white/40 hover:text-white focus:ring-1 focus:ring-[#2563eb]"
+            aria-label="Select Server"
+          >
+            {providers.map((p, idx) => {
+              // Hide 4Animo (Server 4) for standard movies/shows that lack an Anilist ID
+              if (p.id === '4animo' && !anilistId) return null;
+              return (
+                <option key={p.id} value={idx} className="bg-[#0f0f0f] text-white">
+                  {p.name}
+                </option>
+              );
+            })}
+          </select>
+
+          {/* Sub/Dub toggle ONLY shown when using Server 4 and tracking an anime */}
           {anilistId && providerIdx === 3 && (
             <div className="mr-2 flex overflow-hidden rounded-full border border-white/20 bg-black/40 text-xs">
               <button
@@ -212,8 +242,8 @@ const VideoPlayer = ({
                 onClick={() => setAudioTrack('sub')}
                 className={`px-3 py-1 transition-colors ${
                   audioTrack === 'sub'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-white/70 hover:text-white'
+                    ? 'bg-[#2563eb] text-white' // Strict primary color enforcement
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
                 }`}
               >
                 SUB
@@ -223,8 +253,8 @@ const VideoPlayer = ({
                 onClick={() => setAudioTrack('dub')}
                 className={`px-3 py-1 transition-colors ${
                   audioTrack === 'dub'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-white/70 hover:text-white'
+                    ? 'bg-[#2563eb] text-white' // Strict primary color enforcement
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
                 }`}
               >
                 DUB
@@ -240,6 +270,7 @@ const VideoPlayer = ({
                 onClick={onPreviousEpisode}
                 disabled={isFirstEpisode}
                 aria-label="Previous episode"
+                className="text-white hover:bg-white/10 hover:text-white"
               >
                 <ChevronLeft className="h-5 w-5" />
               </Button>
@@ -249,27 +280,34 @@ const VideoPlayer = ({
                 onClick={onNextEpisode}
                 disabled={isLastEpisode}
                 aria-label="Next episode"
+                className="text-white hover:bg-white/10 hover:text-white"
               >
                 <ChevronRight className="h-5 w-5" />
               </Button>
             </>
           )}
 
-          <Button variant="ghost" size="icon" onClick={handleClose} aria-label="Close player">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={handleClose} 
+            aria-label="Close player"
+            className="text-white hover:bg-white/10 hover:text-white"
+          >
             <X className="h-5 w-5" />
           </Button>
         </div>
       </div>
 
       <div className="relative flex-1 bg-black">
-        {/* NO iframe sandbox attribute used to preserve full messaging contexts */}
+        {/* NO iframe sandbox attribute used to preserve full messaging contexts and ad blocker interactions */}
         <iframe
           key={`${mediaId}-${seasonNumber ?? 'm'}-${episodeNumber ?? 'm'}-${providerIdx}-${audioTrack}`}
           src={embedUrl}
           className="h-full w-full border-0"
           allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope"
           allowFullScreen={true}
-          allowfullscreen="true"
+          allowfullscreen="true" // included for fallback compatibilities
           referrerPolicy="no-referrer"
         />
         {showNextEpisodeButton && (
