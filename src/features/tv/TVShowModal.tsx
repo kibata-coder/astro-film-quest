@@ -407,7 +407,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
             <p className="text-sm text-muted-foreground text-center">
               Choose a streaming server to start playing. If the video ever buffers or doesn't load, you can always try switching servers!
             </p>
-            <div className="grid gap-3">
+            <div className="grid gap-3 max-h-[50vh] overflow-y-auto pr-2">
               {streamProviders.map((provider, index) => (
                 <Button
                   key={provider.id}

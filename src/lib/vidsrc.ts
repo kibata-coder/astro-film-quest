@@ -40,6 +40,48 @@ const PROVIDERS: StreamProvider[] = [
     tv: (id: number, s: number, e: number) => 
       `https://vidnest.fun/tv/${id}/${s}/${e}`,
   },
+  {
+    id: 'vidsrc-wtf',
+    name: 'Server 4 (VidSrc WTF)',
+    movie: (id: number) => `https://vidsrc.wtf/embed/movie?tmdb=${id}`,
+    tv: (id: number, s: number, e: number) => `https://vidsrc.wtf/embed/tv?tmdb=${id}&season=${s}&episode=${e}`,
+  },
+  {
+    id: 'autoembed',
+    name: 'Server 5 (Autoembed)',
+    movie: (id: number) => `https://autoembed.cc/embed/player.php?id=${id}`,
+    tv: (id: number, s: number, e: number) => `https://autoembed.cc/embed/player.php?id=${id}&s=${s}&e=${e}`,
+  },
+  {
+    id: 'embedmaster',
+    name: 'Server 6 (EmbedMaster)',
+    movie: (id: number) => `https://embedmaster.link/movie/${id}`,
+    tv: (id: number, s: number, e: number) => `https://embedmaster.link/tv/${id}/${s}/${e}`,
+  },
+  {
+    id: 'vidfast',
+    name: 'Server 7 (VidFast)',
+    movie: (id: number) => `https://vidfast.pro/movie/${id}?autoPlay=true`,
+    tv: (id: number, s: number, e: number) => `https://vidfast.pro/tv/${id}/${s}/${e}?autoPlay=true`,
+  },
+  {
+    id: 'apiplayer',
+    name: 'Server 8 (API Player)',
+    movie: (id: number) => `https://apiplayer.ru/embed/movie?tmdb=${id}`,
+    tv: (id: number, s: number, e: number) => `https://apiplayer.ru/embed/tv?tmdb=${id}&season=${s}&episode=${e}`,
+  },
+  {
+    id: 'mostream',
+    name: 'Server 9 (MoStream)',
+    movie: (id: number) => `https://mostream.us/embed?tmdb=${id}`,
+    tv: (id: number, s: number, e: number) => `https://mostream.us/embed?tmdb=${id}&s=${s}&e=${e}`,
+  },
+  {
+    id: 'streamrip',
+    name: 'Server 10 (Streamrip)',
+    movie: (id: number) => `https://streamrip-website-production.up.railway.app/movie/${id}`,
+    tv: (id: number, s: number, e: number) => `https://streamrip-website-production.up.railway.app/tv/${id}/${s}/${e}`,
+  },
 ];
 
 export const getProviders = (): StreamProvider[] => PROVIDERS;
