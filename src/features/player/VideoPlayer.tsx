@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, ChevronLeft, ChevronRight, SkipForward } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Server } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getMovieEmbedUrl, getTVShowEmbedUrl, getProviders } from '@/lib/vidsrc';
 import { saveWatchProgress } from '@/lib/watchHistory';
 import { getMovieDetails, getTVShowDetails } from '@/lib/tmdb';
@@ -156,7 +157,32 @@ const VideoPlayer = ({
           )}
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
+          <Select 
+            value={String(providerIdx)} 
+            onValueChange={(v) => {
+              const idx = Number(v);
+              setProviderIdx(idx);
+              try {
+                window.localStorage.setItem(PROVIDER_STORAGE_KEY, String(idx));
+              } catch {}
+            }}
+          >
+            <SelectTrigger className="h-8 w-[160px] text-xs bg-background/50 border-border/60">
+              <div className="flex items-center gap-2">
+                <Server className="w-3.5 h-3.5" />
+                <SelectValue placeholder="Server" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              {providers.map((p, i) => (
+                <SelectItem key={p.id} value={String(i)} className="text-xs">
+                  {p.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
           {isTVShow && totalEpisodes && (
             <>
               <Button
@@ -193,18 +219,9 @@ const VideoPlayer = ({
           className="h-full w-full border-0"
           allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope"
           allowFullScreen
-          referrerPolicy="no-referrer"
+          webkitallowfullscreen="true"
+          mozallowfullscreen="true"
         />
-        {showNextEpisodeButton && (
-          <Button
-            size="lg"
-            onClick={onNextEpisode}
-            className="absolute bottom-20 right-6 gap-2 rounded-full bg-white px-6 font-semibold text-black shadow-lg hover:bg-white/90"
-          >
-            <SkipForward className="h-5 w-5" />
-            Next Episode
-          </Button>
-        )}
       </div>
     </div>
   );

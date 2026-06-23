@@ -18,9 +18,9 @@ const PROVIDERS: StreamProvider[] = [
     name: 'Server 1 (Mauiii)',
     // Uses standard Vidsrc URL formatting
     movie: (id: number) => 
-      `https://vidsrcme.su/embed/movie?tmdb=${id}&autoplay=1`,
+      `https://vidsrcme.su/embed/movie?tmdb=${id}`,
     tv: (id: number, s: number, e: number) => 
-      `https://vidsrcme.su/embed/tv?tmdb=${id}&season=${s}&episode=${e}&autoplay=1&autonext=1`,
+      `https://vidsrcme.su/embed/tv?tmdb=${id}&season=${s}&episode=${e}`,
   },
   {
     id: 'superembed',
