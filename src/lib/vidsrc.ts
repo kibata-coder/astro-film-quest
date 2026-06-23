@@ -15,7 +15,7 @@ export interface StreamProvider {
 const PROVIDERS: StreamProvider[] = [
   {
     id: 'vidsrc',
-    name: 'Server 1 (Recommended)',
+    name: 'Server 1 (Mauiii)',
     // Uses standard Vidsrc URL formatting
     movie: (id: number) => 
       `https://vidsrcme.su/embed/movie?tmdb=${id}&autoplay=1`,
@@ -24,7 +24,7 @@ const PROVIDERS: StreamProvider[] = [
   },
   {
     id: 'superembed',
-    name: 'Server 2 ( second option)',
+    name: 'Server 2 (Moana)',
     // Uses the highly reliable standard root multiembed endpoint
     movie: (id: number) => 
       `https://multiembed.mov/?video_id=${id}&tmdb=1`,
@@ -33,7 +33,7 @@ const PROVIDERS: StreamProvider[] = [
   },
   {
     id: 'vidfun',
-    name: 'Server 3 (Last option)',
+    name: 'Server 3 (Hobbit)',
     // Uses Vidnest's clean URL path format (no query parameters needed)
     movie: (id: number) => 
       `https://vidnest.fun/movie/${id}`,
@@ -42,37 +42,37 @@ const PROVIDERS: StreamProvider[] = [
   },
   {
     id: 'vidsrc-wtf',
-    name: 'Server 4 (VidSrc WTF)',
+    name: 'Server 4 (Dora)',
     movie: (id: number) => `https://vidsrc.wtf/1/movie/${id}`,
     tv: (id: number, s: number, e: number) => `https://vidsrc.wtf/1/tv/${id}/${s}/${e}`,
   },
   {
     id: '2embed',
-    name: 'Server 5 (2Embed)',
+    name: 'Server 5 (Po)',
     movie: (id: number) => `https://www.2embed.cc/embed/${id}`,
     tv: (id: number, s: number, e: number) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`,
   },
   {
     id: 'embedmaster',
-    name: 'Server 6 (EmbedMaster)',
+    name: 'Server 6 (Iron Man)',
     movie: (id: number) => `https://embedmaster.link/movie/${id}`,
     tv: (id: number, s: number, e: number) => `https://embedmaster.link/tv/${id}/${s}/${e}`,
   },
   {
     id: 'vidfast',
-    name: 'Server 7 (VidFast)',
+    name: 'Server 7 (Gipsy Danger)',
     movie: (id: number) => `https://vidfast.pro/movie/${id}?autoPlay=true`,
     tv: (id: number, s: number, e: number) => `https://vidfast.pro/tv/${id}/${s}/${e}?autoPlay=true`,
   },
   {
     id: 'apiplayer',
-    name: 'Server 8 (API Player)',
+    name: 'Server 8 (Master Chifu)',
     movie: (id: number) => `https://apiplayer.ru/embed/movie?tmdb=${id}`,
     tv: (id: number, s: number, e: number) => `https://apiplayer.ru/embed/tv?tmdb=${id}&season=${s}&episode=${e}`,
   },
   {
     id: 'mostream',
-    name: 'Server 9 (MoStream)',
+    name: 'Server 9 (Thor)',
     movie: (id: number) => `https://mostream.us/embed?tmdb=${id}`,
     tv: (id: number, s: number, e: number) => `https://mostream.us/embed?tmdb=${id}&s=${s}&e=${e}`,
   },
