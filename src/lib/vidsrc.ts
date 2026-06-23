@@ -76,12 +76,6 @@ const PROVIDERS: StreamProvider[] = [
     movie: (id: number) => `https://mostream.us/embed?tmdb=${id}`,
     tv: (id: number, s: number, e: number) => `https://mostream.us/embed?tmdb=${id}&s=${s}&e=${e}`,
   },
-  {
-    id: 'streamrip',
-    name: 'Server 10 (Streamrip)',
-    movie: (id: number) => `https://streamrip-website-production.up.railway.app/movie/${id}`,
-    tv: (id: number, s: number, e: number) => `https://streamrip-website-production.up.railway.app/tv/${id}/${s}/${e}`,
-  },
 ];
 
 export const getProviders = (): StreamProvider[] => PROVIDERS;
