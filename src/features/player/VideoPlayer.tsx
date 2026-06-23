@@ -158,8 +158,8 @@ const VideoPlayer = ({
         </div>
 
         <div className="flex items-center gap-2">
-          <Select 
-            value={String(providerIdx)} 
+          <Select
+            value={String(providerIdx)}
             onValueChange={(v) => {
               const idx = Number(v);
               setProviderIdx(idx);
@@ -168,15 +168,13 @@ const VideoPlayer = ({
               } catch {}
             }}
           >
-            <SelectTrigger className="h-8 w-[160px] text-xs bg-background/50 border-border/60">
-              <div className="flex items-center gap-2">
-                <Server className="w-3.5 h-3.5" />
-                <SelectValue placeholder="Server" />
-              </div>
+            <SelectTrigger className="h-8 gap-1.5 w-[155px] text-xs bg-background border-border/60">
+              <Server className="w-3 h-3 shrink-0" />
+              <SelectValue placeholder="Select server" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="z-[9999]" position="popper" sideOffset={8}>
               {providers.map((p, i) => (
-                <SelectItem key={p.id} value={String(i)} className="text-xs">
+                <SelectItem key={p.id} value={String(i)} className="text-xs cursor-pointer">
                   {p.name}
                 </SelectItem>
               ))}
@@ -221,6 +219,7 @@ const VideoPlayer = ({
           allowFullScreen
           webkitallowfullscreen="true"
           mozallowfullscreen="true"
+          sandbox="allow-scripts allow-same-origin allow-presentation allow-forms allow-popups allow-popups-to-escape-sandbox"
         />
       </div>
     </div>
