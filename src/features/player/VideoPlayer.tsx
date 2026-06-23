@@ -219,7 +219,6 @@ const VideoPlayer = ({
           allowFullScreen
           webkitallowfullscreen="true"
           mozallowfullscreen="true"
-          sandbox="allow-scripts allow-same-origin allow-presentation allow-forms allow-popups allow-popups-to-escape-sandbox"
         />
       </div>
     </div>
