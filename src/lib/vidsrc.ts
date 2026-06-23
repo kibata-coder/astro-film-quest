@@ -43,14 +43,14 @@ const PROVIDERS: StreamProvider[] = [
   {
     id: 'vidsrc-wtf',
     name: 'Server 4 (VidSrc WTF)',
-    movie: (id: number) => `https://vidsrc.wtf/embed/movie?tmdb=${id}`,
-    tv: (id: number, s: number, e: number) => `https://vidsrc.wtf/embed/tv?tmdb=${id}&season=${s}&episode=${e}`,
+    movie: (id: number) => `https://vidsrc.wtf/1/movie/${id}`,
+    tv: (id: number, s: number, e: number) => `https://vidsrc.wtf/1/tv/${id}/${s}/${e}`,
   },
   {
-    id: 'autoembed',
-    name: 'Server 5 (Autoembed)',
-    movie: (id: number) => `https://autoembed.cc/embed/player.php?id=${id}`,
-    tv: (id: number, s: number, e: number) => `https://autoembed.cc/embed/player.php?id=${id}&s=${s}&e=${e}`,
+    id: '2embed',
+    name: 'Server 5 (2Embed)',
+    movie: (id: number) => `https://www.2embed.cc/embed/${id}`,
+    tv: (id: number, s: number, e: number) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`,
   },
   {
     id: 'embedmaster',
