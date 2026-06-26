@@ -85,7 +85,48 @@ export interface Collection {
   parts: Movie[];
 }
 
-export interface Cast {
+export interface Person {
+  id: number;
+  name: string;
+  biography?: string;
+  birthday?: string | null;
+  deathday?: string | null;
+  place_of_birth?: string | null;
+  profile_path: string | null;
+  known_for_department?: string;
+  popularity?: number;
+  also_known_as?: string[];
+}
+
+export interface PersonCredit {
+  id: number;
+  media_type: 'movie' | 'tv';
+  title?: string;
+  name?: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+  release_date?: string;
+  first_air_date?: string;
+  vote_average: number;
+  vote_count: number;
+  overview?: string;
+  popularity?: number;
+  character?: string;
+  job?: string;
+  department?: string;
+  credit_id: string;
+}
+
+export interface PersonSearchResult {
+  id: number;
+  name: string;
+  profile_path: string | null;
+  known_for_department?: string;
+  known_for?: Array<{ title?: string; name?: string; media_type: string }>;
+  popularity?: number;
+}
+
+
   id: number;
   name: string;
   character: string;
