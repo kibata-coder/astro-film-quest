@@ -61,7 +61,7 @@ const Index = () => {
                       >
                         <div className="aspect-square rounded-full overflow-hidden bg-muted">
                           {p.profile_path ? (
-                            <img src={getImageUrl(p.profile_path, 'w185')} alt={p.name} className="h-full w-full object-cover group-hover:scale-105 transition-transform" loading="lazy" />
+                            <img src={getImageUrl(p.profile_path, 'w300')} alt={p.name} className="h-full w-full object-cover group-hover:scale-105 transition-transform" loading="lazy" />
                           ) : (
                             <div className="h-full w-full flex items-center justify-center text-muted-foreground"><Users className="h-8 w-8" /></div>
                           )}
