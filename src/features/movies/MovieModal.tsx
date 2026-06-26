@@ -67,6 +67,7 @@ const getPreferredTrailer = (videos: Video[]) =>
 
 const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModalProps) => {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const [details, setDetails] = useState<Movie | null>(null);
   const [cast, setCast] = useState<Cast[]>([]);
   const [trailer, setTrailer] = useState<Video | null>(null);
