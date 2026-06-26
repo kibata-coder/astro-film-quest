@@ -9,13 +9,17 @@ import {
   getEnglishTVShows,
   searchMovies,
   searchTVShows,
+  searchPeople,
   getAnimeTVShows,
   getAnimeMovies,
+  getPersonDetails,
+  getPersonCombinedCredits,
   // Genres
   getActionMovies, getAdventureMovies, getComedyMovies, getDramaMovies, 
   getHorrorMovies, getSciFiMovies, getFantasyMovies, getRomanceMovies, 
   getThrillerMovies, getWesternMovies, getCrimeMovies, getWarMovies 
 } from '@/lib/tmdb';
+
 
 // --- Movies Hooks ---
 
