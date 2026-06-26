@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { X, Play, Check, Plus, Volume2, VolumeX } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
@@ -66,6 +67,7 @@ const getPreferredTrailer = (videos: Video[]) =>
 
 const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModalProps) => {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const [details, setDetails] = useState<Movie | null>(null);
   const [cast, setCast] = useState<Cast[]>([]);
   const [trailer, setTrailer] = useState<Video | null>(null);
@@ -283,7 +285,20 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
                 {cast.length > 0 && (
                   <div>
                     <span className="text-muted-foreground text-xs">Cast: </span>
-                    <span className="text-xs">{cast.map((c) => c.name).join(', ')}</span>
+                    <span className="text-xs">
+                      {cast.map((c, i) => (
+                        <span key={c.id}>
+                          <button
+                            type="button"
+                            onClick={() => { onClose(); navigate(`/person/${c.id}`); }}
+                            className="hover:text-primary hover:underline focus:outline-none focus:text-primary"
+                          >
+                            {c.name}
+                          </button>
+                          {i < cast.length - 1 ? ', ' : ''}
+                        </span>
+                      ))}
+                    </span>
                   </div>
                 )}
                 {details?.genres && details.genres.length > 0 && (
