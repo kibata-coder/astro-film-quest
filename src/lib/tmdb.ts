@@ -362,3 +362,15 @@ export const getTVShowRecommendations = async (tvId: number) => {
     return callTMDB<TVShow>(`/tv/${tvId}/recommendations`);
   }
 };
+
+// --- PEOPLE ---
+
+export const getPersonDetails = (personId: number) =>
+  callTMDB<Person>(`/person/${personId}`);
+
+export const getPersonCombinedCredits = (personId: number) =>
+  callTMDB<{ cast: PersonCredit[]; crew: PersonCredit[] }>(`/person/${personId}/combined_credits`);
+
+export const searchPeople = (query: string, page = 1, signal?: AbortSignal) =>
+  callTMDB<PersonSearchResult>('/search/person', { query, page }, signal);
+
