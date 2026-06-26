@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useSearchMedia, useTrendingMovies } from '@/hooks/use-media';
 import { useUserPreferences } from '@/hooks/use-user-preferences';
@@ -11,7 +12,8 @@ import ScrollableSection from '@/components/ScrollableSection';
 import MediaCard from '@/components/MediaCard';
 import SectionErrorBoundary from '@/components/SectionErrorBoundary';
 import ForYouSection from '@/components/ForYouSection';
-import { Tv } from 'lucide-react';
+import { Tv, Users } from 'lucide-react';
+import { getImageUrl } from '@/lib/tmdb';
 import { useMedia } from '@/features/shared';
 import { useVideoPlayer } from '@/features/player';
 import { useAuth } from '@/features/auth';
