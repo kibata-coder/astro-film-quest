@@ -25,6 +25,7 @@ const ALLOWED_ENDPOINTS = [
   '/trending/tv/week',
   '/search/movie',
   '/search/tv',
+  '/search/person',
   '/discover/movie',
   '/discover/tv',
 ];
@@ -44,6 +45,8 @@ const ALLOWED_ENDPOINT_PATTERNS = [
   /^\/tv\/\d+\/season\/\d+$/,
   /^\/tv\/\d+\/season\/\d+\/episode\/\d+$/,
   /^\/collection\/\d+$/,
+  /^\/person\/\d+$/,
+  /^\/person\/\d+\/combined_credits$/,
 ];
 
 // In-memory cache per isolate. Survives between requests on warm invocations.

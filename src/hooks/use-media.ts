@@ -9,13 +9,17 @@ import {
   getEnglishTVShows,
   searchMovies,
   searchTVShows,
+  searchPeople,
   getAnimeTVShows,
   getAnimeMovies,
+  getPersonDetails,
+  getPersonCombinedCredits,
   // Genres
   getActionMovies, getAdventureMovies, getComedyMovies, getDramaMovies, 
   getHorrorMovies, getSciFiMovies, getFantasyMovies, getRomanceMovies, 
   getThrillerMovies, getWesternMovies, getCrimeMovies, getWarMovies 
 } from '@/lib/tmdb';
+
 
 // --- Movies Hooks ---
 
@@ -115,19 +119,40 @@ export const useSearchMedia = (query: string) => {
   return useQuery({
     queryKey: ['search', query],
     queryFn: async ({ signal }) => {
-      if (!query) return { movies: [], tvShows: [] };
+      if (!query) return { movies: [], tvShows: [], people: [] };
 
       const results = await Promise.allSettled([
         searchMovies(query, 1, signal),
         searchTVShows(query, 1, signal),
+        searchPeople(query, 1, signal),
       ]);
 
       const movies = results[0].status === 'fulfilled' ? results[0].value.results || [] : [];
       const tvShows = results[1].status === 'fulfilled' ? results[1].value.results || [] : [];
+      const people = results[2].status === 'fulfilled' ? results[2].value.results || [] : [];
 
-      return { movies, tvShows };
+      return { movies, tvShows, people };
     },
     enabled: !!query,
     staleTime: 1000 * 60 * 1,
   });
 };
+
+// --- People Hooks ---
+
+export const usePerson = (personId: number | null) =>
+  useQuery({
+    queryKey: ['person', personId],
+    queryFn: () => getPersonDetails(personId as number),
+    enabled: !!personId,
+    staleTime: 1000 * 60 * 60,
+  });
+
+export const usePersonCredits = (personId: number | null) =>
+  useQuery({
+    queryKey: ['person', personId, 'credits'],
+    queryFn: () => getPersonCombinedCredits(personId as number),
+    enabled: !!personId,
+    staleTime: 1000 * 60 * 60,
+  });
+
