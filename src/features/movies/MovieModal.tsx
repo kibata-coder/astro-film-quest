@@ -23,6 +23,7 @@ import {
 } from '@/lib/tmdb';
 import { checkIsBookmarked, toggleBookmark } from '@/lib/bookmarks';
 import { isAnimeMedia } from '@/lib/anime';
+import { useMedia } from '@/features/shared';
 import { getProviders } from '@/lib/vidsrc';
 import { Badge } from '@/components/ui/badge';
 import LoadingSpinner from '@/components/LoadingSpinner';
