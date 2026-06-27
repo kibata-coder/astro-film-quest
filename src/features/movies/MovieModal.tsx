@@ -292,7 +292,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
                         <span key={c.id}>
                           <button
                             type="button"
-                            onClick={() => { onClose(); navigate(`/person/${c.id}`); }}
+                            onClick={() => { forceCloseMovieModal(); navigate(`/person/${c.id}`); }}
                             className="hover:text-primary hover:underline focus:outline-none focus:text-primary"
                           >
                             {c.name}
