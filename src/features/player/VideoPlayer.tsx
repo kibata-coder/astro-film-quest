@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, ChevronLeft, ChevronRight, Server } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Server, Languages } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getMovieEmbedUrl, getTVShowEmbedUrl, getProviders } from '@/lib/vidsrc';
@@ -21,6 +21,21 @@ interface VideoPlayerProps {
 }
 
 const PROVIDER_STORAGE_KEY = 'soudflex.preferredProvider';
+const LANG_STORAGE_KEY = 'soudflex.preferredLang';
+
+const LANGUAGES = [
+  { code: 'en', label: 'English' },
+  { code: 'es', label: 'Spanish' },
+  { code: 'fr', label: 'French' },
+  { code: 'de', label: 'German' },
+  { code: 'it', label: 'Italian' },
+  { code: 'pt', label: 'Portuguese' },
+  { code: 'ru', label: 'Russian' },
+  { code: 'ar', label: 'Arabic' },
+  { code: 'zh', label: 'Chinese' },
+  { code: 'ja', label: 'Japanese' },
+  { code: 'ko', label: 'Korean' },
+];
 
 const VideoPlayer = ({
   isOpen,
@@ -41,6 +56,10 @@ const VideoPlayer = ({
     const stored = window.localStorage.getItem(PROVIDER_STORAGE_KEY);
     const n = stored ? parseInt(stored, 10) : 0;
     return Number.isFinite(n) && n >= 0 && n < providers.length ? n : 0;
+  });
+  const [dsLang, setDsLang] = useState<string>(() => {
+    if (typeof window === 'undefined') return 'en';
+    return window.localStorage.getItem(LANG_STORAGE_KEY) || 'en';
   });
   const startTimeRef = useRef<number>(0);
   const durationRef = useRef<number>(0);
@@ -135,8 +154,8 @@ const VideoPlayer = ({
 
   const embedUrl =
     mediaType === 'tv' && seasonNumber && episodeNumber
-      ? getTVShowEmbedUrl(mediaId, seasonNumber, episodeNumber, providerIdx)
-      : getMovieEmbedUrl(mediaId, providerIdx);
+      ? getTVShowEmbedUrl(mediaId, seasonNumber, episodeNumber, providerIdx, dsLang)
+      : getMovieEmbedUrl(mediaId, providerIdx, dsLang);
 
   const isTVShow = mediaType === 'tv' && seasonNumber && episodeNumber;
   const isFirstEpisode = episodeNumber === 1;
@@ -158,6 +177,30 @@ const VideoPlayer = ({
         </div>
 
         <div className="flex items-center gap-2">
+          {providers[providerIdx]?.supportsLang && (
+            <Select
+              value={dsLang}
+              onValueChange={(v) => {
+                setDsLang(v);
+                try {
+                  window.localStorage.setItem(LANG_STORAGE_KEY, v);
+                } catch {}
+              }}
+            >
+              <SelectTrigger className="h-8 gap-1.5 w-[110px] text-xs bg-background border-border/60">
+                <Languages className="w-3 h-3 shrink-0" />
+                <SelectValue placeholder="Language" />
+              </SelectTrigger>
+              <SelectContent className="z-[9999]" position="popper" sideOffset={8}>
+                {LANGUAGES.map((lang) => (
+                  <SelectItem key={lang.code} value={lang.code} className="text-xs cursor-pointer">
+                    {lang.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
           <Select
             value={String(providerIdx)}
             onValueChange={(v) => {
