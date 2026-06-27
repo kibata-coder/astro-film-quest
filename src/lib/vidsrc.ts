@@ -16,11 +16,11 @@ const PROVIDERS: StreamProvider[] = [
   {
     id: 'vidsrc',
     name: 'Server 1 (Mauiii)',
-    // Uses standard Vidsrc URL formatting
+    // Uses path-based Vidsrc URL formatting for better subtitle parsing
     movie: (id: number) => 
-      `https://vidsrc-embed.ru/embed/movie?tmdb=${id}&autoplay=1`,
+      `https://vidsrc-embed.ru/embed/movie/${id}`,
     tv: (id: number, s: number, e: number) => 
-      `https://vidsrc-embed.ru/embed/tv?tmdb=${id}&season=${s}&episode=${e}&autoplay=1`,
+      `https://vidsrc-embed.ru/embed/tv/${id}/${s}-${e}`,
   },
   {
     id: 'superembed',
