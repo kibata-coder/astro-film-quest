@@ -27,9 +27,9 @@ const PROVIDERS: StreamProvider[] = [
     // Official Vidsrc embed API — documented at vidsrc-embed.ru
     // ds_lang selects the default subtitle/caption track on load
     movie: (id, dsLang) =>
-      withLang(`https://vidsrc-embed.ru/embed/movie?tmdb=${id}`, dsLang),
+      withLang(`https://vidsrc-embed.ru/embed/movie?tmdb=${id}&autoplay=1`, dsLang),
     tv: (id, s, e, dsLang) =>
-      withLang(`https://vidsrc-embed.ru/embed/tv?tmdb=${id}&season=${s}&episode=${e}`, dsLang),
+      withLang(`https://vidsrc-embed.ru/embed/tv?tmdb=${id}&season=${s}&episode=${e}&autoplay=1`, dsLang),
   },
   {
     id: 'superembed',

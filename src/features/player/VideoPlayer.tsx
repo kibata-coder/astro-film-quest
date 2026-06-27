@@ -255,13 +255,14 @@ const VideoPlayer = ({
 
       <div className="relative flex-1 bg-black">
         <iframe
-          key={`${mediaId}-${seasonNumber ?? 'm'}-${episodeNumber ?? 'm'}-${providerIdx}`}
+          key={`${mediaId}-${seasonNumber ?? 'm'}-${episodeNumber ?? 'm'}-${providerIdx}-${dsLang}`}
           src={embedUrl}
           className="h-full w-full border-0"
           allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope"
           allowFullScreen
+          webkitallowfullscreen="true"
+          mozallowfullscreen="true"
         />
-
       </div>
     </div>
   );
