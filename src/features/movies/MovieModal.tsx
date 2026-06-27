@@ -23,6 +23,7 @@ import {
 } from '@/lib/tmdb';
 import { checkIsBookmarked, toggleBookmark } from '@/lib/bookmarks';
 import { isAnimeMedia } from '@/lib/anime';
+import { useMedia } from '@/features/shared';
 import { getProviders } from '@/lib/vidsrc';
 import { Badge } from '@/components/ui/badge';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -68,6 +69,7 @@ const getPreferredTrailer = (videos: Video[]) =>
 const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModalProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const { forceCloseMovieModal } = useMedia();
   const [details, setDetails] = useState<Movie | null>(null);
   const [cast, setCast] = useState<Cast[]>([]);
   const [trailer, setTrailer] = useState<Video | null>(null);
@@ -290,7 +292,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
                         <span key={c.id}>
                           <button
                             type="button"
-                            onClick={() => { onClose(); navigate(`/person/${c.id}`); }}
+                            onClick={() => { forceCloseMovieModal(); navigate(`/person/${c.id}`); }}
                             className="hover:text-primary hover:underline focus:outline-none focus:text-primary"
                           >
                             {c.name}
