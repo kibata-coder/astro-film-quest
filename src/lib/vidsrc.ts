@@ -33,7 +33,7 @@ const PROVIDERS: StreamProvider[] = [
   },
   {
     id: 'vidfun',
-    name: 'Server 3 (Hobbit)',
+    name: 'Server 3 (Hobbit) (recommended)',
     // Uses Vidnest's clean URL path format (no query parameters needed)
     movie: (id: number) => 
       `https://vidnest.fun/movie/${id}`,
