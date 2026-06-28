@@ -15,7 +15,7 @@ export interface StreamProvider {
 const PROVIDERS: StreamProvider[] = [
   {
     id: 'vidlink',
-    name: 'Server 1 (VidLink)',
+    name: 'Server 1 (Captain Jack Sparrow) (my OG server)',
     // VidLink is incredibly fast, has 4k, and flawless built-in subtitles
     movie: (id: number) => `https://vidlink.pro/movie/${id}?autoplay=true`,
     tv: (id: number, s: number, e: number) => `https://vidlink.pro/tv/${id}/${s}/${e}?autoplay=true`,
@@ -38,7 +38,7 @@ const PROVIDERS: StreamProvider[] = [
   },
   {
     id: 'vidfun',
-    name: 'Server 4 (Hobbit) (recommended)',
+    name: 'Server 4 (Hobbit)',
     movie: (id: number) => 
       `https://vidnest.fun/movie/${id}`,
     tv: (id: number, s: number, e: number) => 
