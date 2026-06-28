@@ -15,14 +15,14 @@ export interface StreamProvider {
 const PROVIDERS: StreamProvider[] = [
   {
     id: 'vidlink',
-    name: 'Server 1 (Captain Jack Sparrow) (my OG server)',
+    name: 'Server 1 (Cpt Jack Sparrow) (the OG server)',
     // VidLink is incredibly fast, has 4k, and flawless built-in subtitles
     movie: (id: number) => `https://vidlink.pro/movie/${id}?autoplay=true`,
     tv: (id: number, s: number, e: number) => `https://vidlink.pro/tv/${id}/${s}/${e}?autoplay=true`,
   },
   {
     id: 'vidsrc',
-    name: 'Server 2 (Mauiii)',
+    name: 'Server 2 (Mauiii)(fixing subtitles issue)',
     movie: (id: number) =>
       `https://vidsrcme.su/embed/movie?tmdb=${id}&autoplay=1`,
     tv: (id: number, s: number, e: number) =>
