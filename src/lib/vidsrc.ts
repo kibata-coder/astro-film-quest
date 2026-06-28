@@ -38,7 +38,7 @@ const PROVIDERS: StreamProvider[] = [
   },
   {
     id: 'vidfun',
-    name: 'Server 4 (Hobbit)',
+    name: 'Server 4 (Hobbit)(recommended after jack sparrow)',
     movie: (id: number) => 
       `https://vidnest.fun/movie/${id}`,
     tv: (id: number, s: number, e: number) => 
