@@ -48,7 +48,7 @@ const SectionSkeleton = () => (
 );
 
 // Inner component that actually calls the hook with enabled flag
-const DynamicSectionInner = ({ title, icon, useDataHook, onItemClick, enabled }: DynamicSectionProps & { enabled: boolean }) => {
+const DynamicSectionInner = ({ title, icon, useDataHook, onItemClick, enabled, isTrending }: DynamicSectionProps & { enabled: boolean }) => {
   const { data, isLoading } = useDataHook(enabled);
   const items = data?.results?.slice(0, 15) || [];
 
@@ -57,19 +57,20 @@ const DynamicSectionInner = ({ title, icon, useDataHook, onItemClick, enabled }:
 
   return (
     <ScrollableSection title={title} icon={icon}>
-      {items.map((item: any) => (
+      {items.map((item: any, index: number) => (
         <MediaCard 
           key={item.id} 
           item={item} 
           onClick={() => onItemClick?.(item)} 
+          rank={isTrending && index < 10 ? index + 1 : undefined}
         />
       ))}
     </ScrollableSection>
   );
 };
 
-const DynamicSection = ({ title, icon, useDataHook, onItemClick }: DynamicSectionProps) => (
-  <DynamicSectionInner title={title} icon={icon} useDataHook={useDataHook} onItemClick={onItemClick} enabled={true} />
+const DynamicSection = ({ title, icon, useDataHook, onItemClick, isTrending }: DynamicSectionProps) => (
+  <DynamicSectionInner title={title} icon={icon} useDataHook={useDataHook} onItemClick={onItemClick} enabled={true} isTrending={isTrending} />
 );
 
 // --- Exported Sections ---

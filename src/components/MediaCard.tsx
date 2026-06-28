@@ -10,11 +10,12 @@ interface MediaCardProps {
   onClick: (item: MediaItem) => void;
   showBadge?: boolean;
   className?: string;
+  rank?: number;
 }
 
 const isMovie = (item: MediaItem): item is Movie => 'title' in item;
 
-const MediaCard = memo(({ item, onClick, showBadge = true, className }: MediaCardProps) => {
+const MediaCard = memo(({ item, onClick, showBadge = true, className, rank }: MediaCardProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
 
@@ -28,12 +29,12 @@ const MediaCard = memo(({ item, onClick, showBadge = true, className }: MediaCar
     <div
       onClick={() => onClick(item)}
       className={cn(
-        'flex-shrink-0 w-[130px] sm:w-40 md:w-48 cursor-pointer group',
+        'flex-shrink-0 w-[130px] sm:w-40 md:w-48 cursor-pointer group relative',
         className,
       )}
     >
       {/* aspect-[2/3] reserves space → no CLS even before the image loads */}
-      <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-muted">
+      <div className={cn("relative aspect-[2/3] rounded-lg overflow-hidden bg-muted transition-transform duration-300 group-hover:scale-105", rank ? "ml-6 sm:ml-8" : "")}>
         {!imageLoaded && !imageError && (
           <div className="absolute inset-0 bg-muted animate-pulse" />
         )}
@@ -93,11 +94,32 @@ const MediaCard = memo(({ item, onClick, showBadge = true, className }: MediaCar
         </div>
       </div>
 
-      <div className="mt-3">
-        <p className="text-sm md:text-base font-medium truncate group-hover:text-primary transition-colors">
+      {rank && (
+        <span 
+          className="absolute left-[-15px] sm:left-[-20px] bottom-[-5px] sm:bottom-[-10px] text-[100px] sm:text-[140px] font-black leading-none tracking-tighter z-10 pointer-events-none select-none text-background" 
+          style={{ 
+            WebkitTextStroke: '3px hsl(var(--foreground))',
+            textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
+          }}
+        >
+          {rank}
+        </span>
+      )}
+
+      {/* Info section below poster */}
+      <div className={cn("mt-2 space-y-1", rank ? "ml-6 sm:ml-8" : "")}>
+        <h3 className="font-semibold text-sm leading-tight line-clamp-1 group-hover:text-primary transition-colors">
           {title}
-        </p>
-        <p className="text-xs md:text-sm text-muted-foreground">{year}</p>
+        </h3>
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span>{year}</span>
+          {rating > 0 && (
+            <div className="flex items-center gap-1 bg-black/40 px-1.5 py-0.5 rounded backdrop-blur-sm">
+              <Star className="w-3 h-3 fill-primary text-primary" />
+              <span>{rating.toFixed(1)}</span>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

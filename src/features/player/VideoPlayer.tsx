@@ -233,6 +233,7 @@ const VideoPlayer = ({
   const isTVShow = mediaType === 'tv' && seasonNumber && episodeNumber;
   const isFirstEpisode = episodeNumber === 1;
   const isLastEpisode = episodeNumber === totalEpisodes;
+  const showNextEpisodeButton = isTVShow && totalEpisodes && !isLastEpisode && onNextEpisode;
 
   if (!isOpen) return null;
 
@@ -272,8 +273,8 @@ const VideoPlayer = ({
             </SelectContent>
           </Select>
 
-          {/* Subtitle button — only for Server 1 which supports sub_url */}
-          {providerIdx === 0 && (
+          {/* Subtitle button — only for Server 2 (vidsrcme) which supports sub_url */}
+          {providers[providerIdx]?.id === 'vidsrc' && (
             <Button
               variant={activeSubUrl ? 'secondary' : 'ghost'}
               size="icon"
@@ -307,7 +308,7 @@ const VideoPlayer = ({
       </div>
 
       {/* ── Video area ──────────────────────────────────────────────────────── */}
-      <div className="relative flex-1 bg-black">
+      <div className="relative flex-1 bg-black group">
         <iframe
           key={`${mediaId}-${seasonNumber ?? 'm'}-${episodeNumber ?? 'm'}-${providerIdx}-${activeSubUrl ?? 'nosub'}`}
           src={embedUrl}
@@ -315,6 +316,23 @@ const VideoPlayer = ({
           allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope"
           allowFullScreen
         />
+
+        {/* ── Next Episode Overlay ────────────────────────────────────────── */}
+        {showNextEpisodeButton && (
+          <div className="absolute bottom-[80px] sm:bottom-[100px] left-4 sm:left-8 z-10 opacity-80 hover:opacity-100 transition-opacity duration-300">
+            <Button 
+              variant="secondary" 
+              onClick={onNextEpisode}
+              className="bg-black/60 hover:bg-black/80 text-white border border-white/20 backdrop-blur-md shadow-2xl gap-2 font-medium px-4 py-6 sm:px-6 transition-all duration-300 hover:scale-105"
+            >
+              <div className="flex flex-col items-start text-left mr-2">
+                <span className="text-[10px] text-white/70 uppercase tracking-wider font-semibold">Up Next</span>
+                <span className="text-sm">Episode {episodeNumber! + 1}</span>
+              </div>
+              <ChevronRight className="w-5 h-5" />
+            </Button>
+          </div>
+        )}
 
         {/* ── Subtitle panel (slides in from the right) ─────────────────────── */}
         {showSubPanel && (
