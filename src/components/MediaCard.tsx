@@ -29,12 +29,28 @@ const MediaCard = memo(({ item, onClick, showBadge = true, className, rank }: Me
     <div
       onClick={() => onClick(item)}
       className={cn(
-        'flex-shrink-0 w-[130px] sm:w-40 md:w-48 cursor-pointer group relative',
+        'flex-shrink-0 cursor-pointer group relative flex flex-col',
+        rank ? 'w-[180px] sm:w-[220px] md:w-[260px]' : 'w-[130px] sm:w-40 md:w-48',
         className,
       )}
     >
+      {rank && (
+        <span 
+          className="absolute left-[-10px] sm:left-[-15px] bottom-[20px] sm:bottom-[25px] text-[150px] sm:text-[200px] md:text-[250px] font-black leading-none tracking-tighter pointer-events-none select-none text-background z-0" 
+          style={{ 
+            WebkitTextStroke: '3px #595959',
+            fontFamily: '"Arial Black", "Impact", sans-serif'
+          }}
+        >
+          {rank}
+        </span>
+      )}
+
       {/* aspect-[2/3] reserves space → no CLS even before the image loads */}
-      <div className={cn("relative aspect-[2/3] rounded-lg overflow-hidden bg-muted transition-transform duration-300 group-hover:scale-105", rank ? "ml-6 sm:ml-8" : "")}>
+      <div className={cn(
+        "relative rounded-lg overflow-hidden bg-muted transition-transform duration-300 group-hover:scale-105 z-10 shadow-2xl aspect-[2/3]", 
+        rank ? "w-[130px] sm:w-40 md:w-48 ml-auto" : "w-full"
+      )}>
         {!imageLoaded && !imageError && (
           <div className="absolute inset-0 bg-muted animate-pulse" />
         )}
@@ -58,7 +74,7 @@ const MediaCard = memo(({ item, onClick, showBadge = true, className, rank }: Me
             )}
           />
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+          <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-background/50">
             {isMovie(item) ? (
               <Film className="w-10 h-10 text-muted-foreground" />
             ) : (
@@ -94,20 +110,8 @@ const MediaCard = memo(({ item, onClick, showBadge = true, className, rank }: Me
         </div>
       </div>
 
-      {rank && (
-        <span 
-          className="absolute left-[-15px] sm:left-[-20px] bottom-[-5px] sm:bottom-[-10px] text-[100px] sm:text-[140px] font-black leading-none tracking-tighter z-10 pointer-events-none select-none text-background" 
-          style={{ 
-            WebkitTextStroke: '3px hsl(var(--foreground))',
-            textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
-          }}
-        >
-          {rank}
-        </span>
-      )}
-
       {/* Info section below poster */}
-      <div className={cn("mt-2 space-y-1", rank ? "ml-6 sm:ml-8" : "")}>
+      <div className={cn("mt-2 space-y-1", rank ? "w-[130px] sm:w-40 md:w-48 ml-auto" : "")}>
         <h3 className="font-semibold text-sm leading-tight line-clamp-1 group-hover:text-primary transition-colors">
           {title}
         </h3>
