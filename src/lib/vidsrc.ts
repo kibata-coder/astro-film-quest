@@ -106,12 +106,12 @@ const PROVIDERS: StreamProvider[] = [
     tv: (id: number, s: number, e: number) => `https://vidapi.xyz/embed/tv/${id}/${s}/${e}`,
   },
   {
-    id: 'superembed',
+    id: 'vidking',
     name: 'Server 15 (Old Moana)',
     movie: (id: number) => 
-      `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1`,
+      `https://www.vidking.net/embed/movie/${id}`,
     tv: (id: number, s: number, e: number) => 
-      `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1&s=${s}&e=${e}`,
+      `https://www.vidking.net/embed/tv/${id}/${s}/${e}`,
   },
 ];
 
