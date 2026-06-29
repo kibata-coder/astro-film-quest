@@ -401,7 +401,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
 
       {/* Server Selection Interception Popup */}
       <Dialog open={showServerDialog} onOpenChange={setShowServerDialog}>
-        <DialogContent className="sm:max-w-3xl bg-background/80 backdrop-blur-xl border-white/10 z-[200] shadow-2xl overflow-hidden p-0">
+        <DialogContent className="sm:max-w-3xl bg-slate-950/70 backdrop-blur-xl border-white/10 z-[200] shadow-2xl overflow-hidden p-0">
           <div className="p-6 space-y-5">
             <div className="space-y-2 text-center">
               <h3 className="text-2xl font-semibold tracking-tight text-foreground">Select a Server</h3>
