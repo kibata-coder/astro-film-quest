@@ -401,7 +401,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
 
       {/* Server Selection Interception Popup */}
       <Dialog open={showServerDialog} onOpenChange={setShowServerDialog}>
-        <DialogContent className="sm:max-w-md bg-background/80 backdrop-blur-xl border-white/10 z-[200] shadow-2xl overflow-hidden p-0">
+        <DialogContent className="sm:max-w-3xl bg-background/80 backdrop-blur-xl border-white/10 z-[200] shadow-2xl overflow-hidden p-0">
           <div className="p-6 space-y-5">
             <div className="space-y-2 text-center">
               <h3 className="text-2xl font-semibold tracking-tight text-foreground">Select a Server</h3>
@@ -410,7 +410,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
               </p>
             </div>
             
-            <div className="flex flex-col gap-3 max-h-[55vh] overflow-y-auto pr-2 pb-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[55vh] overflow-y-auto pr-2 pb-2">
               {streamProviders.map((provider, index) => (
                 <button
                   key={provider.id}
