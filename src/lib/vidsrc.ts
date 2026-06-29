@@ -121,6 +121,30 @@ const PROVIDERS: StreamProvider[] = [
     tv: (id: number, s: number, e: number) => 
       `https://nhdapi.com/embed/tv/${id}/${s}/${e}`,
   },
+  {
+    id: 'vidlink2',
+    name: 'Server 17 (Winter Soldier)',
+    movie: (id: number) => `https://vidlink.pro/movie/${id}?player=jw`,
+    tv: (id: number, s: number, e: number) => `https://vidlink.pro/tv/${id}/${s}/${e}?player=jw`,
+  },
+  {
+    id: 'embedsu',
+    name: 'Server 18 (Falcon)',
+    movie: (id: number) => `https://embed.su/embed/movie/${id}`,
+    tv: (id: number, s: number, e: number) => `https://embed.su/embed/tv/${id}/${s}/${e}`,
+  },
+  {
+    id: 'vidking',
+    name: 'Server 19 (War Machine)',
+    movie: (id: number) => `https://www.vidking.net/embed/movie/${id}`,
+    tv: (id: number, s: number, e: number) => `https://www.vidking.net/embed/tv/${id}/${s}/${e}`,
+  },
+  {
+    id: 'vidmoly',
+    name: 'Server 20 (Vision)',
+    movie: (id: number) => `https://vidmoly.to/embed/movie/${id}`,
+    tv: (id: number, s: number, e: number) => `https://vidmoly.to/embed/tv/${id}/${s}/${e}`,
+  },
 ];
 
 export const getProviders = (): StreamProvider[] => PROVIDERS;
