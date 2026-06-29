@@ -401,24 +401,35 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
 
       {/* Server Selection Interception Popup */}
       <Dialog open={showServerDialog} onOpenChange={setShowServerDialog}>
-        <DialogContent className="sm:max-w-md bg-background border-border z-[200]">
-          <div className="p-2 space-y-5">
-            <h3 className="text-xl font-bold text-center text-foreground">Select a Server</h3>
-            <p className="text-sm text-muted-foreground text-center">
-              Choose a streaming server to start playing. If the video ever buffers or doesn't load, you can always try switching servers!
-            </p>
-            <div className="grid gap-3 max-h-[50vh] overflow-y-auto pr-2">
+        <DialogContent className="sm:max-w-2xl bg-background/80 backdrop-blur-xl border-white/10 z-[200] shadow-2xl overflow-hidden p-0">
+          <div className="p-6 space-y-6">
+            <div className="space-y-2 text-center">
+              <h3 className="text-2xl font-semibold tracking-tight text-foreground">Select a Server</h3>
+              <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+                Choose a source to begin streaming. If one buffers, simply switch to another.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-[55vh] overflow-y-auto pr-2 pb-2">
               {streamProviders.map((provider, index) => (
-                <Button
+                <button
                   key={provider.id}
-                  variant="outline"
-                  size="lg"
-                  className="w-full justify-start text-left font-medium hover:bg-primary hover:text-primary-foreground transition-colors"
                   onClick={() => handleServerSelect(index)}
+                  className="relative flex flex-col items-center justify-center p-5 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-white/10 transition-all duration-300 group"
                 >
-                  <Play className="w-4 h-4 mr-3 opacity-70" />
-                  {provider.name}
-                </Button>
+                  <div className="mb-3 p-2.5 rounded-full bg-white/5 group-hover:bg-foreground/10 group-hover:text-foreground transition-colors">
+                    <Play className="w-5 h-5 ml-0.5 opacity-80 group-hover:opacity-100" />
+                  </div>
+                  <span className="text-sm font-medium text-foreground/80 group-hover:text-foreground transition-colors text-center line-clamp-1">
+                    {provider.name}
+                  </span>
+                  
+                  {index === 0 && (
+                    <div className="absolute top-0 right-0 px-2.5 py-1 text-[10px] uppercase font-bold tracking-wider bg-foreground/10 text-foreground rounded-bl-xl rounded-tr-xl">
+                      Recommended
+                    </div>
+                  )}
+                </button>
               ))}
             </div>
           </div>

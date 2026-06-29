@@ -260,13 +260,13 @@ const VideoPlayer = ({
               try { window.localStorage.setItem(PROVIDER_STORAGE_KEY, String(idx)); } catch {}
             }}
           >
-            <SelectTrigger className="h-8 gap-1.5 w-[155px] text-xs bg-background border-border/60">
-              <Server className="w-3 h-3 shrink-0" />
+            <SelectTrigger className="h-8 gap-1.5 w-[155px] text-xs bg-white/5 backdrop-blur-md border-white/10 hover:bg-white/10 transition-colors">
+              <Server className="w-3 h-3 shrink-0 opacity-70" />
               <SelectValue placeholder="Select server" />
             </SelectTrigger>
-            <SelectContent className="z-[9999]" position="popper" sideOffset={8}>
+            <SelectContent className="z-[9999] bg-background/95 backdrop-blur-xl border-white/10" position="popper" sideOffset={8}>
               {providers.map((p, i) => (
-                <SelectItem key={p.id} value={String(i)} className="text-xs cursor-pointer">
+                <SelectItem key={p.id} value={String(i)} className="text-xs cursor-pointer focus:bg-white/10">
                   {p.name}
                 </SelectItem>
               ))}
