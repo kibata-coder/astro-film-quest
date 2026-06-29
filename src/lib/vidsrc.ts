@@ -109,9 +109,9 @@ const PROVIDERS: StreamProvider[] = [
     id: 'superembed',
     name: 'Server 15 (Old Moana)',
     movie: (id: number) => 
-      `https://www.superembed.stream/?c=embed&video_id=${id}&tmdb=1`,
+      `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1`,
     tv: (id: number, s: number, e: number) => 
-      `https://www.superembed.stream/?c=embed&video_id=${id}&tmdb=1&s=${s}&e=${e}`,
+      `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1&s=${s}&e=${e}`,
   },
 ];
 
