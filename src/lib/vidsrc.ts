@@ -113,6 +113,14 @@ const PROVIDERS: StreamProvider[] = [
     tv: (id: number, s: number, e: number) => 
       `https://www.NontonGo.win/embed/tv/${id}/${s}/${e}`,
   },
+  {
+    id: 'nhdapi',
+    name: 'Server 16 (Captain America)',
+    movie: (id: number) => 
+      `https://nhdapi.com/embed/movie/${id}`,
+    tv: (id: number, s: number, e: number) => 
+      `https://nhdapi.com/embed/tv/${id}/${s}/${e}`,
+  },
 ];
 
 export const getProviders = (): StreamProvider[] => PROVIDERS;
