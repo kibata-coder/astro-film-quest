@@ -75,10 +75,40 @@ const PROVIDERS: StreamProvider[] = [
     tv: (id: number, s: number, e: number) => `https://apiplayer.ru/embed/tv?tmdb=${id}&season=${s}&episode=${e}`,
   },
   {
-    id: 'mostream',
+    id: 'autoembed',
     name: 'Server 10 (Thor)',
-    movie: (id: number) => `https://mostream.us/embed?tmdb=${id}`,
-    tv: (id: number, s: number, e: number) => `https://mostream.us/embed?tmdb=${id}&s=${s}&e=${e}`,
+    movie: (id: number) => `https://player.autoembed.cc/embed/movie/${id}`,
+    tv: (id: number, s: number, e: number) => `https://player.autoembed.cc/embed/tv/${id}/${s}/${e}`,
+  },
+  {
+    id: 'xpass',
+    name: 'Server 11 (Hulk)',
+    movie: (id: number) => `https://play.xpass.top/embed/movie/${id}`,
+    tv: (id: number, s: number, e: number) => `https://play.xpass.top/embed/tv/${id}/${s}/${e}`,
+  },
+  {
+    id: 'videasy',
+    name: 'Server 12 (Groot)',
+    movie: (id: number) => `https://player.videasy.net/movie/${id}`,
+    tv: (id: number, s: number, e: number) => `https://player.videasy.net/tv/${id}/${s}/${e}`,
+  },
+  {
+    id: 'spencer',
+    name: 'Server 13 (Thanos)',
+    movie: (id: number) => `https://spencerdevs.xyz/movie/${id}`,
+    tv: (id: number, s: number, e: number) => `https://spencerdevs.xyz/tv/${id}/${s}/${e}`,
+  },
+  {
+    id: 'vidrock',
+    name: 'Server 14 (Loki)',
+    movie: (id: number) => `https://vidrock.ru/embed/movie/${id}`,
+    tv: (id: number, s: number, e: number) => `https://vidrock.ru/embed/tv/${id}/${s}/${e}`,
+  },
+  {
+    id: 'vidapi',
+    name: 'Server 15 (Ant-Man)',
+    movie: (id: number) => `https://vidapi.xyz/embed/movie/${id}`,
+    tv: (id: number, s: number, e: number) => `https://vidapi.xyz/embed/tv/${id}/${s}/${e}`,
   },
 ];
 
