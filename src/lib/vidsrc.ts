@@ -134,16 +134,16 @@ const PROVIDERS: StreamProvider[] = [
     tv: (id: number, s: number, e: number) => `https://vidsrc.to/embed/tv/${id}/${s}/${e}`,
   },
   {
-    id: 'vidsrcin',
+    id: 'streamflix',
     name: 'Server 19 (Rocket)',
-    movie: (id: number) => `https://vidsrc.in/embed/movie/${id}`,
-    tv: (id: number, s: number, e: number) => `https://vidsrc.in/embed/tv/${id}/${s}/${e}`,
+    movie: (id: number) => `https://streamflix.to/embed/movie/${id}`,
+    tv: (id: number, s: number, e: number) => `https://streamflix.to/embed/tv/${id}/${s}/${e}`,
   },
   {
-    id: 'autoembedco',
+    id: '2embed',
     name: 'Server 20 (Drax)',
-    movie: (id: number) => `https://player.autoembed.co/embed/movie/${id}`,
-    tv: (id: number, s: number, e: number) => `https://player.autoembed.co/embed/tv/${id}/${s}/${e}`,
+    movie: (id: number) => `https://www.2embed.cc/embed/${id}`,
+    tv: (id: number, s: number, e: number) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`,
   },
 ];
 
