@@ -124,6 +124,24 @@ const VideoPlayer = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, onClose, mediaId, mediaType, title, seasonNumber, episodeNumber]);
 
+  // ── VidZee progress sync ────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!isOpen) return;
+    const onMessage = (event: MessageEvent) => {
+      if (event.origin !== 'https://player.vidzee.wtf') return;
+      if (event.data?.type === 'MEDIA_DATA') {
+        const mediaData = event.data.data;
+        try {
+          window.localStorage.setItem('vidZeeProgress', JSON.stringify(mediaData));
+        } catch (e) {
+          console.error('[vidzee]', e);
+        }
+      }
+    };
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, [isOpen]);
+
   // ── Reset subtitle state when media changes ─────────────────────────────────
   useEffect(() => {
     setActiveSubUrl(null);

@@ -140,10 +140,10 @@ const PROVIDERS: StreamProvider[] = [
     tv: (id: number, s: number, e: number) => `https://streamflix.to/embed/tv/${id}/${s}/${e}`,
   },
   {
-    id: '2embed',
+    id: 'vidzee',
     name: 'Server 20 (Drax)',
-    movie: (id: number) => `https://www.2embed.cc/embed/${id}`,
-    tv: (id: number, s: number, e: number) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`,
+    movie: (id: number) => `https://player.vidzee.wtf/embed/movie/${id}`,
+    tv: (id: number, s: number, e: number) => `https://player.vidzee.wtf/embed/tv/${id}/${s}/${e}`,
   },
 ];
 
