@@ -29,12 +29,12 @@ const PROVIDERS: StreamProvider[] = [
       `https://vidsrcme.su/embed/tv?tmdb=${id}&season=${s}&episode=${e}&autoplay=1&autonext=1`,
   },
   {
-    id: 'superembed',
+    id: 'vidapi-ru',
     name: 'Server 3 (Moana)',
     movie: (id: number) => 
-      `https://multiembed.mov/?video_id=${id}&tmdb=1`,
+      `https://vaplayer.ru/embed/movie/${id}`,
     tv: (id: number, s: number, e: number) => 
-      `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`,
+      `https://vaplayer.ru/embed/tv/${id}/${s}/${e}`,
   },
   {
     id: 'vidfun',
@@ -70,46 +70,48 @@ const PROVIDERS: StreamProvider[] = [
   },
 
   {
-    id: 'apiplayer',
-    name: 'Server 9 (Master Chifu)',
-    movie: (id: number) => `https://apiplayer.ru/embed/movie/${id}`,
-    tv: (id: number, s: number, e: number) => `https://apiplayer.ru/embed/tv/${id}/${s}/${e}`,
-  },
-  {
     id: 'autoembed',
-    name: 'Server 10 (Thor)',
+    name: 'Server 9 (Thor)',
     movie: (id: number) => `https://autoembed.co/movie/tmdb/${id}`,
     tv: (id: number, s: number, e: number) => `https://autoembed.co/tv/tmdb/${id}-${s}-${e}`,
   },
   {
     id: 'xpass',
-    name: 'Server 11 (Hulk)',
+    name: 'Server 10 (Hulk)',
     movie: (id: number) => `https://play.xpass.top/e/movie/${id}`,
     tv: (id: number, s: number, e: number) => `https://play.xpass.top/e/tv/${id}/${s}/${e}`,
   },
   {
     id: 'videasy',
-    name: 'Server 12 (Groot)',
+    name: 'Server 11 (Groot)',
     movie: (id: number) => `https://player.videasy.net/movie/${id}`,
     tv: (id: number, s: number, e: number) => `https://player.videasy.net/tv/${id}/${s}/${e}`,
   },
   {
     id: 'spencer',
-    name: 'Server 13 (Thanos)',
+    name: 'Server 12 (Thanos)',
     movie: (id: number) => `https://spencerdevs.xyz/movie/${id}`,
     tv: (id: number, s: number, e: number) => `https://spencerdevs.xyz/tv/${id}/${s}/${e}`,
   },
   {
     id: 'vidrock',
-    name: 'Server 14 (Loki)',
+    name: 'Server 13 (Loki)',
     movie: (id: number) => `https://vidrock.ru/embed/movie/${id}`,
     tv: (id: number, s: number, e: number) => `https://vidrock.ru/embed/tv/${id}/${s}/${e}`,
   },
   {
     id: 'vidapi',
-    name: 'Server 15 (Ant-Man)',
+    name: 'Server 14 (Ant-Man)',
     movie: (id: number) => `https://vidapi.xyz/embed/movie/${id}`,
     tv: (id: number, s: number, e: number) => `https://vidapi.xyz/embed/tv/${id}/${s}/${e}`,
+  },
+  {
+    id: 'superembed',
+    name: 'Server 15 (Old Moana)',
+    movie: (id: number) => 
+      `https://multiembed.mov/?video_id=${id}&tmdb=1`,
+    tv: (id: number, s: number, e: number) => 
+      `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`,
   },
 ];
 
