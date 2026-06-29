@@ -106,12 +106,12 @@ const PROVIDERS: StreamProvider[] = [
     tv: (id: number, s: number, e: number) => `https://vidapi.xyz/embed/tv/${id}/${s}/${e}`,
   },
   {
-    id: 'vidking',
+    id: 'nontongo',
     name: 'Server 15 (Old Moana)',
     movie: (id: number) => 
-      `https://www.vidking.net/embed/movie/${id}`,
+      `https://www.NontonGo.win/embed/movie/${id}`,
     tv: (id: number, s: number, e: number) => 
-      `https://www.vidking.net/embed/tv/${id}/${s}/${e}`,
+      `https://www.NontonGo.win/embed/tv/${id}/${s}/${e}`,
   },
 ];
 
