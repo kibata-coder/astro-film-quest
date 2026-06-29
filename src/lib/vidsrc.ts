@@ -101,13 +101,13 @@ const PROVIDERS: StreamProvider[] = [
   },
   {
     id: 'vidapi',
-    name: 'Server 14 (Ant-Man)',
+    name: 'Server 14 (Black panther)',
     movie: (id: number) => `https://vidapi.xyz/embed/movie/${id}`,
     tv: (id: number, s: number, e: number) => `https://vidapi.xyz/embed/tv/${id}/${s}/${e}`,
   },
   {
     id: 'nontongo',
-    name: 'Server 15 (Old Moana)',
+    name: 'Server 15 (Black Widow)',
     movie: (id: number) => 
       `https://www.NontonGo.win/embed/movie/${id}`,
     tv: (id: number, s: number, e: number) => 
@@ -115,7 +115,7 @@ const PROVIDERS: StreamProvider[] = [
   },
   {
     id: 'nhdapi',
-    name: 'Server 16 (Captain America)',
+    name: 'Server 16 (Kingslayer)',
     movie: (id: number) => 
       `https://nhdapi.com/embed/movie/${id}`,
     tv: (id: number, s: number, e: number) => 
@@ -123,25 +123,25 @@ const PROVIDERS: StreamProvider[] = [
   },
   {
     id: 'vidking',
-    name: 'Server 17 (War Machine)',
+    name: 'Server 17 (Jon Snow)',
     movie: (id: number) => `https://www.vidking.net/embed/movie/${id}`,
     tv: (id: number, s: number, e: number) => `https://www.vidking.net/embed/tv/${id}/${s}/${e}`,
   },
   {
     id: 'vidsrcto',
-    name: 'Server 18 (Groot)',
+    name: 'Server 18 (Hoddor)',
     movie: (id: number) => `https://vidsrc.to/embed/movie/${id}`,
     tv: (id: number, s: number, e: number) => `https://vidsrc.to/embed/tv/${id}/${s}/${e}`,
   },
   {
     id: 'streamflix',
-    name: 'Server 19 (Rocket)',
+    name: 'Server 19 (Mother of Dragons 🐦‍🔥)',
     movie: (id: number) => `https://streamflix.to/embed/movie/${id}`,
     tv: (id: number, s: number, e: number) => `https://streamflix.to/embed/tv/${id}/${s}/${e}`,
   },
   {
     id: 'vidzee',
-    name: 'Server 20 (Drax)',
+    name: 'Server 20 (Arya Stark)',
     movie: (id: number) => `https://player.vidzee.wtf/embed/movie/${id}`,
     tv: (id: number, s: number, e: number) => `https://player.vidzee.wtf/embed/tv/${id}/${s}/${e}`,
   },
