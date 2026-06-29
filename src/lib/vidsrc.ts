@@ -78,14 +78,14 @@ const PROVIDERS: StreamProvider[] = [
   {
     id: 'autoembed',
     name: 'Server 10 (Thor)',
-    movie: (id: number) => `https://autoembed.co/embed/movie/${id}`,
-    tv: (id: number, s: number, e: number) => `https://autoembed.co/embed/tv/${id}/${s}/${e}`,
+    movie: (id: number) => `https://autoembed.co/movie/tmdb/${id}`,
+    tv: (id: number, s: number, e: number) => `https://autoembed.co/tv/tmdb/${id}-${s}-${e}`,
   },
   {
     id: 'xpass',
     name: 'Server 11 (Hulk)',
-    movie: (id: number) => `https://play.xpass.top/movie/${id}`,
-    tv: (id: number, s: number, e: number) => `https://play.xpass.top/tv/${id}/${s}/${e}`,
+    movie: (id: number) => `https://play.xpass.top/e/movie/${id}`,
+    tv: (id: number, s: number, e: number) => `https://play.xpass.top/e/tv/${id}/${s}/${e}`,
   },
   {
     id: 'videasy',
