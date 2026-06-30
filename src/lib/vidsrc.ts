@@ -149,6 +149,14 @@ const PROVIDERS: StreamProvider[] = [
 
 export const getProviders = (): StreamProvider[] => PROVIDERS;
 
+export const getAnimeProviders = (): StreamProvider[] => [
+  {
+    id: 'naruto',
+    name: 'Server Naruto',
+    movie: () => '', // Intercepted by MegaPlayPlayer
+    tv: () => '', // Intercepted by MegaPlayPlayer
+  }
+];
 // Safely defaults to Server 1 if an invalid index is somehow passed
 const safeIndex = (i: number) =>
   Math.max(0, Math.min(PROVIDERS.length - 1, Number.isFinite(i) ? i : 0));

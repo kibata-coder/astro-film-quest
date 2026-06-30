@@ -24,7 +24,7 @@ import {
 import { checkIsBookmarked, toggleBookmark } from '@/lib/bookmarks';
 import { isAnimeMedia } from '@/lib/anime';
 import { useMedia } from '@/features/shared';
-import { getProviders } from '@/lib/vidsrc';
+import { getProviders, getAnimeProviders } from '@/lib/vidsrc';
 import { Badge } from '@/components/ui/badge';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ThumbsRating from '@/components/ThumbsRating';
@@ -82,7 +82,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
   const [isMuted, setIsMuted] = useState(true);
 
   const [showServerDialog, setShowServerDialog] = useState(false);
-  const streamProviders = getProviders();
+  const streamProviders = isAnimeMedia(movie as unknown as Parameters<typeof isAnimeMedia>[0]) ? getAnimeProviders() : getProviders();
 
   // ALWAYS OPEN THE DIALOG (NO BYPASS)
   const handlePlayClick = () => {

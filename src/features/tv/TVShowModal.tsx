@@ -11,7 +11,7 @@ import { getBackdropUrl, getImageUrl, getTVShowDetails, getTVShowSeasonDetails, 
 import type { TVShow, TVShowDetails, Episode } from '@/lib/tmdb';
 import { checkIsBookmarked, toggleBookmark } from '@/lib/bookmarks';
 import { isAnimeMedia } from '@/lib/anime';
-import { getProviders } from '@/lib/vidsrc';
+import { getProviders, getAnimeProviders } from '@/lib/vidsrc';
 import ThumbsRating from '@/components/ThumbsRating';
 import AddToCollectionDialog from '@/components/AddToCollectionDialog';
 
@@ -47,7 +47,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
   const [showServerDialog, setShowServerDialog] = useState(false);
   // Temporarily store play arguments while the user picks a server
   const [pendingPlayArgs, setPendingPlayArgs] = useState<any>(null);
-  const streamProviders = getProviders();
+  const streamProviders = isAnime ? getAnimeProviders() : getProviders();
 
   const handlePlayClick = (showId: number, showName: string, seasonNumber: number, episodeNumber: number, episodeName: string, posterPath: string | null) => {
     setPendingPlayArgs({ showId, showName, seasonNumber, episodeNumber, episodeName, posterPath });
