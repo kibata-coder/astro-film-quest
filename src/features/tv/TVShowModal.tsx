@@ -309,14 +309,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
                       <p className="font-medium text-sm">
                         {episode.episode_number}. {displayName}
                       </p>
-                      {animeEp && (
-                        <>
-                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0">SUB</Badge>
-                          {animeEp.hasDub && (
-                            <Badge variant="default" className="text-[10px] px-1.5 py-0">DUB</Badge>
-                          )}
-                        </>
-                      )}
+
                     </div>
                     {episode.overview && (
                       <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
