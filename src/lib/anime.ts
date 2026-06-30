@@ -42,7 +42,8 @@ export function isAnimeMedia(item: {
   original_language?: string;
   genre_ids?: number[];
   genres?: { id: number }[];
-}): boolean {
+} | null | undefined): boolean {
+  if (!item) return false;
   if (item.original_language !== 'ja') return false;
   const ids = item.genre_ids ?? item.genres?.map((g) => g.id) ?? [];
   return ids.includes(16);
