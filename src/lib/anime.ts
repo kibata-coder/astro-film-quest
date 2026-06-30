@@ -1,99 +1,40 @@
-import { supabase } from '@/integrations/supabase/client';
+// Anime utility functions for MegaPlay integration
 
-export interface AnimeEpisode {
-  id: string;
-  number: number;
-  title?: string;
-  hasDub?: boolean;
-}
-
-export interface AnimeResolve {
-  provider: string;
-  anilistId?: number;
-  episodes: AnimeEpisode[];
-}
-
-export interface AnimeSource {
-  url: string;
-  quality: string; // e.g. "1080p", "auto"
-  isM3U8?: boolean;
-}
-
-export interface AnimeSubtitle {
-  url: string;
-  lang: string;
-}
-
-export interface AnimeStream {
-  sources: AnimeSource[];
-  subtitles: AnimeSubtitle[];
-  headers: { Referer?: string };
-}
-
-const RESOLVE_TIMEOUT_MS = 4000;
-
-/** Race a promise against a timeout. */
-function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
-    const t = setTimeout(() => reject(new Error('timeout')), ms);
-    p.then(
-      (v) => {
-        clearTimeout(t);
-        resolve(v);
-      },
-      (e) => {
-        clearTimeout(t);
-        reject(e);
-      },
-    );
-  });
-}
+const JIKAN_API_BASE = 'https://api.jikan.moe/v4/anime';
 
 /**
- * Resolves a TMDB id to a Consumet/HiAnime mapping with episode list.
- * Returns null on timeout, error, or empty episodes — caller falls back to Vidsrc iframe.
+ * Searches the Jikan API by title and returns the MAL ID of the best match.
+ * Uses a timeout to prevent hanging.
  */
-export async function resolveAnime(
-  tmdbId: number | string,
-  mediaType: 'tv' | 'movie',
-): Promise<AnimeResolve | null> {
+export async function getMalIdByTitle(title: string, mediaType: 'tv' | 'movie'): Promise<number | null> {
   try {
-    const res = await withTimeout(
-      supabase.functions.invoke('anime-resolve', {
-        body: { tmdbId: String(tmdbId), mediaType },
-      }),
-      RESOLVE_TIMEOUT_MS,
-    );
-    const { data, error } = res as { data: AnimeResolve | null; error: unknown };
-    if (error || !data?.episodes?.length) return null;
-    return data;
-  } catch {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+
+    // Clean up title for better search results (e.g. removing dates or extra tags if any)
+    const cleanTitle = title.split(' (')[0].trim();
+    
+    // Add type filter based on mediaType
+    const typeQuery = mediaType === 'movie' ? '&type=movie' : '&type=tv';
+    
+    const url = `${JIKAN_API_BASE}?q=${encodeURIComponent(cleanTitle)}&limit=3${typeQuery}`;
+
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeout);
+
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    if (data && data.data && data.data.length > 0) {
+      // Return the most relevant exact match or the first one
+      return data.data[0].mal_id;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Failed to get MAL ID:', error);
     return null;
   }
-}
-
-/** Fetch streaming sources for a given Consumet episode id. */
-export async function getAnimeStream(
-  episodeId: string,
-  category: 'sub' | 'dub',
-): Promise<AnimeStream | null> {
-  try {
-    const { data, error } = await supabase.functions.invoke('anime-stream', {
-      body: { episodeId, category },
-    });
-    if (error || !data?.sources?.length) return null;
-    return data as AnimeStream;
-  } catch {
-    return null;
-  }
-}
-
-/** Wrap a stream/subtitle URL with our hls-proxy so headers (Referer) can be injected. */
-export function buildProxyUrl(streamUrl: string, referer?: string): string {
-  const base = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/hls-proxy`;
-  const params = new URLSearchParams({ url: streamUrl });
-  if (referer) params.set('ref', referer);
-  return `${base}?${params.toString()}`;
 }
 
 /** Anime detection heuristic used across the app. */

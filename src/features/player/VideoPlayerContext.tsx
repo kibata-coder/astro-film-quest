@@ -1,23 +1,20 @@
 import { createContext, useContext, useState, useCallback, ReactNode, useEffect, useRef } from 'react';
 import { getTVShowSeasonDetails } from '@/lib/tmdb';
 import { addToHistory } from '@/lib/watchHistory';
-import { resolveAnime, isAnimeMedia, type AnimeResolve } from '@/lib/anime';
+import { getMalIdByTitle, isAnimeMedia } from '@/lib/anime';
 import type { Movie, TVShow } from '@/lib/tmdb';
 import type { VideoState, TVEpisodeContext } from '@/types/media';
 
-type PlayerMode = 'iframe' | 'anime' | 'resolving';
+type PlayerMode = 'iframe' | 'resolving' | 'megaplay';
 
 interface ExtendedVideoState extends VideoState {
   mode: PlayerMode;
-  animeEpisodeId?: string;
-  animeCategory?: 'sub' | 'dub';
-  animeHasDub?: boolean;
+  malId?: number;
 }
 
 interface VideoPlayerContextType {
   videoState: ExtendedVideoState;
   episodeContext: TVEpisodeContext | null;
-  animeResolve: AnimeResolve | null;
   playMovie: (movie: Movie) => Promise<void>;
   playEpisode: (
     show: TVShow,
@@ -27,7 +24,6 @@ interface VideoPlayerContextType {
   ) => Promise<void>;
   nextEpisode: () => Promise<void>;
   previousEpisode: () => Promise<void>;
-  switchAnimeCategory: (category: 'sub' | 'dub') => void;
   fallbackToIframe: () => void;
   closePlayer: () => void;
 }
@@ -45,7 +41,6 @@ const VideoPlayerContext = createContext<VideoPlayerContextType | undefined>(und
 export function VideoPlayerProvider({ children }: { children: ReactNode }) {
   const [videoState, setVideoState] = useState<ExtendedVideoState>(initialVideoState);
   const [episodeContext, setEpisodeContext] = useState<TVEpisodeContext | null>(null);
-  const [animeResolve, setAnimeResolve] = useState<AnimeResolve | null>(null);
 
   const isOpenRef = useRef(false);
   useEffect(() => { isOpenRef.current = videoState.isOpen; }, [videoState.isOpen]);
@@ -63,12 +58,10 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
       if (isOpenRef.current) {
         setVideoState(prev => ({ ...prev, isOpen: false }));
         setEpisodeContext(null);
-        setAnimeResolve(null);
       }
     };
 
     // SHIELD 2: The Hijack Blocker (Stops the ad from opening)
-    // On LG WebOS, ads try to hijack the main window. This physically blocks them.
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (isOpenRef.current) {
         e.preventDefault();
@@ -86,11 +79,6 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const findAnimeEpisodeId = (resolve: AnimeResolve, episodeNumber: number) => {
-    const match = resolve.episodes.find(e => e.number === episodeNumber);
-    return match ?? resolve.episodes[0];
-  };
-
   const playMovie = useCallback(async (movie: Movie) => {
     // Append #player to the URL path
     window.history.pushState({ player: true }, '', window.location.pathname + '#player');
@@ -106,7 +94,6 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
       .catch((e) => console.error('addToHistory failed', e));
 
     if (isAnimeMedia(movie)) {
-      // Show resolving state immediately
       setVideoState({
         isOpen: true,
         title: movie.title,
@@ -114,25 +101,19 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
         mediaType: 'movie',
         mode: 'resolving',
       });
-      setAnimeResolve(null);
 
-      const resolved = await resolveAnime(movie.id, 'movie');
-      if (resolved && resolved.episodes.length > 0) {
-        const ep = resolved.episodes[0];
-        setAnimeResolve(resolved);
+      const malId = await getMalIdByTitle(movie.title, 'movie');
+      if (malId) {
         setVideoState({
           isOpen: true,
           title: movie.title,
           mediaId: movie.id,
           mediaType: 'movie',
-          mode: 'anime',
-          animeEpisodeId: ep.id,
-          animeCategory: 'sub',
-          animeHasDub: ep.hasDub,
+          mode: 'megaplay',
+          malId: malId,
         });
         return;
       }
-      // Fall through to iframe
     }
 
     setVideoState({
@@ -165,7 +146,7 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
       .then(notifyHistoryUpdate)
       .catch((e) => console.error('addToHistory failed', e));
 
-    // Background: load TMDB season details (used for non-anime next/prev)
+    // Background: load TMDB season details
     getTVShowSeasonDetails(show.id, seasonNumber)
       .then((seasonDetails) => {
         setEpisodeContext({
@@ -193,24 +174,19 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
         episodeName,
         mode: 'resolving',
       });
-      setAnimeResolve(null);
 
-      const resolved = await resolveAnime(show.id, 'tv');
-      if (resolved && resolved.episodes.length > 0) {
-        const ep = findAnimeEpisodeId(resolved, episodeNumber);
-        setAnimeResolve(resolved);
+      const malId = await getMalIdByTitle(show.name, 'tv');
+      if (malId) {
         setVideoState({
           isOpen: true,
-          title: `${show.name} - ${ep.title || episodeName}`,
+          title: `${show.name} - ${episodeName}`,
           mediaId: show.id,
           mediaType: 'tv',
           seasonNumber,
-          episodeNumber: ep.number,
-          episodeName: ep.title || episodeName,
-          mode: 'anime',
-          animeEpisodeId: ep.id,
-          animeCategory: 'sub',
-          animeHasDub: ep.hasDub,
+          episodeNumber,
+          episodeName,
+          mode: 'megaplay',
+          malId: malId,
         });
         return;
       }
@@ -229,34 +205,6 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const stepEpisode = useCallback(async (delta: 1 | -1) => {
-    // Anime mode → walk animeResolve.episodes
-    if (videoState.mode === 'anime' && animeResolve && videoState.animeEpisodeId) {
-      const idx = animeResolve.episodes.findIndex(e => e.id === videoState.animeEpisodeId);
-      const targetIdx = idx + delta;
-      if (idx === -1 || targetIdx < 0 || targetIdx >= animeResolve.episodes.length) return;
-      const target = animeResolve.episodes[targetIdx];
-      const showName = videoState.title.split(' - ')[0];
-      await addToHistory({
-        id: videoState.mediaId,
-        media_type: 'tv',
-        title: showName,
-        poster_path: episodeContext?.posterPath || '',
-        season_number: videoState.seasonNumber,
-        episode_number: target.number,
-      });
-      notifyHistoryUpdate();
-      setVideoState(prev => ({
-        ...prev,
-        episodeNumber: target.number,
-        episodeName: target.title || `Episode ${target.number}`,
-        title: `${showName} - ${target.title || `Episode ${target.number}`}`,
-        animeEpisodeId: target.id,
-        animeHasDub: target.hasDub,
-      }));
-      return;
-    }
-
-    // Iframe mode → TMDB episode list
     if (!episodeContext || !videoState.episodeNumber) return;
     const currentIdx = episodeContext.episodes.findIndex(
       ep => ep.episode_number === videoState.episodeNumber
@@ -264,6 +212,7 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
     const targetIdx = currentIdx + delta;
     if (currentIdx === -1 || targetIdx < 0 || targetIdx >= episodeContext.episodes.length) return;
     const target = episodeContext.episodes[targetIdx];
+    
     await addToHistory({
       id: episodeContext.showId,
       media_type: 'tv',
@@ -273,35 +222,28 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
       episode_number: target.episode_number,
     });
     notifyHistoryUpdate();
+    
     setVideoState(prev => ({
       ...prev,
       title: `${episodeContext.showName} - ${target.name}`,
       episodeNumber: target.episode_number,
       episodeName: target.name,
     }));
-  }, [episodeContext, videoState, animeResolve]);
+  }, [episodeContext, videoState]);
 
   const nextEpisode = useCallback(() => stepEpisode(1), [stepEpisode]);
   const previousEpisode = useCallback(() => stepEpisode(-1), [stepEpisode]);
-
-  const switchAnimeCategory = useCallback((category: 'sub' | 'dub') => {
-    setVideoState(prev => ({ ...prev, animeCategory: category }));
-  }, []);
 
   const fallbackToIframe = useCallback(() => {
     setVideoState(prev => ({ ...prev, mode: 'iframe' }));
   }, []);
 
   const closePlayer = useCallback(() => {
-    // Force the ref to false instantly so the popstate/unload listeners don't race us
     isOpenRef.current = false;
     
-    // 1. Force the UI to close IMMEDIATELY to prevent the double-click bug
     setVideoState(prev => ({ ...prev, isOpen: false }));
     setEpisodeContext(null);
-    setAnimeResolve(null);
 
-    // 2. Silently clean up the browser history in the background
     if (window.history.state?.player || window.location.hash === '#player') {
       window.history.back();
     }
@@ -311,12 +253,10 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
     <VideoPlayerContext.Provider value={{
       videoState,
       episodeContext,
-      animeResolve,
       playMovie,
       playEpisode,
       nextEpisode,
       previousEpisode,
-      switchAnimeCategory,
       fallbackToIframe,
       closePlayer,
     }}>

@@ -9,7 +9,7 @@ import { useAuth, AuthModal } from '@/features/auth';
 const MovieModal = lazy(() => import('@/features/movies/MovieModal'));
 const TVShowModal = lazy(() => import('@/features/tv/TVShowModal'));
 const VideoPlayer = lazy(() => import('@/features/player/VideoPlayer'));
-const AnimePlayer = lazy(() => import('@/features/player/AnimePlayer'));
+const MegaPlayPlayer = lazy(() => import('@/features/player/MegaPlayPlayer'));
 
 interface LayoutProps {
   children: ReactNode;
@@ -79,23 +79,24 @@ const Layout = memo(({ children, onSearch, searchQuery, showFooter = true }: Lay
       );
     }
 
-    if (videoState.mode === 'anime' && videoState.animeEpisodeId) {
-      const idx = animeResolve?.episodes.findIndex(e => e.id === videoState.animeEpisodeId) ?? -1;
-      const hasPrev = idx > 0;
-      const hasNext = animeResolve ? idx >= 0 && idx < animeResolve.episodes.length - 1 : false;
+    if (videoState.mode === 'megaplay' && videoState.malId) {
+      const currentIdx = episodeContext?.episodes.findIndex(e => e.episode_number === videoState.episodeNumber) ?? -1;
+      const hasPrev = currentIdx > 0;
+      const hasNext = episodeContext ? currentIdx >= 0 && currentIdx < episodeContext.episodes.length - 1 : false;
       return (
-        <AnimePlayer
-          episodeId={videoState.animeEpisodeId}
-          initialCategory={videoState.animeCategory || 'sub'}
+        <MegaPlayPlayer
+          malId={videoState.malId}
+          mediaId={videoState.mediaId}
+          mediaType={videoState.mediaType}
+          seasonNumber={videoState.seasonNumber}
+          episodeNumber={videoState.episodeNumber}
           title={videoState.title.split(' - ')[0]}
           subtitle={
             videoState.mediaType === 'tv' && videoState.episodeNumber
               ? `S${videoState.seasonNumber ?? 1} E${videoState.episodeNumber} · ${videoState.episodeName ?? ''}`
               : undefined
           }
-          hasDub={videoState.animeHasDub}
           onClose={closePlayer}
-          onFallback={fallbackToIframe}
           onNext={hasNext ? nextEpisode : undefined}
           onPrev={hasPrev ? previousEpisode : undefined}
           hasNext={hasNext}

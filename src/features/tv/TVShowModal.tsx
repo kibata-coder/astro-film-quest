@@ -10,7 +10,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { getBackdropUrl, getImageUrl, getTVShowDetails, getTVShowSeasonDetails, getTVShowRecommendations } from '@/lib/tmdb';
 import type { TVShow, TVShowDetails, Episode } from '@/lib/tmdb';
 import { checkIsBookmarked, toggleBookmark } from '@/lib/bookmarks';
-import { isAnimeMedia, resolveAnime, type AnimeResolve } from '@/lib/anime';
+import { isAnimeMedia } from '@/lib/anime';
 import { getProviders } from '@/lib/vidsrc';
 import ThumbsRating from '@/components/ThumbsRating';
 import AddToCollectionDialog from '@/components/AddToCollectionDialog';
@@ -39,7 +39,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
 
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
-  const [animeResolve, setAnimeResolve] = useState<AnimeResolve | null>(null);
+
 
   const isAnime = show ? isAnimeMedia(show as unknown as Parameters<typeof isAnimeMedia>[0]) : false;
 
@@ -99,22 +99,6 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
         .catch(console.error)
         .finally(() => setIsLoading(false));
     }
-  }, [show, isOpen]);
-
-  useEffect(() => {
-    if (!show || !isOpen) {
-      setAnimeResolve(null);
-      return;
-    }
-    if (!isAnimeMedia(show as unknown as Parameters<typeof isAnimeMedia>[0])) {
-      setAnimeResolve(null);
-      return;
-    }
-    let cancelled = false;
-    resolveAnime(show.id, 'tv').then((r) => {
-      if (!cancelled) setAnimeResolve(r);
-    });
-    return () => { cancelled = true; };
   }, [show, isOpen]);
 
   useEffect(() => {
@@ -280,8 +264,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
               <p className="text-muted-foreground text-sm">No episodes available.</p>
             ) : (
               episodes.map((episode) => {
-                const animeEp = animeResolve?.episodes.find(e => e.number === episode.episode_number);
-                const displayName = animeEp?.title || episode.name;
+                const displayName = episode.name;
                 return (
                 <div
                   key={episode.id}
