@@ -24,10 +24,21 @@ class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
+    
+    // Automatically reload on chunk loading errors (usually due to a new deployment)
+    const msg = error.message.toLowerCase();
+    if (msg.includes('failed to fetch dynamically imported module') || msg.includes('importing a module script failed')) {
+      window.location.reload();
+    }
   }
 
   handleRetry = () => {
-    this.setState({ hasError: false, error: undefined });
+    const msg = this.state.error?.message.toLowerCase() || '';
+    if (msg.includes('failed to fetch dynamically imported module') || msg.includes('importing a module script failed')) {
+      window.location.reload();
+    } else {
+      this.setState({ hasError: false, error: undefined });
+    }
   };
 
   render() {
