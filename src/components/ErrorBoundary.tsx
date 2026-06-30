@@ -54,6 +54,18 @@ class ErrorBoundary extends Component<Props, State> {
           <p className="text-muted-foreground mb-4 max-w-md">
             We encountered an error while loading this section. Please try again.
           </p>
+          {this.state.error && (
+            <div className="bg-destructive/10 text-destructive text-sm p-4 rounded-md mb-4 max-w-md overflow-auto text-left w-full break-all">
+              <p className="font-semibold mb-1">Error details:</p>
+              <code>{this.state.error.message}</code>
+              {this.state.error.stack && (
+                <details className="mt-2 text-xs">
+                  <summary className="cursor-pointer">Stack trace</summary>
+                  <pre className="mt-1 whitespace-pre-wrap">{this.state.error.stack}</pre>
+                </details>
+              )}
+            </div>
+          )}
           <Button onClick={this.handleRetry} variant="outline" className="gap-2">
             <RefreshCw className="w-4 h-4" />
             Try Again
