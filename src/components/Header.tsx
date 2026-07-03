@@ -75,42 +75,25 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
     >
       <div className="container mx-auto px-5 md:px-8 h-[72px] flex items-center justify-between">
         <div className="flex items-center gap-4 md:gap-10">
-          <a href="/" className="text-2xl font-bold text-primary tracking-tighter hover:scale-105 transition-transform">
-            SoudFlex
+          <a href={isAnimeExperience ? "/anime" : "/"} className={`text-2xl font-bold tracking-tighter hover:scale-105 transition-transform ${isAnimeExperience ? 'text-orange-500' : 'text-primary'}`}>
+            {isAnimeExperience ? 'SoudAnime' : 'SoudFlex'}
           </a>
           
           {/* DESKTOP NAV */}
           <nav className="hidden md:flex items-center gap-6">
-            <div className="flex items-center bg-muted/50 p-1 rounded-full border border-border mr-2">
-              <button
-                onClick={() => navigate('/')}
-                className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${
-                  !isAnimeExperience ? 'bg-background shadow-md text-primary' : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                Movies & TV
-              </button>
-              <button
-                onClick={() => navigate('/anime')}
-                className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${
-                  isAnimeExperience ? 'bg-orange-500 shadow-md text-white' : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                Soudanime
-              </button>
-            </div>
-
             {!isAnimeExperience ? (
               <>
                 <NavLink to="/">Home</NavLink>
                 <NavLink to="/movies">Movies</NavLink>
                 <NavLink to="/tv">TV Shows</NavLink>
+                <NavLink to="/anime" className="text-orange-500 hover:text-orange-400 font-bold flex items-center gap-1"><Sparkles className="w-4 h-4" /> SoudAnime</NavLink>
                 {user && <NavLink to="/mylist">My List</NavLink>}
               </>
             ) : (
               <>
                 <NavLink to="/anime">Home</NavLink>
                 <NavLink to="/anime-movies">Movies</NavLink>
+                <NavLink to="/" className="text-primary hover:text-primary/80 font-bold flex items-center gap-1"><Theater className="w-4 h-4" /> SoudFlex</NavLink>
                 {user && <NavLink to="/mylist">My List</NavLink>}
               </>
             )}
@@ -243,35 +226,19 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] bg-background/95 backdrop-blur-xl border-border overflow-y-auto">
-              <div className="flex bg-muted/50 p-1 rounded-lg border border-border mt-6">
-                <button
-                  onClick={() => navigate('/')}
-                  className={`flex-1 py-2 rounded-md text-sm font-semibold transition-all ${
-                    !isAnimeExperience ? 'bg-background shadow-md text-primary' : 'text-muted-foreground'
-                  }`}
-                >
-                  Movies
-                </button>
-                <button
-                  onClick={() => navigate('/anime')}
-                  className={`flex-1 py-2 rounded-md text-sm font-semibold transition-all ${
-                    isAnimeExperience ? 'bg-orange-500 shadow-md text-white' : 'text-muted-foreground'
-                  }`}
-                >
-                  Anime
-                </button>
-              </div>
               <nav className="flex flex-col gap-5 mt-6">
                 {!isAnimeExperience ? (
                   <>
                     <NavLink to="/">Home</NavLink>
                     <NavLink to="/movies">Movies</NavLink>
                     <NavLink to="/tv">TV Shows</NavLink>
+                    <NavLink to="/anime" className="text-orange-500 font-bold flex items-center gap-2"><Sparkles className="w-4 h-4" /> SoudAnime</NavLink>
                   </>
                 ) : (
                   <>
                     <NavLink to="/anime">Home</NavLink>
                     <NavLink to="/anime-movies">Anime Movies</NavLink>
+                    <NavLink to="/" className="text-primary font-bold flex items-center gap-2"><Theater className="w-4 h-4" /> SoudFlex</NavLink>
                   </>
                 )}
                 
