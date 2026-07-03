@@ -79,34 +79,54 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
             {isAnimeExperience ? 'SoudAnime' : 'SoudFlex'}
           </a>
           
-          {/* DESKTOP NAV */}
-          <nav className="hidden md:flex items-center gap-6">
-            {!isAnimeExperience ? (
-              <>
-                <NavLink to="/">Home</NavLink>
-                <NavLink to="/movies">Movies</NavLink>
-                <NavLink to="/tv">TV Shows</NavLink>
-                <NavLink to="/anime" className="text-orange-500 hover:text-orange-400 font-bold flex items-center gap-1"><Sparkles className="w-4 h-4" /> SoudAnime</NavLink>
-                {user && <NavLink to="/mylist">My List</NavLink>}
-              </>
-            ) : (
-              <>
-                <NavLink to="/anime">Home</NavLink>
-                <NavLink to="/" className="text-primary hover:text-primary/80 font-bold flex items-center gap-1"><Theater className="w-4 h-4" /> SoudFlex</NavLink>
-                {user && <NavLink to="/mylist">My List</NavLink>}
-              </>
-            )}
-
+          {/* APP SWITCHER (PILL) */}
+          <div className="hidden lg:flex items-center bg-muted/50 p-1 rounded-full border border-border">
+            <button
+              onClick={() => navigate('/')}
+              className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${
+                !isAnimeExperience ? 'bg-background shadow-md text-primary' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Movies & TV
+            </button>
+            <button
+              onClick={() => navigate('/anime')}
+              className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${
+                isAnimeExperience ? 'bg-orange-500 shadow-md text-white' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Soudanime
+            </button>
             <a
               href="https://soudsports.pages.dev/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1"
-              title="SoudSport — live sports streams"
+              className="px-4 py-1.5 rounded-full text-sm font-semibold transition-all text-muted-foreground hover:text-foreground"
             >
-              SoudSport
-              <span className="text-[10px] uppercase tracking-wider bg-primary/15 text-primary px-1.5 py-0.5 rounded">Sports</span>
+              Sports
             </a>
+          </div>
+          
+          {/* DESKTOP NAV */}
+          <nav className="hidden md:flex items-center gap-6">
+            {!isAnimeExperience ? (
+              <>
+                <NavLink to="/" className="text-sm font-medium hover:text-primary transition-colors">Home</NavLink>
+                <NavLink to="/movies" className="text-sm font-medium hover:text-primary transition-colors">Movies</NavLink>
+                <NavLink to="/tv" className="text-sm font-medium hover:text-primary transition-colors">TV Shows</NavLink>
+                {user && <NavLink to="/mylist" className="text-sm font-medium hover:text-primary transition-colors">My List</NavLink>}
+              </>
+            ) : (
+              <>
+                <NavLink to="/anime" className="text-sm font-medium hover:text-orange-500 transition-colors">Browse</NavLink>
+                <button onClick={() => { navigate('/anime'); setTimeout(() => document.getElementById('seasonal')?.scrollIntoView({behavior: 'smooth'}), 100) }} className="text-sm font-medium text-muted-foreground hover:text-orange-500 transition-colors">Seasonal</button>
+                <button onClick={() => { navigate('/anime'); setTimeout(() => document.getElementById('popular')?.scrollIntoView({behavior: 'smooth'}), 100) }} className="text-sm font-medium text-muted-foreground hover:text-orange-500 transition-colors">Popular</button>
+                <button onClick={() => { navigate('/anime'); setTimeout(() => document.getElementById('new')?.scrollIntoView({behavior: 'smooth'}), 100) }} className="text-sm font-medium text-muted-foreground hover:text-orange-500 transition-colors">New</button>
+                {user && <NavLink to="/mylist" className="text-sm font-medium hover:text-orange-500 transition-colors">My List</NavLink>}
+              </>
+            )}
+
+            {!isAnimeExperience && (
 
             {/* GENRES DROPDOWN (With Icons) */}
             <DropdownMenu>
@@ -136,6 +156,7 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
+            )}
           </nav>
         </div>
 
@@ -225,31 +246,52 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] bg-background/95 backdrop-blur-xl border-border overflow-y-auto">
+              
+              {/* MOBILE APP SWITCHER */}
+              <div className="flex flex-col bg-muted/50 p-1 rounded-xl border border-border mt-6">
+                <button
+                  onClick={() => navigate('/')}
+                  className={`py-2 rounded-lg text-sm font-semibold transition-all ${
+                    !isAnimeExperience ? 'bg-background shadow-md text-primary' : 'text-muted-foreground'
+                  }`}
+                >
+                  Movies & TV
+                </button>
+                <button
+                  onClick={() => navigate('/anime')}
+                  className={`py-2 rounded-lg text-sm font-semibold transition-all ${
+                    isAnimeExperience ? 'bg-orange-500 shadow-md text-white' : 'text-muted-foreground'
+                  }`}
+                >
+                  Soudanime
+                </button>
+                <a
+                  href="https://soudsports.pages.dev/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="py-2 text-center rounded-lg text-sm font-semibold transition-all text-muted-foreground hover:text-foreground"
+                >
+                  Sports
+                </a>
+              </div>
+
               <nav className="flex flex-col gap-5 mt-6">
                 {!isAnimeExperience ? (
                   <>
                     <NavLink to="/">Home</NavLink>
                     <NavLink to="/movies">Movies</NavLink>
                     <NavLink to="/tv">TV Shows</NavLink>
-                    <NavLink to="/anime" className="text-orange-500 font-bold flex items-center gap-2"><Sparkles className="w-4 h-4" /> SoudAnime</NavLink>
                   </>
                 ) : (
                   <>
-                    <NavLink to="/anime">Home</NavLink>
-                    <NavLink to="/" className="text-primary font-bold flex items-center gap-2"><Theater className="w-4 h-4" /> SoudFlex</NavLink>
+                    <NavLink to="/anime">Browse</NavLink>
+                    <button onClick={() => { navigate('/anime'); setTimeout(() => document.getElementById('seasonal')?.scrollIntoView({behavior: 'smooth'}), 100) }} className="text-left font-medium text-muted-foreground hover:text-orange-500">Seasonal</button>
+                    <button onClick={() => { navigate('/anime'); setTimeout(() => document.getElementById('popular')?.scrollIntoView({behavior: 'smooth'}), 100) }} className="text-left font-medium text-muted-foreground hover:text-orange-500">Popular</button>
+                    <button onClick={() => { navigate('/anime'); setTimeout(() => document.getElementById('new')?.scrollIntoView({behavior: 'smooth'}), 100) }} className="text-left font-medium text-muted-foreground hover:text-orange-500">New</button>
                   </>
                 )}
                 
                 {user && <NavLink to="/mylist">My List</NavLink>}
-                <a
-                  href="https://soudsports.pages.dev/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-2"
-                >
-                  SoudSport
-                  <span className="text-[10px] uppercase tracking-wider bg-primary/15 text-primary px-1.5 py-0.5 rounded">Sports</span>
-                </a>
                 
                 
 

@@ -20,6 +20,11 @@ export interface AniListAnime {
   nextAiringEpisode?: {
     episode: number;
   };
+  streamingEpisodes?: {
+    title: string;
+    thumbnail: string;
+    url?: string;
+  }[];
 }
 
 export interface AniListRecentResponse {
@@ -159,6 +164,10 @@ export const getAnimeSeries = async (id: number): Promise<{ ok: boolean; data: A
         status
         nextAiringEpisode {
           episode
+        }
+        streamingEpisodes {
+          title
+          thumbnail
         }
       }
     }

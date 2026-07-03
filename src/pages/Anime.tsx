@@ -75,7 +75,7 @@ const Anime = () => {
         <>
         {/* Hero Section */}
         {heroAnime.length > 0 && (
-        <div className="relative w-full h-[60vh] md:h-[80vh] overflow-hidden">
+        <div id="seasonal" className="relative w-full h-[60vh] md:h-[80vh] overflow-hidden">
           <div className="absolute inset-0 bg-black">
             <img 
               src={heroAnime[0].bannerImage || heroAnime[0].coverImage?.large} 
@@ -96,7 +96,7 @@ const Anime = () => {
                 />
               </div>
               <div className="max-w-2xl space-y-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/20 text-orange-500 text-sm font-bold tracking-wider uppercase border border-orange-500/50">
+                <div id="popular" className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/20 text-orange-500 text-sm font-bold tracking-wider uppercase border border-orange-500/50">
                   <Flame className="w-4 h-4" />
                   Trending Now
                 </div>
@@ -134,7 +134,7 @@ const Anime = () => {
       )}
 
       {/* Main Content Grid */}
-      <main className="container mx-auto px-5 md:px-12 mt-12 space-y-12 relative z-10">
+      <main id="new" className="container mx-auto px-5 md:px-12 mt-12 space-y-12 relative z-10">
         <div>
           <h2 className="text-2xl md:text-3xl font-bold mb-6 flex items-center gap-3">
             <span className="w-2 h-8 bg-orange-500 rounded-full inline-block"></span>

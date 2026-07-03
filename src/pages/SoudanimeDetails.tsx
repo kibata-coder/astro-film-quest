@@ -69,9 +69,25 @@ const SoudanimeDetails = () => {
     episodeCount = anime.episodes;
   } else if (anime.nextAiringEpisode) {
     episodeCount = Math.max(1, anime.nextAiringEpisode.episode - 1);
+  } else if (anime.streamingEpisodes && anime.streamingEpisodes.length > 0) {
+    episodeCount = anime.streamingEpisodes.length;
   }
   
   const episodesList = Array.from({ length: episodeCount }, (_, i) => i + 1);
+
+  // Helper to extract episode info
+  const getEpisodeInfo = (epNum: number) => {
+    if (!anime.streamingEpisodes) return null;
+    const match = anime.streamingEpisodes.find(ep => 
+      ep.title.startsWith(`Episode ${epNum} -`) || 
+      ep.title === `Episode ${epNum}`
+    );
+    // If not perfectly matched by number but index aligns
+    if (!match && anime.streamingEpisodes[epNum - 1]) {
+      return anime.streamingEpisodes[epNum - 1];
+    }
+    return match;
+  };
 
   return (
     <Layout>
@@ -127,20 +143,54 @@ const SoudanimeDetails = () => {
           <MonitorPlay className="w-6 h-6 text-orange-500" /> Episodes
         </h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {episodesList.map((epNum) => {
+            const epInfo = getEpisodeInfo(epNum);
+            let displayTitle = `Episode ${epNum}`;
+            let hasCustomTitle = false;
+            
+            if (epInfo && epInfo.title) {
+              const cleaned = epInfo.title.replace(/^Episode \d+ - /, '').trim();
+              if (cleaned && cleaned !== `Episode ${epNum}`) {
+                displayTitle = cleaned;
+                hasCustomTitle = true;
+              }
+            }
+
             return (
               <div 
                 key={epNum} 
-                className="bg-card border border-border rounded-xl p-4 flex flex-col justify-between hover:border-orange-500/50 transition-colors"
+                className="bg-card border border-border rounded-xl overflow-hidden flex flex-col group hover:border-orange-500/50 transition-colors shadow-sm"
               >
-                <div>
-                  <div className="font-semibold text-lg text-white mb-4">
-                    Episode {epNum}
+                {/* Episode Thumbnail */}
+                <div className="relative aspect-video w-full bg-muted/20">
+                  {epInfo?.thumbnail ? (
+                    <img 
+                      src={epInfo.thumbnail} 
+                      alt={displayTitle} 
+                      className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-muted-foreground/30">
+                      <MonitorPlay className="w-10 h-10" />
+                    </div>
+                  )}
+                  <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded text-xs font-bold text-white border border-white/10">
+                    EP {epNum}
+                  </div>
+                  {/* Play overlay icon */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none bg-black/20">
+                     <PlayCircle className="w-12 h-12 text-white shadow-xl rounded-full" />
                   </div>
                 </div>
-                
-                <div className="flex gap-2 mt-auto">
+
+                <div className="p-4 flex flex-col flex-1">
+                  <h3 className="font-semibold text-sm md:text-base text-white mb-4 line-clamp-2" title={displayTitle}>
+                    {displayTitle}
+                  </h3>
+                  
+                  <div className="flex gap-2 mt-auto">
                   <button 
                     onClick={() => setPlayingEpisode({ number: epNum, language: 'sub' })}
                     className="flex-1 flex items-center justify-center gap-2 bg-orange-500/10 hover:bg-orange-500 text-orange-500 hover:text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all border border-orange-500/20 hover:border-orange-500"
