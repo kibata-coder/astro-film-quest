@@ -92,7 +92,6 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
             ) : (
               <>
                 <NavLink to="/anime">Home</NavLink>
-                <NavLink to="/anime-movies">Movies</NavLink>
                 <NavLink to="/" className="text-primary hover:text-primary/80 font-bold flex items-center gap-1"><Theater className="w-4 h-4" /> SoudFlex</NavLink>
                 {user && <NavLink to="/mylist">My List</NavLink>}
               </>
@@ -237,7 +236,6 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
                 ) : (
                   <>
                     <NavLink to="/anime">Home</NavLink>
-                    <NavLink to="/anime-movies">Anime Movies</NavLink>
                     <NavLink to="/" className="text-primary font-bold flex items-center gap-2"><Theater className="w-4 h-4" /> SoudFlex</NavLink>
                   </>
                 )}
