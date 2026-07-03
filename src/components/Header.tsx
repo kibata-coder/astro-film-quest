@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { NavLink } from './NavLink';
 import { useAuth } from '@/features/auth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
@@ -29,6 +29,9 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
   
   const { user, openAuthModal, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isAnimeExperience = location.pathname.startsWith('/anime');
 
   useEffect(() => {
     let ticking = false;
@@ -78,12 +81,40 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
           
           {/* DESKTOP NAV */}
           <nav className="hidden md:flex items-center gap-6">
-            <NavLink to="/">Home</NavLink>
-            <NavLink to="/movies">Movies</NavLink>
-            <NavLink to="/tv">TV Shows</NavLink>
-            <NavLink to="/anime">Anime</NavLink>
-            <NavLink to="/anime-movies">Anime Movies</NavLink>
-            {user && <NavLink to="/mylist">My List</NavLink>}
+            <div className="flex items-center bg-muted/50 p-1 rounded-full border border-border mr-2">
+              <button
+                onClick={() => navigate('/')}
+                className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${
+                  !isAnimeExperience ? 'bg-background shadow-md text-primary' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Movies & TV
+              </button>
+              <button
+                onClick={() => navigate('/anime')}
+                className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${
+                  isAnimeExperience ? 'bg-orange-500 shadow-md text-white' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Soudanime
+              </button>
+            </div>
+
+            {!isAnimeExperience ? (
+              <>
+                <NavLink to="/">Home</NavLink>
+                <NavLink to="/movies">Movies</NavLink>
+                <NavLink to="/tv">TV Shows</NavLink>
+                {user && <NavLink to="/mylist">My List</NavLink>}
+              </>
+            ) : (
+              <>
+                <NavLink to="/anime">Home</NavLink>
+                <NavLink to="/anime-movies">Movies</NavLink>
+                {user && <NavLink to="/mylist">My List</NavLink>}
+              </>
+            )}
+
             <a
               href="https://soudsports.pages.dev/"
               target="_blank"
@@ -212,12 +243,37 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] bg-background/95 backdrop-blur-xl border-border overflow-y-auto">
-              <nav className="flex flex-col gap-5 mt-10">
-                <NavLink to="/">Home</NavLink>
-                <NavLink to="/movies">Movies</NavLink>
-                <NavLink to="/tv">TV Shows</NavLink>
-                <NavLink to="/anime">Anime</NavLink>
-                <NavLink to="/anime-movies">Anime Movies</NavLink>
+              <div className="flex bg-muted/50 p-1 rounded-lg border border-border mt-6">
+                <button
+                  onClick={() => navigate('/')}
+                  className={`flex-1 py-2 rounded-md text-sm font-semibold transition-all ${
+                    !isAnimeExperience ? 'bg-background shadow-md text-primary' : 'text-muted-foreground'
+                  }`}
+                >
+                  Movies
+                </button>
+                <button
+                  onClick={() => navigate('/anime')}
+                  className={`flex-1 py-2 rounded-md text-sm font-semibold transition-all ${
+                    isAnimeExperience ? 'bg-orange-500 shadow-md text-white' : 'text-muted-foreground'
+                  }`}
+                >
+                  Anime
+                </button>
+              </div>
+              <nav className="flex flex-col gap-5 mt-6">
+                {!isAnimeExperience ? (
+                  <>
+                    <NavLink to="/">Home</NavLink>
+                    <NavLink to="/movies">Movies</NavLink>
+                    <NavLink to="/tv">TV Shows</NavLink>
+                  </>
+                ) : (
+                  <>
+                    <NavLink to="/anime">Home</NavLink>
+                    <NavLink to="/anime-movies">Anime Movies</NavLink>
+                  </>
+                )}
                 
                 {user && <NavLink to="/mylist">My List</NavLink>}
                 <a
