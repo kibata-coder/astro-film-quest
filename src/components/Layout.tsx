@@ -5,7 +5,6 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import { useMedia } from '@/features/shared';
 import { useVideoPlayer } from '@/features/player';
 import { useAuth, AuthModal } from '@/features/auth';
-import { SplashSelectScreen } from '@/components/SplashSelectScreen';
 
 const MovieModal = lazy(() => import('@/features/movies/MovieModal'));
 const TVShowModal = lazy(() => import('@/features/tv/TVShowModal'));
@@ -127,9 +126,7 @@ const Layout = memo(({ children, onSearch, searchQuery, showFooter = true }: Lay
     <div className="min-h-screen bg-background">
       <Header onSearch={onSearch} searchQuery={searchQuery} />
 
-      <SplashSelectScreen>
-        {children}
-      </SplashSelectScreen>
+      {children}
 
       {showFooter && <Footer />}
 

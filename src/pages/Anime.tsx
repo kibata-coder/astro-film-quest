@@ -1,5 +1,5 @@
 import { Flame, PlayCircle } from 'lucide-react';
-import { useRecentAnime } from '@/hooks/use-anikoto';
+import { useRecentAnime } from '@/hooks/use-anilist';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import SoudanimeCard from '@/components/SoudanimeCard';
 import { Link } from 'react-router-dom';
@@ -48,8 +48,8 @@ const Anime = () => {
         <div className="relative w-full h-[60vh] md:h-[80vh] overflow-hidden">
           <div className="absolute inset-0 bg-black">
             <img 
-              src={heroAnime[0].poster} 
-              alt={heroAnime[0].title}
+              src={heroAnime[0].bannerImage || heroAnime[0].coverImage?.large} 
+              alt={heroAnime[0].title.english || heroAnime[0].title.romaji}
               className="w-full h-full object-cover opacity-60 blur-sm"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
@@ -60,8 +60,8 @@ const Anime = () => {
             <div className="container mx-auto px-5 md:px-12 flex gap-8 items-center">
               <div className="hidden md:block w-1/4 shrink-0">
                 <img 
-                  src={heroAnime[0].poster} 
-                  alt={heroAnime[0].title}
+                  src={heroAnime[0].coverImage?.large} 
+                  alt={heroAnime[0].title.english || heroAnime[0].title.romaji}
                   className="w-full rounded-2xl shadow-2xl border-4 border-orange-500/20"
                 />
               </div>
@@ -71,11 +71,11 @@ const Anime = () => {
                   Trending Now
                 </div>
                 <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white drop-shadow-lg">
-                  {heroAnime[0].title}
+                  {heroAnime[0].title.english || heroAnime[0].title.romaji}
                 </h1>
-                {heroAnime[0].terms_by_type?.genre && (
+                {heroAnime[0].genres && (
                   <div className="flex gap-2 flex-wrap">
-                    {heroAnime[0].terms_by_type.genre.slice(0, 4).map(g => (
+                    {heroAnime[0].genres.slice(0, 4).map(g => (
                       <span key={g} className="px-3 py-1 rounded-full bg-white/10 text-white text-xs font-semibold backdrop-blur-md border border-white/20">
                         {g}
                       </span>
@@ -83,9 +83,10 @@ const Anime = () => {
                   </div>
                 )}
                 {heroAnime[0].description && (
-                  <p className="text-lg text-gray-300 line-clamp-3 md:line-clamp-4 max-w-xl">
-                    {heroAnime[0].description}
-                  </p>
+                  <p 
+                    className="text-lg text-gray-300 line-clamp-3 md:line-clamp-4 max-w-xl"
+                    dangerouslySetInnerHTML={{ __html: heroAnime[0].description }}
+                  />
                 )}
                 <div className="pt-4">
                   <Link 

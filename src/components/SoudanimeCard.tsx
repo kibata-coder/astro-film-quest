@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
-import type { AnikotoAnime } from '@/lib/anikoto';
+import type { AniListAnime } from '@/lib/anilist';
 
 interface SoudanimeCardProps {
-  anime: AnikotoAnime;
+  anime: AniListAnime;
 }
 
 const SoudanimeCard = ({ anime }: SoudanimeCardProps) => {
@@ -12,10 +12,10 @@ const SoudanimeCard = ({ anime }: SoudanimeCardProps) => {
       className="group relative flex flex-col gap-2 rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 hover:z-10 focus:outline-none focus:ring-2 focus:ring-orange-500 w-[160px] md:w-[200px] shrink-0"
     >
       <div className="relative aspect-[2/3] w-full overflow-hidden rounded-xl bg-muted/20 border border-border shadow-sm">
-        {anime.poster ? (
+        {anime.coverImage?.large ? (
           <img 
-            src={anime.poster} 
-            alt={anime.title} 
+            src={anime.coverImage.large} 
+            alt={anime.title.romaji || anime.title.english || 'Anime'} 
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
             loading="lazy"
           />
@@ -28,11 +28,11 @@ const SoudanimeCard = ({ anime }: SoudanimeCardProps) => {
       </div>
       <div className="px-1">
         <h3 className="font-semibold text-sm md:text-base leading-tight line-clamp-2 group-hover:text-orange-500 transition-colors">
-          {anime.title}
+          {anime.title.english || anime.title.romaji}
         </h3>
-        {anime.terms_by_type?.genre && anime.terms_by_type.genre.length > 0 && (
+        {anime.genres && anime.genres.length > 0 && (
           <p className="text-xs text-muted-foreground truncate mt-1">
-            {anime.terms_by_type.genre.join(', ')}
+            {anime.genres.join(', ')}
           </p>
         )}
       </div>
