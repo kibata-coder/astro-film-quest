@@ -118,10 +118,10 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
               </>
             ) : (
               <>
-                <NavLink to="/anime" className="text-sm font-medium hover:text-orange-500 transition-colors">Browse</NavLink>
-                <button onClick={() => { navigate('/anime'); setTimeout(() => document.getElementById('seasonal')?.scrollIntoView({behavior: 'smooth'}), 100) }} className="text-sm font-medium text-muted-foreground hover:text-orange-500 transition-colors">Seasonal</button>
-                <button onClick={() => { navigate('/anime'); setTimeout(() => document.getElementById('popular')?.scrollIntoView({behavior: 'smooth'}), 100) }} className="text-sm font-medium text-muted-foreground hover:text-orange-500 transition-colors">Popular</button>
-                <button onClick={() => { navigate('/anime'); setTimeout(() => document.getElementById('new')?.scrollIntoView({behavior: 'smooth'}), 100) }} className="text-sm font-medium text-muted-foreground hover:text-orange-500 transition-colors">New</button>
+                <NavLink to="/anime" end className="text-sm font-medium hover:text-orange-500 transition-colors">Browse</NavLink>
+                <NavLink to="/anime/seasonal" className="text-sm font-medium hover:text-orange-500 transition-colors">Seasonal</NavLink>
+                <NavLink to="/anime/popular" className="text-sm font-medium hover:text-orange-500 transition-colors">Popular</NavLink>
+                <NavLink to="/anime/new" className="text-sm font-medium hover:text-orange-500 transition-colors">New</NavLink>
                 {user && <NavLink to="/mylist" className="text-sm font-medium hover:text-orange-500 transition-colors">My List</NavLink>}
               </>
             )}
@@ -284,10 +284,10 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
                   </>
                 ) : (
                   <>
-                    <NavLink to="/anime">Browse</NavLink>
-                    <button onClick={() => { navigate('/anime'); setTimeout(() => document.getElementById('seasonal')?.scrollIntoView({behavior: 'smooth'}), 100) }} className="text-left font-medium text-muted-foreground hover:text-orange-500">Seasonal</button>
-                    <button onClick={() => { navigate('/anime'); setTimeout(() => document.getElementById('popular')?.scrollIntoView({behavior: 'smooth'}), 100) }} className="text-left font-medium text-muted-foreground hover:text-orange-500">Popular</button>
-                    <button onClick={() => { navigate('/anime'); setTimeout(() => document.getElementById('new')?.scrollIntoView({behavior: 'smooth'}), 100) }} className="text-left font-medium text-muted-foreground hover:text-orange-500">New</button>
+                    <NavLink to="/anime" end>Browse</NavLink>
+                    <NavLink to="/anime/seasonal">Seasonal</NavLink>
+                    <NavLink to="/anime/popular">Popular</NavLink>
+                    <NavLink to="/anime/new">New</NavLink>
                   </>
                 )}
                 

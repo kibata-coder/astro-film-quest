@@ -91,6 +91,71 @@ export const getRecentAnime = async (page = 1, perPage = 20): Promise<AniListRec
   };
 };
 
+export const getAnimeList = async (
+  sort: string,
+  season?: string,
+  seasonYear?: number,
+  page = 1,
+  perPage = 20
+): Promise<AniListRecentResponse> => {
+  const query = `
+    query ($page: Int, $perPage: Int, $sort: [MediaSort], $season: MediaSeason, $seasonYear: Int) {
+      Page(page: $page, perPage: $perPage) {
+        pageInfo {
+          total
+          currentPage
+          lastPage
+          hasNextPage
+          perPage
+        }
+        media(type: ANIME, sort: $sort, season: $season, seasonYear: $seasonYear) {
+          id
+          title {
+            romaji
+            english
+          }
+          coverImage {
+            large
+            extraLarge
+          }
+          bannerImage
+          description
+          genres
+          episodes
+          status
+          nextAiringEpisode {
+            episode
+          }
+        }
+      }
+    }
+  `;
+
+  const variables: any = { page, perPage, sort: [sort] };
+  if (season && seasonYear) {
+    variables.season = season;
+    variables.seasonYear = seasonYear;
+  }
+
+  const response = await axios.post(ANILIST_URL, {
+    query,
+    variables,
+  });
+
+  const pageData = response.data.data.Page;
+
+  return {
+    ok: true,
+    data: pageData.media,
+    pagination: {
+      page: pageData.pageInfo.currentPage,
+      per_page: pageData.pageInfo.perPage,
+      total: pageData.pageInfo.total,
+      has_next: pageData.pageInfo.hasNextPage,
+    },
+  };
+};
+
 export const searchAnime = async (search: string, page = 1, perPage = 20): Promise<AniListRecentResponse> => {
   const query = `
     query ($page: Int, $perPage: Int, $search: String) {

@@ -20,6 +20,9 @@ const ForYou = lazy(() => import("./pages/ForYou"));
 const Genre = lazy(() => import("./pages/Genre"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Anime = lazy(() => import("./pages/Anime"));
+const AnimeSeasonal = lazy(() => import("./pages/AnimeSeasonal"));
+const AnimePopular = lazy(() => import("./pages/AnimePopular"));
+const AnimeNew = lazy(() => import("./pages/AnimeNew"));
 const SoudanimeDetails = lazy(() => import("./pages/SoudanimeDetails"));
 const Person = lazy(() => import("./pages/Person"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -60,6 +63,9 @@ const App = () => (
                     <Route path="/movies" element={<Movies />} />
                     <Route path="/tv" element={<TVShows />} />
                     <Route path="/anime" element={<Anime />} />
+                    <Route path="/anime/seasonal" element={<AnimeSeasonal />} />
+                    <Route path="/anime/popular" element={<AnimePopular />} />
+                    <Route path="/anime/new" element={<AnimeNew />} />
                     <Route path="/anime/:id" element={<SoudanimeDetails />} />
                     
                     <Route path="/mylist" element={<MyList />} />
