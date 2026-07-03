@@ -1,16 +1,23 @@
 import { Flame, PlayCircle } from 'lucide-react';
-import { useRecentAnime } from '@/hooks/use-anilist';
+import { useRecentAnime, useSearchAnime } from '@/hooks/use-anilist';
+import { useState } from 'react';
+import { useDebounce } from '@/hooks/use-debounce';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import SoudanimeCard from '@/components/SoudanimeCard';
 import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
+import Layout from '@/components/Layout';
 
 const Anime = () => {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useRecentAnime();
+  const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebounce(searchQuery, 300);
+  const { data: searchResults, isLoading: isSearching } = useSearchAnime(debouncedSearch);
 
-  // Infinite scroll
+  // Infinite scroll for the recent anime only if not searching
   useEffect(() => {
     const handleScroll = () => {
+      if (debouncedSearch) return; // Disable infinite scroll during search
       if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 1000) {
         if (hasNextPage && !isFetchingNextPage) {
           fetchNextPage();
@@ -42,9 +49,32 @@ const Anime = () => {
   const recentAnime = allAnime.slice(5);
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-20">
-      {/* Hero Section */}
-      {heroAnime.length > 0 && (
+    <Layout onSearch={setSearchQuery} searchQuery={searchQuery}>
+      <div className="bg-background text-foreground pb-20">
+      
+      {debouncedSearch ? (
+        <main className="container mx-auto px-5 md:px-12 pt-28 space-y-8 relative z-10">
+          <h2 className="text-2xl font-bold mb-4">
+            Search Results for "{debouncedSearch}"
+          </h2>
+          {isSearching ? (
+            <div className="flex justify-center py-8">
+              <LoadingSpinner />
+            </div>
+          ) : searchResults?.data?.length ? (
+            <div className="flex flex-wrap justify-center sm:justify-start gap-4 md:gap-6">
+              {searchResults.data.map((anime, i) => (
+                <SoudanimeCard key={`${anime.id}-${i}`} anime={anime} />
+              ))}
+            </div>
+          ) : (
+            <p className="text-muted-foreground">No anime found.</p>
+          )}
+        </main>
+      ) : (
+        <>
+        {/* Hero Section */}
+        {heroAnime.length > 0 && (
         <div className="relative w-full h-[60vh] md:h-[80vh] overflow-hidden">
           <div className="absolute inset-0 bg-black">
             <img 
@@ -117,13 +147,16 @@ const Anime = () => {
           </div>
         </div>
 
-        {isFetchingNextPage && (
-          <div className="flex justify-center py-8">
-            <LoadingSpinner />
-          </div>
-        )}
-      </main>
-    </div>
+          {isFetchingNextPage && (
+            <div className="flex justify-center py-8">
+              <LoadingSpinner />
+            </div>
+          )}
+        </main>
+        </>
+      )}
+      </div>
+    </Layout>
   );
 };
 

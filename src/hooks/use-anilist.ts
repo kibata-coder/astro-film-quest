@@ -1,5 +1,5 @@
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
-import { getRecentAnime, getAnimeSeries } from '@/lib/anilist';
+import { getRecentAnime, getAnimeSeries, searchAnime } from '@/lib/anilist';
 
 export const useRecentAnime = () => {
   return useInfiniteQuery({
@@ -12,6 +12,14 @@ export const useRecentAnime = () => {
       }
       return undefined;
     },
+  });
+};
+
+export const useSearchAnime = (searchQuery: string) => {
+  return useQuery({
+    queryKey: ['anilist', 'search', searchQuery],
+    queryFn: () => searchAnime(searchQuery, 1, 30),
+    enabled: !!searchQuery,
   });
 };
 

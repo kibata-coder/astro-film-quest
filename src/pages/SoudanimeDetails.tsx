@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { PlayCircle, ArrowLeft, MonitorPlay } from 'lucide-react';
 import { useAnimeSeries } from '@/hooks/use-anilist';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import Layout from '@/components/Layout';
 
 const SoudanimeDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -12,17 +13,21 @@ const SoudanimeDetails = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center pt-24 pb-12">
-        <LoadingSpinner />
-      </div>
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center pt-24 pb-12">
+          <LoadingSpinner />
+        </div>
+      </Layout>
     );
   }
 
   if (isError || !data || !data.ok) {
     return (
-      <div className="min-h-screen flex items-center justify-center pt-24 pb-12">
-        <p className="text-red-500">Failed to load anime details.</p>
-      </div>
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center pt-24 pb-12">
+          <p className="text-red-500">Failed to load anime details.</p>
+        </div>
+      </Layout>
     );
   }
 
@@ -69,7 +74,8 @@ const SoudanimeDetails = () => {
   const episodesList = Array.from({ length: episodeCount }, (_, i) => i + 1);
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-20">
+    <Layout>
+      <div className="bg-background text-foreground pb-20">
       {/* Cinematic Hero */}
       <div className="relative w-full h-[60vh] md:h-[70vh]">
         <div className="absolute inset-0 bg-black">
@@ -154,6 +160,7 @@ const SoudanimeDetails = () => {
         </div>
       </main>
     </div>
+    </Layout>
   );
 };
 
