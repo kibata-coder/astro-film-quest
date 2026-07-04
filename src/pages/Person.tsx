@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
+import Seo from '@/components/Seo';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import MediaGrid from '@/components/MediaGrid';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -111,6 +112,10 @@ const Person = () => {
 
   return (
     <Layout>
+      <Seo
+        title={`${person.name} — Filmography & Bio | SoudFlex`}
+        description={`Explore ${person.name}'s filmography, known roles, and biography on SoudFlex.${person.known_for_department ? ` Known for ${person.known_for_department}.` : ''}`.slice(0, 160)}
+      />
       <main className="container mx-auto px-5 md:px-8 pt-28 pb-16">
         {/* Header */}
         <section className="flex flex-col md:flex-row gap-6 md:gap-10 mb-10">

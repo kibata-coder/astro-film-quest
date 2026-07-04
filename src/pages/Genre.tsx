@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
+import Seo from '@/components/Seo';
 import { MovieGrid } from '@/features/movies';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { useMedia } from '@/features/shared';
@@ -43,6 +44,10 @@ const Genre = () => {
 
   return (
     <Layout>
+      <Seo
+        title={`${title || 'Movies'} — Browse by Genre | SoudFlex`}
+        description={`Browse and stream ${(title || 'movies').toLowerCase()} on SoudFlex. Handpicked titles across the ${(title || 'movies').toLowerCase()} genre.`}
+      />
       <main className="pt-24 px-5 md:px-16 pb-16 min-h-screen">
         <div className="mb-8 animate-fade-in">
           <h1 className="text-3xl md:text-4xl font-bold mb-2">{title}</h1>

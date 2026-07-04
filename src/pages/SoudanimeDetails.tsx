@@ -4,6 +4,7 @@ import { PlayCircle, ArrowLeft, MonitorPlay } from 'lucide-react';
 import { useAnimeSeries } from '@/hooks/use-anilist';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import Layout from '@/components/Layout';
+import Seo from '@/components/Seo';
 
 const SoudanimeDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -91,6 +92,10 @@ const SoudanimeDetails = () => {
 
   return (
     <Layout>
+      <Seo
+        title={`${anime.title.english || anime.title.romaji} — Watch Anime | SoudFlex`}
+        description={(anime.description || `Watch ${anime.title.english || anime.title.romaji} episodes subbed and dubbed on SoudFlex.`).replace(/<[^>]+>/g, '').slice(0, 160)}
+      />
       <div className="bg-background text-foreground pb-20">
       {/* Cinematic Hero */}
       <div className="relative w-full h-[60vh] md:h-[70vh]">
