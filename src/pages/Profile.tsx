@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import Seo from '@/components/Seo';
 import { useAuth } from '@/features/auth';
 import { supabase } from '@/integrations/supabase/client';
 import Layout from '@/components/Layout';
@@ -118,6 +119,11 @@ const Profile = () => {
 
   return (
     <Layout>
+      <Seo
+        title="Profile Settings | SoudFlex"
+        description="Manage your SoudFlex profile: update your display name and avatar."
+        canonicalPath="/profile"
+      />
       <div className="container mx-auto px-4 pt-24 pb-12 max-w-lg">
         <Card className="bg-card border-border">
           <CardHeader>
