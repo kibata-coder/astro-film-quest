@@ -22,7 +22,7 @@ const PROVIDERS: StreamProvider[] = [
   },
   {
     id: 'vidsrc',
-    name: 'Server 2 (Mauiii)(fixing subtitles issue)',
+    name: 'Server 2 (Mauiii)',
     movie: (id: number) =>
       `https://vidsrcme.su/embed/movie?tmdb=${id}&autoplay=1`,
     tv: (id: number, s: number, e: number) =>
@@ -38,7 +38,7 @@ const PROVIDERS: StreamProvider[] = [
   },
   {
     id: 'vidfun',
-    name: 'Server 4 (Hobbit)(recommended after jack sparrow)',
+    name: 'Server 4 (Hobbit)',
     movie: (id: number) => 
       `https://vidnest.fun/movie/${id}`,
     tv: (id: number, s: number, e: number) => 
