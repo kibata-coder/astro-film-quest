@@ -41,6 +41,11 @@ const Movies = () => {
 
   return (
     <Layout onSearch={setSearchQuery} searchQuery={searchQuery}>
+      <Seo
+        title="Movies — Watch Trending & Popular Films | SoudFlex"
+        description="Browse and stream trending movies across every genre and language. Filter by year, rating, and language to find your next film on SoudFlex."
+        canonicalPath="/movies"
+      />
       <main className="container mx-auto px-5 md:px-8 pt-28 pb-12">
         <h1 className="text-3xl font-bold mb-6">Movies</h1>
 

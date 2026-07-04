@@ -25,6 +25,11 @@ const ForYou = () => {
 
   return (
     <Layout>
+      <Seo
+        title="For You — Personalized Movie Picks | SoudFlex"
+        description="Movies and shows picked for you based on your watch history and engagement. Discover what to watch next on SoudFlex."
+        canonicalPath="/foryou"
+      />
       <main className="pt-24 px-5 md:px-16 pb-16 min-h-screen">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold mb-2 flex items-center gap-3">

@@ -51,6 +51,11 @@ const Anime = () => {
 
   return (
     <Layout onSearch={setSearchQuery} searchQuery={searchQuery}>
+      <Seo
+        title="Anime — Watch Subbed & Dubbed Series | SoudFlex"
+        description="Stream the latest anime series and movies with Sub or Dub. Browse recent releases, popular titles, and seasonal picks on SoudFlex."
+        canonicalPath="/anime"
+      />
       <div className="bg-background text-foreground pb-20">
       
       {debouncedSearch ? (

@@ -100,6 +100,11 @@ const MyList = () => {
 
   return (
     <Layout>
+      <Seo
+        title="My List — Bookmarks & Collections | SoudFlex"
+        description="Your saved movies, TV shows, and anime, organized into bookmarks and custom collections on SoudFlex."
+        canonicalPath="/mylist"
+      />
       <main className="pt-24 px-4 md:px-12 pb-12">
         <h1 className="text-3xl font-bold mb-6 text-foreground">My List</h1>
 
