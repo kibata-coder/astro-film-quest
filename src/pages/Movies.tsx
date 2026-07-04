@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Seo from '@/components/Seo';
 import { useQuery } from '@tanstack/react-query';
 import Layout from '@/components/Layout';
 import { useSearchMedia } from '@/hooks/use-media';

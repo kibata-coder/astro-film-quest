@@ -1,4 +1,5 @@
 import { Flame, PlayCircle } from 'lucide-react';
+import Seo from '@/components/Seo';
 import { useRecentAnime, useSearchAnime } from '@/hooks/use-anilist';
 import { useState } from 'react';
 import { useDebounce } from '@/hooks/use-debounce';

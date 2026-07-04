@@ -1,4 +1,5 @@
 import Layout from '@/components/Layout';
+import Seo from '@/components/Seo';
 import ForYouSection from '@/components/ForYouSection';
 import { useMedia } from '@/features/shared';
 import { useAuth } from '@/features/auth';

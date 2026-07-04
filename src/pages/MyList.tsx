@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Seo from '@/components/Seo';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getBookmarks, toggleBookmark } from '@/lib/bookmarks';
 import {

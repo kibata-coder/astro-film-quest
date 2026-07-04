@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import Seo from '@/components/Seo';
 import { useAuth } from '@/features/auth';
 import { supabase } from '@/integrations/supabase/client';
 import Layout from '@/components/Layout';

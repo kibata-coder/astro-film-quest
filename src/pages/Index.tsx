@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Seo from '@/components/Seo';
 import { Link } from 'react-router-dom';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useSearchMedia, useTrendingMovies } from '@/hooks/use-media';
