@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Seo from '@/components/Seo';
 import { Link } from 'react-router-dom';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useSearchMedia, useTrendingMovies } from '@/hooks/use-media';
@@ -43,6 +44,11 @@ const Index = () => {
 
   return (
     <Layout onSearch={setSearchQuery} searchQuery={searchQuery} showFooter={!debouncedSearch}>
+      <Seo
+        title="SoudFlex — Stream Movies, TV Shows & Anime Free"
+        description="Watch trending movies, TV shows, and anime online. Discover trailers, cast, and where to stream your favorites — all in one place on SoudFlex."
+        canonicalPath="/"
+      />
       {debouncedSearch ? (
         <main className="pt-24 px-4 md:px-12 pb-12">
            <h2 className="text-xl md:text-2xl font-semibold mb-6">Search Results for "{debouncedSearch}"</h2>

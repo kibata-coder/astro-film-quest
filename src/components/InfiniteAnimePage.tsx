@@ -5,6 +5,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import SoudanimeCard from '@/components/SoudanimeCard';
 import Layout from '@/components/Layout';
+import Seo from '@/components/Seo';
 import { UseInfiniteQueryResult } from '@tanstack/react-query';
 import { AniListRecentResponse } from '@/lib/anilist';
 
@@ -53,6 +54,10 @@ const InfiniteAnimePage = ({ title, icon: Icon, useQueryHook }: InfiniteAnimePag
 
   return (
     <Layout onSearch={setSearchQuery} searchQuery={searchQuery}>
+      <Seo
+        title={`${title} — Anime | SoudFlex`}
+        description={`Browse ${title.toLowerCase()} on SoudFlex. Stream subbed and dubbed episodes and discover new series.`}
+      />
       <div className="bg-background text-foreground pb-20">
         <main className="container mx-auto px-5 md:px-12 pt-28 space-y-8 relative z-10">
           
