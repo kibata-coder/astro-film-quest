@@ -233,7 +233,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
                     className="gap-2"
                   >
                     <a 
-                      href={`https://02moviedownloader.top/api/download/tv/${show.id}/${selectedSeason}/${ep.episode_number}`} 
+                      href={`https://streamrip.fun/tv/${show.id}/${selectedSeason}/${ep.episode_number}`} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       onClick={(e) => {
@@ -358,7 +358,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
                       asChild
                     >
                       <a 
-                        href={`https://02moviedownloader.top/api/download/tv/${show.id}/${selectedSeason}/${episode.episode_number}`} 
+                        href={`https://streamrip.fun/tv/${show.id}/${selectedSeason}/${episode.episode_number}`} 
                         target="_blank" 
                         rel="noopener noreferrer" 
                         onClick={(e) => {

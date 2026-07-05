@@ -1,14 +1,16 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState } from 'react';
-import { PlayCircle, ArrowLeft, MonitorPlay } from 'lucide-react';
+import { PlayCircle, ArrowLeft, MonitorPlay, Download } from 'lucide-react';
 import { useAnimeSeries } from '@/hooks/use-anilist';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import Layout from '@/components/Layout';
 import Seo from '@/components/Seo';
+import { useAuth } from '@/features/auth';
 
 const SoudanimeDetails = () => {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading, isError } = useAnimeSeries(id ? parseInt(id) : null);
+  const { user, openAuthModal } = useAuth();
   
   const [playingEpisode, setPlayingEpisode] = useState<{ number: number, language: string } | null>(null);
 
@@ -195,19 +197,34 @@ const SoudanimeDetails = () => {
                   </h3>
                   
                   <div className="flex gap-2 mt-auto">
-                  <button 
-                    onClick={() => setPlayingEpisode({ number: epNum, language: 'sub' })}
-                    className="flex-1 flex items-center justify-center gap-2 bg-orange-500/10 hover:bg-orange-500 text-orange-500 hover:text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all border border-orange-500/20 hover:border-orange-500"
-                  >
-                    <PlayCircle className="w-4 h-4" /> SUB
-                  </button>
-                  <button 
-                    onClick={() => setPlayingEpisode({ number: epNum, language: 'dub' })}
-                    className="flex-1 flex items-center justify-center gap-2 bg-blue-500/10 hover:bg-blue-500 text-blue-500 hover:text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all border border-blue-500/20 hover:border-blue-500"
-                  >
-                    <PlayCircle className="w-4 h-4" /> DUB
-                  </button>
-                </div>
+                    <button 
+                      onClick={() => setPlayingEpisode({ number: epNum, language: 'sub' })}
+                      className="flex-1 flex items-center justify-center gap-2 bg-orange-500/10 hover:bg-orange-500 text-orange-500 hover:text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all border border-orange-500/20 hover:border-orange-500"
+                    >
+                      <PlayCircle className="w-4 h-4" /> SUB
+                    </button>
+                    <button 
+                      onClick={() => setPlayingEpisode({ number: epNum, language: 'dub' })}
+                      className="flex-1 flex items-center justify-center gap-2 bg-blue-500/10 hover:bg-blue-500 text-blue-500 hover:text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all border border-blue-500/20 hover:border-blue-500"
+                    >
+                      <PlayCircle className="w-4 h-4" /> DUB
+                    </button>
+                    <a
+                      href={`https://streamrip.fun/anime/${anime.id}/${epNum}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => {
+                        if (!user) {
+                          e.preventDefault();
+                          openAuthModal();
+                        }
+                      }}
+                      className="flex items-center justify-center gap-2 bg-zinc-500/10 hover:bg-zinc-500 text-zinc-400 hover:text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all border border-zinc-500/20 hover:border-zinc-500"
+                      title="Download"
+                    >
+                      <Download className="w-4 h-4" />
+                    </a>
+                  </div>
               </div>
             </div>
             );
