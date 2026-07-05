@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Play, Star, Calendar, Tv, Plus, Check } from 'lucide-react';
+import { X, Play, Star, Calendar, Tv, Plus, Check, Download } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ import { isAnimeMedia } from '@/lib/anime';
 import { getProviders, getAnimeProviders } from '@/lib/vidsrc';
 import ThumbsRating from '@/components/ThumbsRating';
 import AddToCollectionDialog from '@/components/AddToCollectionDialog';
+import { useAuth } from '@/features/auth';
 
 interface TVShowModalProps {
   show: TVShow | null;
@@ -29,6 +30,7 @@ const PROVIDER_STORAGE_KEY = 'soudflex.preferredProvider';
 
 const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeason, initialEpisode }: TVShowModalProps) => {
   const isMobile = useIsMobile();
+  const { user, openAuthModal } = useAuth();
   const [details, setDetails] = useState<TVShowDetails | null>(null);
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [selectedSeason, setSelectedSeason] = useState<number>(1);
@@ -202,22 +204,53 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
         </div>
         
         <div className="flex flex-wrap items-center gap-3 mt-4 mb-1">
-          <Button
-            onClick={() => {
-              const resumeEp = initialEpisode !== undefined
-                ? episodes?.find(e => e.episode_number === initialEpisode)
-                : undefined;
-              const ep = resumeEp || episodes?.[0];
-              if (ep && show) {
-                handlePlayClick(show.id, show.name, selectedSeason, ep.episode_number, ep.name || `Episode ${ep.episode_number}`, show.poster_path);
-              }
-            }}
-            size={isMobile ? "default" : "lg"}
-            className="gap-2 bg-foreground text-background hover:bg-foreground/90 font-semibold"
-          >
-            <Play className="w-4 h-4 fill-current" />
-            {initialEpisode !== undefined && selectedSeason === initialSeason ? 'Resume' : 'Play'}
-          </Button>
+          {(() => {
+            const resumeEp = initialEpisode !== undefined
+              ? episodes?.find(e => e.episode_number === initialEpisode)
+              : undefined;
+            const ep = resumeEp || episodes?.[0];
+
+            return (
+              <>
+                <Button
+                  onClick={() => {
+                    if (ep && show) {
+                      handlePlayClick(show.id, show.name, selectedSeason, ep.episode_number, ep.name || `Episode ${ep.episode_number}`, show.poster_path);
+                    }
+                  }}
+                  size={isMobile ? "default" : "lg"}
+                  className="gap-2 bg-foreground text-background hover:bg-foreground/90 font-semibold"
+                >
+                  <Play className="w-4 h-4 fill-current" />
+                  {initialEpisode !== undefined && selectedSeason === initialSeason ? 'Resume' : 'Play'}
+                </Button>
+
+                {ep && (
+                  <Button
+                    asChild
+                    variant="secondary"
+                    size={isMobile ? "default" : "lg"}
+                    className="gap-2"
+                  >
+                    <a 
+                      href={`https://02moviedownloader.top/api/download/tv/${show.id}/${selectedSeason}/${ep.episode_number}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      onClick={(e) => {
+                        if (!user) {
+                          e.preventDefault();
+                          openAuthModal();
+                        }
+                      }}
+                    >
+                      <Download className="w-4 h-4" />
+                      Download
+                    </a>
+                  </Button>
+                )}
+              </>
+            );
+          })()}
 
           <Button
             variant="secondary"
@@ -317,17 +350,40 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
                       </p>
                     )}
                   </div>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="hover:bg-primary/20 hover:text-primary flex-shrink-0"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handlePlayClick(show.id, show.name, selectedSeason, episode.episode_number, displayName, show.poster_path);
-                    }}
-                  >
-                    <Play className="w-4 h-4" />
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="hover:bg-primary/20 hover:text-primary flex-shrink-0"
+                      asChild
+                    >
+                      <a 
+                        href={`https://02moviedownloader.top/api/download/tv/${show.id}/${selectedSeason}/${episode.episode_number}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!user) {
+                            e.preventDefault();
+                            openAuthModal();
+                          }
+                        }}
+                      >
+                        <Download className="w-4 h-4" />
+                      </a>
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="hover:bg-primary/20 hover:text-primary flex-shrink-0"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handlePlayClick(show.id, show.name, selectedSeason, episode.episode_number, displayName, show.poster_path);
+                      }}
+                    >
+                      <Play className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
                 );
               })

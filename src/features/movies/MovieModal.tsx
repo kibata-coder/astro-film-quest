@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Play, Check, Plus, Volume2, VolumeX } from 'lucide-react';
+import { X, Play, Check, Plus, Volume2, VolumeX, Download } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -24,6 +24,7 @@ import {
 import { checkIsBookmarked, toggleBookmark } from '@/lib/bookmarks';
 import { isAnimeMedia } from '@/lib/anime';
 import { useMedia } from '@/features/shared';
+import { useAuth } from '@/features/auth';
 import { getProviders, getAnimeProviders } from '@/lib/vidsrc';
 import { Badge } from '@/components/ui/badge';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -70,6 +71,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { forceCloseMovieModal } = useMedia();
+  const { user, openAuthModal } = useAuth();
   const [details, setDetails] = useState<Movie | null>(null);
   const [cast, setCast] = useState<Cast[]>([]);
   const [trailer, setTrailer] = useState<Video | null>(null);
@@ -242,6 +244,28 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
           >
             <Play className="w-4 h-4 fill-current" />
             Play
+          </Button>
+
+          <Button
+            asChild
+            variant="secondary"
+            size={isMobile ? "default" : "lg"}
+            className="gap-2"
+          >
+            <a 
+              href={`https://02moviedownloader.top/api/download/movie/${movie.id}`} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              onClick={(e) => {
+                if (!user) {
+                  e.preventDefault();
+                  openAuthModal();
+                }
+              }}
+            >
+              <Download className="w-4 h-4" />
+              Download
+            </a>
           </Button>
           
           <Button
