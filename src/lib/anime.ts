@@ -1,9 +1,7 @@
 // Anime utility functions for MegaPlay integration
 
-const JIKAN_API_BASE = 'https://api.jikan.moe/v4/anime';
-
 /**
- * Searches the Jikan API by title and returns the MAL ID of the best match.
+ * Searches the AniList API by title and returns the MAL ID of the best match.
  * Uses a timeout to prevent hanging.
  */
 export async function getMalIdByTitle(title: string, mediaType: 'tv' | 'movie'): Promise<number | null> {
@@ -14,20 +12,36 @@ export async function getMalIdByTitle(title: string, mediaType: 'tv' | 'movie'):
     // Clean up title for better search results (e.g. removing dates or extra tags if any)
     const cleanTitle = title.split(' (')[0].trim();
     
-    // Add type filter based on mediaType
-    const typeQuery = mediaType === 'movie' ? '&type=movie' : '&type=tv';
+    const query = `
+      query ($search: String, $format: MediaFormat) {
+        Media(search: $search, format: $format, type: ANIME, sort: POPULARITY_DESC) {
+          idMal
+        }
+      }
+    `;
     
-    const url = `${JIKAN_API_BASE}?q=${encodeURIComponent(cleanTitle)}&limit=3${typeQuery}`;
+    const format = mediaType === 'movie' ? 'MOVIE' : 'TV';
 
-    const res = await fetch(url, { signal: controller.signal });
+    const res = await fetch('https://graphql.anilist.co', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        query,
+        variables: { search: cleanTitle, format }
+      }),
+      signal: controller.signal
+    });
+    
     clearTimeout(timeout);
 
     if (!res.ok) return null;
 
     const data = await res.json();
-    if (data && data.data && data.data.length > 0) {
-      // Return the most relevant exact match or the first one
-      return data.data[0].mal_id;
+    if (data && data.data && data.data.Media && data.data.Media.idMal) {
+      return data.data.Media.idMal;
     }
     
     return null;

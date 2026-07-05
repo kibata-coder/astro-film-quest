@@ -1,21 +1,21 @@
 import { Link } from 'react-router-dom';
-import type { JikanAnime } from '@/lib/jikan';
+import type { AnilistAnime } from '@/lib/anilist';
 
 interface SoudanimeCardProps {
-  anime: JikanAnime;
+  anime: AnilistAnime;
 }
 
 const SoudanimeCard = ({ anime }: SoudanimeCardProps) => {
   return (
     <Link 
-      to={`/anime/${anime.mal_id}`} 
+      to={`/anime/${anime.id}`} 
       className="group relative flex flex-col gap-2 rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 hover:z-10 focus:outline-none focus:ring-2 focus:ring-orange-500 w-[160px] md:w-[200px] shrink-0"
     >
       <div className="relative aspect-[2/3] w-full overflow-hidden rounded-xl bg-muted/20 border border-border shadow-sm">
-        {anime.images?.jpg?.large_image_url ? (
+        {anime.coverImage?.large ? (
           <img 
-            src={anime.images.jpg.large_image_url} 
-            alt={anime.title_english || anime.title || 'Anime'} 
+            src={anime.coverImage.large} 
+            alt={anime.title.english || anime.title.romaji || 'Anime'} 
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
             loading="lazy"
           />
@@ -28,11 +28,11 @@ const SoudanimeCard = ({ anime }: SoudanimeCardProps) => {
       </div>
       <div className="px-1">
         <h3 className="font-semibold text-sm md:text-base leading-tight line-clamp-2 group-hover:text-orange-500 transition-colors">
-          {anime.title_english || anime.title}
+          {anime.title.english || anime.title.romaji}
         </h3>
         {anime.genres && anime.genres.length > 0 && (
           <p className="text-xs text-muted-foreground truncate mt-1">
-            {anime.genres.map(g => g.name).join(', ')}
+            {anime.genres.slice(0, 3).join(', ')}
           </p>
         )}
       </div>

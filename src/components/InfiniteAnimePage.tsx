@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useSearchAnime } from '@/hooks/use-jikan';
+import { useSearchAnime } from '@/hooks/use-anilist';
 import { useState } from 'react';
 import { useDebounce } from '@/hooks/use-debounce';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -7,12 +7,12 @@ import SoudanimeCard from '@/components/SoudanimeCard';
 import Layout from '@/components/Layout';
 import Seo from '@/components/Seo';
 import { UseInfiniteQueryResult, InfiniteData } from '@tanstack/react-query';
-import { JikanResponse, JikanAnime } from '@/lib/jikan';
+import { AnilistPage, AnilistAnime } from '@/lib/anilist';
 
 interface InfiniteAnimePageProps {
   title: string;
   icon: React.ElementType;
-  useQueryHook: () => UseInfiniteQueryResult<InfiniteData<JikanResponse<JikanAnime[]>, unknown>, Error>;
+  useQueryHook: () => UseInfiniteQueryResult<InfiniteData<AnilistPage, unknown>, Error>;
 }
 
 const InfiniteAnimePage = ({ title, icon: Icon, useQueryHook }: InfiniteAnimePageProps) => {
@@ -50,7 +50,7 @@ const InfiniteAnimePage = ({ title, icon: Icon, useQueryHook }: InfiniteAnimePag
     );
   }
 
-  const allAnime = data.pages.flatMap((page) => page.data);
+  const allAnime = data.pages.flatMap((page) => page.media);
 
   return (
     <Layout onSearch={setSearchQuery} searchQuery={searchQuery}>
@@ -72,10 +72,10 @@ const InfiniteAnimePage = ({ title, icon: Icon, useQueryHook }: InfiniteAnimePag
                 </div>
               ) : debouncedSearch.length < 3 ? (
                 <p className="text-muted-foreground text-center py-10">Please enter at least 3 characters to search.</p>
-              ) : searchResults?.data?.length ? (
+              ) : searchResults?.media?.length ? (
                 <div className="flex flex-wrap justify-center sm:justify-start gap-4 md:gap-6">
-                  {searchResults.data.map((anime, i) => (
-                    <SoudanimeCard key={`${anime.mal_id}-${i}`} anime={anime} />
+                  {searchResults.media.map((anime, i) => (
+                    <SoudanimeCard key={`${anime.id}-${i}`} anime={anime} />
                   ))}
                 </div>
               ) : (
@@ -90,7 +90,7 @@ const InfiniteAnimePage = ({ title, icon: Icon, useQueryHook }: InfiniteAnimePag
               </h1>
               <div className="flex flex-wrap justify-center sm:justify-start gap-4 md:gap-6">
                 {allAnime.map((anime, i) => (
-                  <SoudanimeCard key={`${anime.mal_id}-${i}`} anime={anime} />
+                  <SoudanimeCard key={`${anime.id}-${i}`} anime={anime} />
                 ))}
               </div>
               
