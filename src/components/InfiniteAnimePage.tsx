@@ -6,13 +6,13 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import SoudanimeCard from '@/components/SoudanimeCard';
 import Layout from '@/components/Layout';
 import Seo from '@/components/Seo';
-import { UseInfiniteQueryResult } from '@tanstack/react-query';
+import { UseInfiniteQueryResult, InfiniteData } from '@tanstack/react-query';
 import { AniListRecentResponse } from '@/lib/anilist';
 
 interface InfiniteAnimePageProps {
   title: string;
   icon: React.ElementType;
-  useQueryHook: () => UseInfiniteQueryResult<AniListRecentResponse, Error>;
+  useQueryHook: () => UseInfiniteQueryResult<InfiniteData<AniListRecentResponse, unknown>, Error>;
 }
 
 const InfiniteAnimePage = ({ title, icon: Icon, useQueryHook }: InfiniteAnimePageProps) => {

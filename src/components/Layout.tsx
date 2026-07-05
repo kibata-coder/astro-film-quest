@@ -36,7 +36,6 @@ const Layout = memo(({ children, onSearch, searchQuery, showFooter = true }: Lay
   const {
     videoState,
     episodeContext,
-    animeResolve,
     playMovie,
     playEpisode,
     nextEpisode,
