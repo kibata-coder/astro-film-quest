@@ -1,0 +1,13 @@
+# SoudFlex
+
+> SoudFlex is a free streaming discovery site for movies, TV shows, and anime — browse trending titles, get personalized picks, and watch trailers or full episodes. This website is for educational purposes only.
+
+## Pages
+
+- [Home](/): Trending movies, TV shows, and anime picked from TMDB and AniList.
+- [Movies](/movies): Browse and filter movies by genre, year, rating, and language.
+- [TV Shows](/tv): Browse and filter TV series by genre, year, rating, and language.
+- [Anime](/anime): Discover trending, popular, and seasonal anime with sub and dub playback.
+- [Anime Movies](/anime-movies): Feature-length animated films from Japan and beyond.
+- [For You](/foryou): Personalized recommendations built from your watch history (sign-in required).
+- [My List](/mylist): Your saved watchlists and collections (sign-in required).

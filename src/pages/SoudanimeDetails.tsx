@@ -132,10 +132,9 @@ const SoudanimeDetails = () => {
                 </div>
               )}
               {anime.description && (
-                <p 
-                  className="text-gray-300 text-sm md:text-base leading-relaxed line-clamp-4"
-                  dangerouslySetInnerHTML={{ __html: anime.description }}
-                />
+                <p className="text-gray-300 text-sm md:text-base leading-relaxed line-clamp-4">
+                  {anime.description.replace(/<[^>]*>/g, '')}
+                </p>
               )}
             </div>
           </div>

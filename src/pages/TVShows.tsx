@@ -45,6 +45,15 @@ const TVShows = () => {
         title="TV Shows — Stream Popular Series | SoudFlex"
         description="Discover popular TV shows and series across every genre. Filter by year, rating, and language to find your next binge on SoudFlex."
         canonicalPath="/tv"
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'CollectionPage',
+          name: 'TV Shows on SoudFlex',
+          description: 'Discover popular TV shows and series across every genre on SoudFlex.',
+          url: 'https://soudflex.pages.dev/tv',
+          isPartOf: { '@type': 'WebSite', name: 'SoudFlex', url: 'https://soudflex.pages.dev' },
+          about: { '@type': 'Thing', name: 'Television series' },
+        }}
       />
       <main className="container mx-auto px-5 md:px-8 pt-28 pb-12">
         <h1 className="text-3xl font-bold mb-6">TV Shows</h1>
