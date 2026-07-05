@@ -1,5 +1,5 @@
 import InfiniteAnimePage from '@/components/InfiniteAnimePage';
-import { useSeasonalAnime } from '@/hooks/use-anilist';
+import { useSeasonalAnime } from '@/hooks/use-jikan';
 import { Compass } from 'lucide-react';
 
 const AnimeSeasonal = () => {

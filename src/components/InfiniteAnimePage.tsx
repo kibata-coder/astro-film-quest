@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useSearchAnime } from '@/hooks/use-anilist';
+import { useSearchAnime } from '@/hooks/use-jikan';
 import { useState } from 'react';
 import { useDebounce } from '@/hooks/use-debounce';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -7,12 +7,12 @@ import SoudanimeCard from '@/components/SoudanimeCard';
 import Layout from '@/components/Layout';
 import Seo from '@/components/Seo';
 import { UseInfiniteQueryResult, InfiniteData } from '@tanstack/react-query';
-import { AniListRecentResponse } from '@/lib/anilist';
+import { JikanResponse, JikanAnime } from '@/lib/jikan';
 
 interface InfiniteAnimePageProps {
   title: string;
   icon: React.ElementType;
-  useQueryHook: () => UseInfiniteQueryResult<InfiniteData<AniListRecentResponse, unknown>, Error>;
+  useQueryHook: () => UseInfiniteQueryResult<InfiniteData<JikanResponse<JikanAnime[]>, unknown>, Error>;
 }
 
 const InfiniteAnimePage = ({ title, icon: Icon, useQueryHook }: InfiniteAnimePageProps) => {
@@ -73,7 +73,7 @@ const InfiniteAnimePage = ({ title, icon: Icon, useQueryHook }: InfiniteAnimePag
               ) : searchResults?.data?.length ? (
                 <div className="flex flex-wrap justify-center sm:justify-start gap-4 md:gap-6">
                   {searchResults.data.map((anime, i) => (
-                    <SoudanimeCard key={`${anime.id}-${i}`} anime={anime} />
+                    <SoudanimeCard key={`${anime.mal_id}-${i}`} anime={anime} />
                   ))}
                 </div>
               ) : (
@@ -88,7 +88,7 @@ const InfiniteAnimePage = ({ title, icon: Icon, useQueryHook }: InfiniteAnimePag
               </h1>
               <div className="flex flex-wrap justify-center sm:justify-start gap-4 md:gap-6">
                 {allAnime.map((anime, i) => (
-                  <SoudanimeCard key={`${anime.id}-${i}`} anime={anime} />
+                  <SoudanimeCard key={`${anime.mal_id}-${i}`} anime={anime} />
                 ))}
               </div>
               
