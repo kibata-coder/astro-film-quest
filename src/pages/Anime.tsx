@@ -119,10 +119,9 @@ const Anime = () => {
                   </div>
                 )}
                 {heroAnime[0].description && (
-                  <p 
-                    className="text-lg text-gray-300 line-clamp-3 md:line-clamp-4 max-w-xl"
-                    dangerouslySetInnerHTML={{ __html: heroAnime[0].description }}
-                  />
+                  <p className="text-lg text-gray-300 line-clamp-3 md:line-clamp-4 max-w-xl">
+                    {heroAnime[0].description.replace(/<[^>]*>/g, '')}
+                  </p>
                 )}
                 <div className="pt-4">
                   <Link 
