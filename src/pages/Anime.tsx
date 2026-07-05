@@ -67,6 +67,8 @@ const Anime = () => {
             <div className="flex justify-center py-8">
               <LoadingSpinner />
             </div>
+          ) : debouncedSearch.length < 3 ? (
+            <p className="text-muted-foreground text-center py-10">Please enter at least 3 characters to search.</p>
           ) : searchResults?.data?.length ? (
             <div className="flex flex-wrap justify-center sm:justify-start gap-4 md:gap-6">
               {searchResults.data.map((anime, i) => (
@@ -74,7 +76,7 @@ const Anime = () => {
               ))}
             </div>
           ) : (
-            <p className="text-muted-foreground">No anime found.</p>
+            <p className="text-muted-foreground text-center py-10">No anime found for "{debouncedSearch}".</p>
           )}
         </main>
       ) : (

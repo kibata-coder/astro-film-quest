@@ -19,7 +19,7 @@ export const useSearchAnime = (searchQuery: string) => {
   return useQuery({
     queryKey: ['jikan', 'search', searchQuery],
     queryFn: () => searchAnime(searchQuery, 1, 24),
-    enabled: !!searchQuery,
+    enabled: !!searchQuery && searchQuery.length >= 3,
   });
 };
 
