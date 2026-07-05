@@ -1,6 +1,6 @@
 import { Flame, PlayCircle } from 'lucide-react';
 import Seo from '@/components/Seo';
-import { useRecentAnime, useSearchAnime } from '@/hooks/use-jikan';
+import { useTrendingAnime, useSearchAnime } from '@/hooks/use-anilist';
 import { useState } from 'react';
 import { useDebounce } from '@/hooks/use-debounce';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -10,7 +10,7 @@ import { useEffect } from 'react';
 import Layout from '@/components/Layout';
 
 const Anime = () => {
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useRecentAnime();
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useTrendingAnime();
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearch = useDebounce(searchQuery, 300);
   const { data: searchResults, isLoading: isSearching } = useSearchAnime(debouncedSearch);
@@ -45,7 +45,7 @@ const Anime = () => {
     );
   }
 
-  const allAnime = data.pages.flatMap((page) => page.data);
+  const allAnime = data.pages.flatMap((page) => page.media);
   const heroAnime = allAnime.slice(0, 5); // Use first 5 for hero
   const recentAnime = allAnime.slice(5);
 
@@ -69,10 +69,10 @@ const Anime = () => {
             </div>
           ) : debouncedSearch.length < 3 ? (
             <p className="text-muted-foreground text-center py-10">Please enter at least 3 characters to search.</p>
-          ) : searchResults?.data?.length ? (
+          ) : searchResults?.media?.length ? (
             <div className="flex flex-wrap justify-center sm:justify-start gap-4 md:gap-6">
-              {searchResults.data.map((anime, i) => (
-                <SoudanimeCard key={`${anime.mal_id}-${i}`} anime={anime} />
+              {searchResults.media.map((anime, i) => (
+                <SoudanimeCard key={`${anime.id}-${i}`} anime={anime} />
               ))}
             </div>
           ) : (
@@ -86,8 +86,8 @@ const Anime = () => {
         <div id="seasonal" className="relative w-full h-[60vh] md:h-[80vh] overflow-hidden">
           <div className="absolute inset-0 bg-black">
             <img 
-              src={heroAnime[0].images?.jpg?.large_image_url} 
-              alt={heroAnime[0].title_english || heroAnime[0].title}
+              src={heroAnime[0].coverImage?.large} 
+              alt={heroAnime[0].title.english || heroAnime[0].title.romaji}
               className="w-full h-full object-cover opacity-60 blur-sm"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
@@ -98,8 +98,8 @@ const Anime = () => {
             <div className="container mx-auto px-5 md:px-12 flex gap-8 items-center">
               <div className="hidden md:block w-1/4 shrink-0">
                 <img 
-                  src={heroAnime[0].images?.jpg?.large_image_url} 
-                  alt={heroAnime[0].title_english || heroAnime[0].title}
+                  src={heroAnime[0].coverImage?.large} 
+                  alt={heroAnime[0].title.english || heroAnime[0].title.romaji}
                   className="w-full rounded-2xl shadow-2xl border-4 border-orange-500/20"
                 />
               </div>
@@ -109,25 +109,25 @@ const Anime = () => {
                   Trending Now
                 </div>
                 <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white drop-shadow-lg">
-                  {heroAnime[0].title_english || heroAnime[0].title}
+                  {heroAnime[0].title.english || heroAnime[0].title.romaji}
                 </h1>
                 {heroAnime[0].genres && (
                   <div className="flex gap-2 flex-wrap">
-                    {heroAnime[0].genres.slice(0, 4).map(g => (
-                      <span key={g.mal_id} className="px-3 py-1 rounded-full bg-white/10 text-white text-xs font-semibold backdrop-blur-md border border-white/20">
-                        {g.name}
+                    {heroAnime[0].genres.slice(0, 4).map((g, index) => (
+                      <span key={index} className="px-3 py-1 rounded-full bg-white/10 text-white text-xs font-semibold backdrop-blur-md border border-white/20">
+                        {g}
                       </span>
                     ))}
                   </div>
                 )}
-                {heroAnime[0].synopsis && (
+                {heroAnime[0].description && (
                   <p className="text-lg text-gray-300 line-clamp-3 md:line-clamp-4 max-w-xl">
-                    {heroAnime[0].synopsis.replace(/<[^>]*>/g, '')}
+                    {heroAnime[0].description.replace(/<[^>]*>/g, '')}
                   </p>
                 )}
                 <div className="pt-4">
                   <Link 
-                    to={`/anime/${heroAnime[0].mal_id}`}
+                    to={`/anime/${heroAnime[0].id}`}
                     className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105 hover:shadow-[0_0_30px_-5px_rgba(249,115,22,0.6)]"
                   >
                     <PlayCircle className="w-6 h-6" />
@@ -149,7 +149,7 @@ const Anime = () => {
           </h2>
           <div className="flex flex-wrap justify-center sm:justify-start gap-4 md:gap-6">
             {recentAnime.map((anime, i) => (
-              <SoudanimeCard key={`${anime.mal_id}-${i}`} anime={anime} />
+              <SoudanimeCard key={`${anime.id}-${i}`} anime={anime} />
             ))}
           </div>
         </div>
