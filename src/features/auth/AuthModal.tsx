@@ -79,7 +79,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/`
+          redirectTo: 'https://soudflex.pages.dev/'
         }
       });
       if (error) throw error;
