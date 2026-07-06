@@ -13,24 +13,17 @@ const benefits = [
 ];
 
 export default function SignUpPrompt() {
-  const { user, openAuthModal } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    if (user) return;
-    const timer = setTimeout(() => setIsOpen(true), 5000);
-    return () => clearTimeout(timer);
-  }, [user]);
+  const { user, isSignUpPromptOpen, closeSignUpPrompt, openAuthModal } = useAuth();
 
   if (user) return null;
 
   const handleSignUp = () => {
-    setIsOpen(false);
+    closeSignUpPrompt();
     openAuthModal();
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isSignUpPromptOpen} onOpenChange={closeSignUpPrompt}>
       <DialogContent className="max-w-md bg-card border-border">
         <DialogHeader>
           <DialogTitle className="text-xl text-center">Get More From SoudFlex</DialogTitle>
@@ -48,7 +41,7 @@ export default function SignUpPrompt() {
         </ul>
         <div className="flex flex-col gap-2 pt-2">
           <Button onClick={handleSignUp} className="w-full">Create Free Account</Button>
-          <Button variant="ghost" onClick={() => setIsOpen(false)} className="w-full text-muted-foreground">
+          <Button variant="ghost" onClick={closeSignUpPrompt} className="w-full text-muted-foreground">
             Maybe Later
           </Button>
         </div>

@@ -71,7 +71,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { forceCloseMovieModal } = useMedia();
-  const { user, openAuthModal } = useAuth();
+  const { user, openSignUpPrompt } = useAuth();
   const [details, setDetails] = useState<Movie | null>(null);
   const [cast, setCast] = useState<Cast[]>([]);
   const [trailer, setTrailer] = useState<Video | null>(null);
@@ -259,7 +259,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
               onClick={(e) => {
                 if (!user) {
                   e.preventDefault();
-                  openAuthModal();
+                  openSignUpPrompt();
                 }
               }}
             >

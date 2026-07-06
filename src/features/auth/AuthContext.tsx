@@ -7,8 +7,11 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthModalOpen: boolean;
+  isSignUpPromptOpen: boolean;
   openAuthModal: () => void;
   closeAuthModal: () => void;
+  openSignUpPrompt: () => void;
+  closeSignUpPrompt: () => void;
   signOut: () => Promise<void>;
 }
 
@@ -18,6 +21,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isSignUpPromptOpen, setIsSignUpPromptOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -29,6 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(session?.user ?? null);
       if (session?.user) {
         setIsAuthModalOpen(false);
+        setIsSignUpPromptOpen(false);
         if (event === 'SIGNED_IN') {
           await syncLocalHistoryToCloud(session.user.id);
           window.dispatchEvent(new Event('watch-history-updated'));
@@ -41,6 +46,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const openAuthModal = useCallback(() => setIsAuthModalOpen(true), []);
   const closeAuthModal = useCallback(() => setIsAuthModalOpen(false), []);
+  
+  const openSignUpPrompt = useCallback(() => setIsSignUpPromptOpen(true), []);
+  const closeSignUpPrompt = useCallback(() => setIsSignUpPromptOpen(false), []);
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
@@ -51,8 +59,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       isLoading,
       isAuthModalOpen,
+      isSignUpPromptOpen,
       openAuthModal,
       closeAuthModal,
+      openSignUpPrompt,
+      closeSignUpPrompt,
       signOut,
     }}>
       {children}

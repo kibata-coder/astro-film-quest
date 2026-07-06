@@ -16,7 +16,7 @@ interface RatingCounts {
 }
 
 const ThumbsRating = ({ mediaId, mediaType }: ThumbsRatingProps) => {
-  const { user, openAuthModal } = useAuth();
+  const { user, openSignUpPrompt } = useAuth();
   const { toast } = useToast();
   const [userRating, setUserRating] = useState<1 | -1 | null>(null);
   const [counts, setCounts] = useState<RatingCounts>({ likes: 0, dislikes: 0 });
@@ -57,7 +57,7 @@ const ThumbsRating = ({ mediaId, mediaType }: ThumbsRatingProps) => {
 
   const handleRate = async (rating: 1 | -1) => {
     if (!user) {
-      openAuthModal();
+      openSignUpPrompt();
       return;
     }
     setLoading(true);

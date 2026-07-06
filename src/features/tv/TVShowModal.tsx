@@ -30,7 +30,7 @@ const PROVIDER_STORAGE_KEY = 'soudflex.preferredProvider';
 
 const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeason, initialEpisode }: TVShowModalProps) => {
   const isMobile = useIsMobile();
-  const { user, openAuthModal } = useAuth();
+  const { user, openSignUpPrompt } = useAuth();
   const [details, setDetails] = useState<TVShowDetails | null>(null);
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [selectedSeason, setSelectedSeason] = useState<number>(1);
@@ -239,7 +239,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
                       onClick={(e) => {
                         if (!user) {
                           e.preventDefault();
-                          openAuthModal();
+                          openSignUpPrompt();
                         }
                       }}
                     >
@@ -365,7 +365,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
                           e.stopPropagation();
                           if (!user) {
                             e.preventDefault();
-                            openAuthModal();
+                            openSignUpPrompt();
                           }
                         }}
                       >

@@ -8,16 +8,16 @@ import { Button } from '@/components/ui/button';
 
 const ForYou = () => {
   const { openMovieModal } = useMedia();
-  const { user, openAuthModal } = useAuth();
+  const { user, openSignUpPrompt } = useAuth();
 
   if (!user) {
     return (
       <Layout>
-        <div className="pt-32 px-4 flex flex-col items-center justify-center min-h-[50vh] text-center space-y-6">
-          <Sparkles className="w-16 h-16 text-yellow-400" />
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-center px-4">
+          <Sparkles className="w-16 h-16 text-primary opacity-50" />
           <h1 className="text-3xl font-bold">Personalized Recommendations</h1>
           <p className="text-muted-foreground max-w-md">Sign in to track your watch history and get movies picked just for you.</p>
-          <Button onClick={openAuthModal} size="lg" className="font-semibold">Sign In to Discover</Button>
+          <Button onClick={openSignUpPrompt} size="lg" className="font-semibold">Sign In to Discover</Button>
         </div>
       </Layout>
     );

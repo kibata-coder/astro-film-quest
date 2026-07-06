@@ -28,7 +28,7 @@ interface AddToCollectionDialogProps {
 }
 
 const AddToCollectionDialog = ({ mediaId, mediaType, title, posterPath }: AddToCollectionDialogProps) => {
-  const { user, openAuthModal } = useAuth();
+  const { user, openSignUpPrompt } = useAuth();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [collections, setCollections] = useState<Collection[]>([]);
@@ -77,7 +77,7 @@ const AddToCollectionDialog = ({ mediaId, mediaType, title, posterPath }: AddToC
 
   const handleOpenChange = (value: boolean) => {
     if (value && !user) {
-      openAuthModal();
+      openSignUpPrompt();
       return;
     }
     setOpen(value);

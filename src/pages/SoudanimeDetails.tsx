@@ -10,7 +10,7 @@ import { useAuth } from '@/features/auth';
 const SoudanimeDetails = () => {
   const { id } = useParams<{ id: string }>();
   const { data: anime, isLoading, isError } = useAnimeSeries(id ? parseInt(id) : null);
-  const { user, openAuthModal } = useAuth();
+  const { user } = useAuth();
   
   const [playingEpisode, setPlayingEpisode] = useState<{ number: number, language: string } | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
