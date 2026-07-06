@@ -25,6 +25,7 @@ const AnimePopular = lazy(() => import("./pages/AnimePopular"));
 const AnimeNew = lazy(() => import("./pages/AnimeNew"));
 const SoudanimeDetails = lazy(() => import("./pages/SoudanimeDetails"));
 const Person = lazy(() => import("./pages/Person"));
+const Login = lazy(() => import("./pages/Login"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -72,6 +73,7 @@ const App = () => (
                     <Route path="/foryou" element={<ForYou />} />
                     <Route path="/genre/:id" element={<Genre />} />
                     <Route path="/profile" element={<Profile />} />
+                    <Route path="/login" element={<Login />} />
                     <Route path="/person/:id" element={<Person />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>

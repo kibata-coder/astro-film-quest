@@ -13,6 +13,82 @@ const SoudanimeDetails = () => {
   const { user, openAuthModal } = useAuth();
   
   const [playingEpisode, setPlayingEpisode] = useState<{ number: number, language: string } | null>(null);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [activeRange, setActiveRange] = useState<[number, number] | null>(null);
+
+  // Helper to parse episode number from title
+  const parseEpisodeNumber = (title: string): number | null => {
+    // Matches "Episode 123", "Episode 123 - ...", "Ep 123", "Ep. 123"
+    const match = title.match(/(?:Episode|Ep\.?)\s*(\d+)/i);
+    if (match) return parseInt(match[1], 10);
+    
+    // Fallback: match any standalone number in the title
+    const numMatch = title.match(/\b(\d+)\b/);
+    if (numMatch) return parseInt(numMatch[1], 10);
+    
+    return null;
+  };
+
+  // Extract all parsed episode numbers from streamingEpisodes to find the maximum
+  const streamingEpisodeNumbers = anime?.streamingEpisodes
+    ? anime.streamingEpisodes
+        .map(ep => parseEpisodeNumber(ep.title))
+        .filter((num): num is number => num !== null)
+    : [];
+
+  const maxStreamingEpisode = streamingEpisodeNumbers.length > 0
+    ? Math.max(...streamingEpisodeNumbers)
+    : 0;
+
+  // Total episodes: check nextAiringEpisode (ongoing), episodes (finished), or the max parsed episode
+  const nextAiring = anime?.nextAiringEpisode?.episode;
+  const currentCount = nextAiring ? nextAiring - 1 : null;
+
+  const episodeCount = anime?.episodes || currentCount || maxStreamingEpisode || 12;
+
+  // Generate ranges of 100 episodes
+  const TAB_SIZE = 100;
+  const ranges: [number, number][] = [];
+  for (let i = 1; i <= episodeCount; i += TAB_SIZE) {
+    const end = Math.min(i + TAB_SIZE - 1, episodeCount);
+    ranges.push([i, end]);
+  }
+
+  // Synchronize activeRange when ranges or sortOrder changes
+  useEffect(() => {
+    if (ranges.length > 0) {
+      if (sortOrder === 'desc') {
+        setActiveRange(ranges[ranges.length - 1]);
+      } else {
+        setActiveRange(ranges[0]);
+      }
+    } else {
+      setActiveRange(null);
+    }
+  }, [episodeCount, sortOrder]);
+
+  // Get list of episode numbers to render
+  let renderedEpisodes: number[] = [];
+  if (activeRange) {
+    const [start, end] = activeRange;
+    for (let i = start; i <= end; i++) {
+      renderedEpisodes.push(i);
+    }
+  } else {
+    for (let i = 1; i <= episodeCount; i++) {
+      renderedEpisodes.push(i);
+    }
+  }
+
+  if (sortOrder === 'desc') {
+    renderedEpisodes.reverse();
+  }
+
+  // Helper to extract episode info
+  const getEpisodeInfo = (epNum: number) => {
+    if (!anime?.streamingEpisodes) return null;
+    return anime.streamingEpisodes.find(ep => parseEpisodeNumber(ep.title) === epNum) || null;
+  };
 
   if (isLoading) {
     return (
@@ -63,83 +139,6 @@ const SoudanimeDetails = () => {
       </div>
     );
   }
-
-  // Helper to parse episode number from title
-  const parseEpisodeNumber = (title: string): number | null => {
-    // Matches "Episode 123", "Episode 123 - ...", "Ep 123", "Ep. 123"
-    const match = title.match(/(?:Episode|Ep\.?)\s*(\d+)/i);
-    if (match) return parseInt(match[1], 10);
-    
-    // Fallback: match any standalone number in the title
-    const numMatch = title.match(/\b(\d+)\b/);
-    if (numMatch) return parseInt(numMatch[1], 10);
-    
-    return null;
-  };
-
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [activeRange, setActiveRange] = useState<[number, number] | null>(null);
-
-  // Extract all parsed episode numbers from streamingEpisodes to find the maximum
-  const streamingEpisodeNumbers = anime.streamingEpisodes
-    ? anime.streamingEpisodes
-        .map(ep => parseEpisodeNumber(ep.title))
-        .filter((num): num is number => num !== null)
-    : [];
-
-  const maxStreamingEpisode = streamingEpisodeNumbers.length > 0
-    ? Math.max(...streamingEpisodeNumbers)
-    : 0;
-
-  // Total episodes: check nextAiringEpisode (ongoing), episodes (finished), or the max parsed episode
-  const nextAiring = anime.nextAiringEpisode?.episode;
-  const currentCount = nextAiring ? nextAiring - 1 : null;
-
-  const episodeCount = anime.episodes || currentCount || maxStreamingEpisode || 12;
-
-  // Generate ranges of 100 episodes
-  const TAB_SIZE = 100;
-  const ranges: [number, number][] = [];
-  for (let i = 1; i <= episodeCount; i += TAB_SIZE) {
-    const end = Math.min(i + TAB_SIZE - 1, episodeCount);
-    ranges.push([i, end]);
-  }
-
-  // Synchronize activeRange when ranges or sortOrder changes
-  useEffect(() => {
-    if (ranges.length > 0) {
-      if (sortOrder === 'desc') {
-        setActiveRange(ranges[ranges.length - 1]);
-      } else {
-        setActiveRange(ranges[0]);
-      }
-    } else {
-      setActiveRange(null);
-    }
-  }, [episodeCount, sortOrder]);
-
-  // Get list of episode numbers to render
-  let renderedEpisodes: number[] = [];
-  if (activeRange) {
-    const [start, end] = activeRange;
-    for (let i = start; i <= end; i++) {
-      renderedEpisodes.push(i);
-    }
-  } else {
-    for (let i = 1; i <= episodeCount; i++) {
-      renderedEpisodes.push(i);
-    }
-  }
-
-  if (sortOrder === 'desc') {
-    renderedEpisodes.reverse();
-  }
-
-  // Helper to extract episode info
-  const getEpisodeInfo = (epNum: number) => {
-    if (!anime.streamingEpisodes) return null;
-    return anime.streamingEpisodes.find(ep => parseEpisodeNumber(ep.title) === epNum) || null;
-  };
 
   return (
     <Layout>
