@@ -253,7 +253,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
             className="gap-2"
           >
             <a 
-              href="https://02moviedownloader.top/" 
+              href={`https://02moviedownloader.top/api/download/movie/${movie.id}`}
               target="_blank" 
               rel="noopener noreferrer"
               onClick={(e) => {
