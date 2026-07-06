@@ -142,7 +142,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
   const year = show.first_air_date ? new Date(show.first_air_date).getFullYear() : 'N/A';
   const seasons = details?.seasons?.filter(s => s.season_number > 0) || [];
 
-  const Content = () => (
+  const renderContent = () => (
     <div className="relative bg-background h-full overflow-y-auto">
       <button
         onClick={onClose}
@@ -475,7 +475,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
       <Sheet open={isOpen} onOpenChange={() => onClose()}>
         <SheetContent side="bottom" className="h-[92vh] p-0 border-0 rounded-t-xl overflow-hidden">
           <div className="h-full overflow-y-auto">
-            <Content />
+            {renderContent()}
           </div>
         </SheetContent>
       </Sheet>
@@ -486,7 +486,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl p-0 overflow-hidden bg-background border-border max-h-[90vh]">
         <ScrollArea className="h-[90vh]">
-          <Content />
+          {renderContent()}
         </ScrollArea>
       </DialogContent>
     </Dialog>

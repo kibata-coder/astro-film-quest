@@ -169,7 +169,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
 
   const backdropUrl = getBackdropUrl(movie.backdrop_path);
 
-  const Content = () => (
+  const renderContent = () => (
     <div className="relative bg-background h-full overflow-y-auto">
       <button
         onClick={onClose}
@@ -383,7 +383,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
       <Sheet open={isOpen} onOpenChange={() => onClose()}>
         <SheetContent side="bottom" className="h-screen w-screen max-w-none p-0 border-0 rounded-none overflow-hidden">
           <div className="h-full overflow-y-auto">
-            <Content />
+            {renderContent()}
           </div>
         </SheetContent>
       </Sheet>
@@ -394,7 +394,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
     <Dialog open={isOpen} onOpenChange={() => onClose()}>
       <DialogContent className="max-w-4xl p-0 overflow-hidden border-0 bg-background max-h-[90vh]">
         <ScrollArea className="h-[90vh]">
-           <Content />
+           {renderContent()}
         </ScrollArea>
       </DialogContent>
     </Dialog>
