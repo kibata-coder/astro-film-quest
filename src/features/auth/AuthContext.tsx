@@ -41,8 +41,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    // Auto popup login modal after 5 seconds if not logged in
+    const timer = setTimeout(() => {
+      if (!user && !localStorage.getItem('hasSeenLoginPrompt')) {
+        setIsAuthModalOpen(true);
+        localStorage.setItem('hasSeenLoginPrompt', 'true');
+      }
+    }, 5000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timer);
+    };
+  }, [user]);
 
   const openAuthModal = useCallback(() => setIsAuthModalOpen(true), []);
   const closeAuthModal = useCallback(() => setIsAuthModalOpen(false), []);
