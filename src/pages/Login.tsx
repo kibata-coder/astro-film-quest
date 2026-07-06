@@ -80,20 +80,21 @@ const Login = () => {
   };
 
   const handleGoogleSignIn = async () => {
-    const { lovable } = await import('@/integrations/lovable');
-    const result = await lovable.auth.signInWithOAuth('google', {
-      redirect_uri: 'https://soudflex.pages.dev/',
-    });
-    if (result.error) {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: 'https://soudflex.pages.dev/'
+        }
+      });
+      if (error) throw error;
+    } catch (error: any) {
       toast({
         variant: 'destructive',
         title: 'Authentication Error',
-        description: result.error.message,
+        description: error.message,
       });
-      return;
     }
-    if (result.redirected) return;
-    navigate('/');
   };
 
   const getTitle = () => {

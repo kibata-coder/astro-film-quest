@@ -8,6 +8,12 @@
     <meta name="description" content="Discover trending movies, watch trailers, and find where to stream your favorites.">
     <meta name="author" content="SoudFlex" />
 
+    <!-- Auth Redirect Bridge: Catches Supabase tokens on Lovable and forwards them to Cloudflare -->
+    <script>
+      if (window.location.hostname.includes("lovable.app") && window.location.hash.includes("access_token")) {
+        window.location.replace("https://soudflex.pages.dev/" + window.location.hash);
+      }
+    </script>
     <!-- Performance Optimization: Preconnect to external resources -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
