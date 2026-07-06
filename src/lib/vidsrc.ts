@@ -22,7 +22,7 @@ const PROVIDERS: StreamProvider[] = [
   },
   {
     id: 'vidsrc',
-    name: 'Server 2 (Mauiii)',
+    name: 'Server 2 (Mauii)',
     movie: (id: number) =>
       `https://vidsrcme.su/embed/movie?tmdb=${id}&autoplay=1`,
     tv: (id: number, s: number, e: number) =>
