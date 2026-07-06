@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PlayCircle, ArrowLeft, MonitorPlay, Download } from 'lucide-react';
 import { useAnimeSeries } from '@/hooks/use-anilist';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -13,6 +13,82 @@ const SoudanimeDetails = () => {
   const { user, openAuthModal } = useAuth();
   
   const [playingEpisode, setPlayingEpisode] = useState<{ number: number, language: string } | null>(null);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [activeRange, setActiveRange] = useState<[number, number] | null>(null);
+
+  // Helper to parse episode number from title
+  const parseEpisodeNumber = (title: string): number | null => {
+    // Matches "Episode 123", "Episode 123 - ...", "Ep 123", "Ep. 123"
+    const match = title.match(/(?:Episode|Ep\.?)\s*(\d+)/i);
+    if (match) return parseInt(match[1], 10);
+    
+    // Fallback: match any standalone number in the title
+    const numMatch = title.match(/\b(\d+)\b/);
+    if (numMatch) return parseInt(numMatch[1], 10);
+    
+    return null;
+  };
+
+  // Extract all parsed episode numbers from streamingEpisodes to find the maximum
+  const streamingEpisodeNumbers = anime?.streamingEpisodes
+    ? anime.streamingEpisodes
+        .map(ep => parseEpisodeNumber(ep.title))
+        .filter((num): num is number => num !== null)
+    : [];
+
+  const maxStreamingEpisode = streamingEpisodeNumbers.length > 0
+    ? Math.max(...streamingEpisodeNumbers)
+    : 0;
+
+  // Total episodes: check nextAiringEpisode (ongoing), episodes (finished), or the max parsed episode
+  const nextAiring = anime?.nextAiringEpisode?.episode;
+  const currentCount = nextAiring ? nextAiring - 1 : null;
+
+  const episodeCount = anime?.episodes || currentCount || maxStreamingEpisode || 12;
+
+  // Generate ranges of 100 episodes
+  const TAB_SIZE = 100;
+  const ranges: [number, number][] = [];
+  for (let i = 1; i <= episodeCount; i += TAB_SIZE) {
+    const end = Math.min(i + TAB_SIZE - 1, episodeCount);
+    ranges.push([i, end]);
+  }
+
+  // Synchronize activeRange when ranges or sortOrder changes
+  useEffect(() => {
+    if (ranges.length > 0) {
+      if (sortOrder === 'desc') {
+        setActiveRange(ranges[ranges.length - 1]);
+      } else {
+        setActiveRange(ranges[0]);
+      }
+    } else {
+      setActiveRange(null);
+    }
+  }, [episodeCount, sortOrder]);
+
+  // Get list of episode numbers to render
+  let renderedEpisodes: number[] = [];
+  if (activeRange) {
+    const [start, end] = activeRange;
+    for (let i = start; i <= end; i++) {
+      renderedEpisodes.push(i);
+    }
+  } else {
+    for (let i = 1; i <= episodeCount; i++) {
+      renderedEpisodes.push(i);
+    }
+  }
+
+  if (sortOrder === 'desc') {
+    renderedEpisodes.reverse();
+  }
+
+  // Helper to extract episode info
+  const getEpisodeInfo = (epNum: number) => {
+    if (!anime?.streamingEpisodes) return null;
+    return anime.streamingEpisodes.find(ep => parseEpisodeNumber(ep.title) === epNum) || null;
+  };
 
   if (isLoading) {
     return (
@@ -63,18 +139,6 @@ const SoudanimeDetails = () => {
       </div>
     );
   }
-
-  // Calculate episode count
-  const episodeCount = anime.episodes || (anime.streamingEpisodes ? anime.streamingEpisodes.length : 12);
-  const episodesList = Array.from({ length: episodeCount }, (_, i) => i + 1);
-
-  // Helper to extract episode info
-  const getEpisodeInfo = (epNum: number) => {
-    if (anime.streamingEpisodes && anime.streamingEpisodes[epNum - 1]) {
-      return anime.streamingEpisodes[epNum - 1];
-    }
-    return null;
-  };
 
   return (
     <Layout>
@@ -129,12 +193,59 @@ const SoudanimeDetails = () => {
 
       {/* Episodes Section */}
       <main className="container mx-auto px-5 md:px-12 mt-16 relative z-10">
-        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-          <MonitorPlay className="w-6 h-6 text-orange-500" /> Episodes
-        </h2>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            <MonitorPlay className="w-6 h-6 text-orange-500" /> Episodes
+          </h2>
+          
+          <div className="flex bg-muted/40 rounded-lg p-0.5 border border-border self-start sm:self-auto">
+            <button
+              onClick={() => setSortOrder('desc')}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                sortOrder === 'desc'
+                  ? 'bg-orange-500 text-white shadow-sm'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              Newest First
+            </button>
+            <button
+              onClick={() => setSortOrder('asc')}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                sortOrder === 'asc'
+                  ? 'bg-orange-500 text-white shadow-sm'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              Oldest First
+            </button>
+          </div>
+        </div>
+
+        {/* Range Tabs */}
+        {ranges.length > 1 && (
+          <div className="flex gap-2 flex-wrap mb-6">
+            {(sortOrder === 'desc' ? [...ranges].reverse() : ranges).map((range) => {
+              const isActive = activeRange && activeRange[0] === range[0] && activeRange[1] === range[1];
+              return (
+                <button
+                  key={`${range[0]}-${range[1]}`}
+                  onClick={() => setActiveRange(range)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    isActive
+                      ? 'bg-orange-500 text-white shadow-md'
+                      : 'bg-card border border-border text-gray-400 hover:text-white hover:border-orange-500/50'
+                  }`}
+                >
+                  {range[0]} - {range[1]}
+                </button>
+              );
+            })}
+          </div>
+        )}
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {episodesList.map((epNum) => {
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
+          {renderedEpisodes.map((epNum) => {
             const epInfo = getEpisodeInfo(epNum);
             let displayTitle = `Episode ${epNum}`;
             
@@ -153,39 +264,39 @@ const SoudanimeDetails = () => {
                     {epInfo && epInfo.thumbnail ? (
                       <img src={epInfo.thumbnail} alt={displayTitle} className="w-full h-full object-cover" />
                     ) : (
-                      <MonitorPlay className="w-10 h-10" />
+                      <MonitorPlay className="w-6 h-6" />
                     )}
                   </div>
-                  <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded text-xs font-bold text-white border border-white/10">
+                  <div className="absolute top-1.5 left-1.5 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded text-[10px] font-bold text-white border border-white/10">
                     EP {epNum}
                   </div>
                   {/* Play overlay icon */}
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none bg-black/20">
-                     <PlayCircle className="w-12 h-12 text-white shadow-xl rounded-full" />
+                     <PlayCircle className="w-8 h-8 text-white shadow-xl rounded-full" />
                   </div>
                 </div>
 
-                <div className="p-4 flex flex-col flex-1">
-                  <h3 className="font-semibold text-sm md:text-base text-white mb-4 line-clamp-2" title={displayTitle}>
+                <div className="p-2 flex flex-col flex-1">
+                  <h3 className="font-semibold text-xs text-white mb-2 line-clamp-1" title={displayTitle}>
                     {displayTitle}
                   </h3>
                   
-                  <div className="flex gap-2 mt-auto">
+                  <div className="flex gap-1.5 mt-auto">
                     <button 
                       onClick={() => setPlayingEpisode({ number: epNum, language: 'sub' })}
-                      className="flex-1 flex items-center justify-center gap-2 bg-orange-500/10 hover:bg-orange-500 text-orange-500 hover:text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all border border-orange-500/20 hover:border-orange-500"
+                      className="flex-1 flex items-center justify-center gap-1 bg-orange-500/10 hover:bg-orange-500 text-orange-500 hover:text-white py-1 px-1.5 rounded-md text-[10px] font-bold transition-all border border-orange-500/20 hover:border-orange-500"
                     >
-                      <PlayCircle className="w-4 h-4" /> SUB
+                      <PlayCircle className="w-3 h-3" /> SUB
                     </button>
                     <button 
                       onClick={() => setPlayingEpisode({ number: epNum, language: 'dub' })}
-                      className="flex-1 flex items-center justify-center gap-2 bg-blue-500/10 hover:bg-blue-500 text-blue-500 hover:text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all border border-blue-500/20 hover:border-blue-500"
+                      className="flex-1 flex items-center justify-center gap-1 bg-blue-500/10 hover:bg-blue-500 text-blue-500 hover:text-white py-1 px-1.5 rounded-md text-[10px] font-bold transition-all border border-blue-500/20 hover:border-blue-500"
                     >
-                      <PlayCircle className="w-4 h-4" /> DUB
+                      <PlayCircle className="w-3 h-3" /> DUB
                     </button>
                   </div>
+                </div>
               </div>
-            </div>
             );
           })}
         </div>
