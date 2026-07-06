@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { lovable } from '@/integrations/lovable';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -75,21 +76,19 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   };
 
   const handleGoogleSignIn = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/`
-        }
-      });
-      if (error) throw error;
-    } catch (error: any) {
+    const result = await lovable.auth.signInWithOAuth('google', {
+      redirect_uri: window.location.origin,
+    });
+    if (result.error) {
       toast({
-        variant: "destructive",
-        title: "Authentication Error",
-        description: error.message,
+        variant: 'destructive',
+        title: 'Authentication Error',
+        description: result.error.message,
       });
+      return;
     }
+    if (result.redirected) return;
+    onClose();
   };
 
   const getTitle = () => {

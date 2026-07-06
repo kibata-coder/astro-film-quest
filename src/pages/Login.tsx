@@ -80,21 +80,20 @@ const Login = () => {
   };
 
   const handleGoogleSignIn = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/`
-        }
-      });
-      if (error) throw error;
-    } catch (error: any) {
+    const { lovable } = await import('@/integrations/lovable');
+    const result = await lovable.auth.signInWithOAuth('google', {
+      redirect_uri: window.location.origin,
+    });
+    if (result.error) {
       toast({
-        variant: "destructive",
-        title: "Authentication Error",
-        description: error.message,
+        variant: 'destructive',
+        title: 'Authentication Error',
+        description: result.error.message,
       });
+      return;
     }
+    if (result.redirected) return;
+    navigate('/');
   };
 
   const getTitle = () => {
