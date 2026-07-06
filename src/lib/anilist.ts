@@ -28,6 +28,9 @@ export interface AnilistAnime {
   seasonYear: number | null;
   season: string | null;
   status: string;
+  nextAiringEpisode?: {
+    episode: number;
+  } | null;
   streamingEpisodes?: {
     title: string;
     thumbnail: string;
@@ -72,6 +75,9 @@ const animeFragment = `
   seasonYear
   season
   status
+  nextAiringEpisode {
+    episode
+  }
 `;
 
 export const getTrendingAnime = async (page = 1, perPage = 20): Promise<AnilistPage> => {
