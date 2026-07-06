@@ -77,7 +77,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
   const handleGoogleSignIn = async () => {
     const result = await lovable.auth.signInWithOAuth('google', {
-      redirect_uri: 'https://soudflex.pages.dev/',
+      redirect_uri: `${window.location.origin}/`,
     });
     if (result.error) {
       toast({

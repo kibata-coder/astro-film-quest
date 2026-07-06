@@ -82,7 +82,7 @@ const Login = () => {
   const handleGoogleSignIn = async () => {
     const { lovable } = await import('@/integrations/lovable');
     const result = await lovable.auth.signInWithOAuth('google', {
-      redirect_uri: 'https://soudflex.pages.dev/',
+      redirect_uri: `${window.location.origin}/`,
     });
     if (result.error) {
       toast({
