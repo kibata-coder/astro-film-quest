@@ -253,7 +253,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
             className="gap-2"
           >
             <a 
-              href={`https://streamrip.fun/movie/${movie.id}`} 
+              href="https://02moviedownloader.top/" 
               target="_blank" 
               rel="noopener noreferrer"
               onClick={(e) => {
