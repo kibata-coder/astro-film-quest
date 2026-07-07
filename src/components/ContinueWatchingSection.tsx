@@ -55,7 +55,9 @@ const persistCache = () => {
   }, 500);
 };
 
-const fetchMissingPoster = async (id: number, mediaType: 'movie' | 'tv'): Promise<string | null> => {
+const fetchMissingPoster = async (id: number, mediaType: 'movie' | 'tv' | 'anime'): Promise<string | null> => {
+  if (mediaType === 'anime') return null; // Anime poster is provided at save time, TMDB won't have it
+
   const key = `${mediaType}-${id}`;
   if (posterCache.has(key)) return posterCache.get(key) ?? null;
   try {
@@ -75,7 +77,9 @@ const fetchMissingPoster = async (id: number, mediaType: 'movie' | 'tv'): Promis
   }
 };
 
-const checkIsAnime = async (id: number, mediaType: 'movie' | 'tv'): Promise<boolean> => {
+const checkIsAnime = async (id: number, mediaType: 'movie' | 'tv' | 'anime'): Promise<boolean> => {
+  if (mediaType === 'anime') return true;
+
   const key = `${mediaType}-${id}`;
   if (animeCache.has(key)) return animeCache.get(key) ?? false;
   try {
@@ -97,7 +101,7 @@ const checkIsAnime = async (id: number, mediaType: 'movie' | 'tv'): Promise<bool
 };
 
 interface ContinueWatchingSectionProps {
-  filterType?: 'movie' | 'tv' | 'anime';
+  filterType?: 'movie' | 'tv' | 'anime' | 'soudflex';
   title?: string;
 }
 
@@ -114,11 +118,13 @@ const ContinueWatchingSection = ({ filterType, title = 'Continue Watching' }: Co
     
     let filtered = dataWithAnime;
     if (filterType === 'anime') {
-      filtered = dataWithAnime.filter(i => i.isAnime);
+      filtered = dataWithAnime.filter(i => i.isAnime || i.media_type === 'anime');
     } else if (filterType === 'movie') {
       filtered = dataWithAnime.filter(i => i.media_type === 'movie' && !i.isAnime);
     } else if (filterType === 'tv') {
       filtered = dataWithAnime.filter(i => i.media_type === 'tv' && !i.isAnime);
+    } else if (filterType === 'soudflex') {
+      filtered = dataWithAnime.filter(i => !i.isAnime && i.media_type !== 'anime');
     }
     
     setHistory(filtered);
@@ -208,6 +214,11 @@ const ContinueWatchingSection = ({ filterType, title = 'Continue Watching' }: Co
   };
 
   const handleItemClick = (item: WatchHistoryItem) => {
+    if (item.media_type === 'anime') {
+      window.location.href = `/anime/${item.id}`;
+      return;
+    }
+
     if (item.media_type === 'movie') {
       // Create a compatible Movie object from the history item
       const movie: Movie = {
@@ -295,9 +306,9 @@ const ContinueWatchingSection = ({ filterType, title = 'Continue Watching' }: Co
               onClick={() => handleItemClick(item)}
             >
               <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-muted">
-                {posterUrl ? (
+                {posterUrl || item.media_type === 'anime' ? (
                   <img
-                    src={posterUrl}
+                    src={item.media_type === 'anime' && item.poster_path ? item.poster_path : posterUrl}
                     alt={item.title}
                     className="w-full h-full object-cover transition-transform group-hover:scale-105"
                     loading="lazy"
@@ -322,10 +333,10 @@ const ContinueWatchingSection = ({ filterType, title = 'Continue Watching' }: Co
                   <X className="w-4 h-4" />
                 </button>
                 
-              {/* Episode Badge for TV Shows */}
-                {item.media_type === 'tv' && item.season_number && (
+              {/* Episode Badge for TV Shows and Anime */}
+                {(item.media_type === 'tv' || item.media_type === 'anime') && item.episode_number && (
                   <div className="absolute bottom-2 right-2 bg-primary/90 text-primary-foreground text-xs font-bold px-2 py-1 rounded">
-                    S{item.season_number} E{item.episode_number}
+                    {item.media_type === 'tv' && item.season_number ? `S${item.season_number} ` : ''}E{item.episode_number}
                   </div>
                 )}
                 

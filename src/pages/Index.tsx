@@ -98,7 +98,7 @@ const Index = () => {
                   <FeedCustomizer preferences={preferences} onToggle={toggleSection} />
                 </div>
               )}
-              <ContinueWatchingSection />
+              <ContinueWatchingSection filterType="soudflex" />
 
               <SectionErrorBoundary sectionName="For You">
                 <ForYouSection onMovieClick={openMovieModal} />
