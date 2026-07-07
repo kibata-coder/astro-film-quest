@@ -8,6 +8,7 @@ import SoudanimeCard from '@/components/SoudanimeCard';
 import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import Layout from '@/components/Layout';
+import ContinueWatchingSection from '@/components/ContinueWatchingSection';
 
 const Anime = () => {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useTrendingAnime();
@@ -142,6 +143,8 @@ const Anime = () => {
 
       {/* Main Content Grid */}
       <main id="new" className="container mx-auto px-5 md:px-12 mt-12 space-y-12 relative z-10">
+        <ContinueWatchingSection filterType="anime" title="Continue Watching Anime" />
+        
         <div>
           <h2 className="text-2xl md:text-3xl font-bold mb-6 flex items-center gap-3">
             <span className="w-2 h-8 bg-orange-500 rounded-full inline-block"></span>
