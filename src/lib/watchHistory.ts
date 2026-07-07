@@ -2,7 +2,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 export interface WatchHistoryItem {
   id: number;
-  media_type: 'movie' | 'tv';
+  media_type: 'movie' | 'tv' | 'anime';
   title: string;
   poster_path: string;
   season_number?: number;
@@ -33,7 +33,7 @@ export const getWatchHistory = async (): Promise<WatchHistoryItem[]> => {
 
     return data.map(item => ({
       id: item.media_id,
-      media_type: item.media_type as 'movie' | 'tv',
+      media_type: item.media_type as 'movie' | 'tv' | 'anime',
       title: item.title,
       poster_path: item.poster_path || '',
       season_number: item.season_number || undefined,
@@ -48,7 +48,7 @@ export const getWatchHistory = async (): Promise<WatchHistoryItem[]> => {
 };
 
 export const saveWatchProgress = async (
-  item: { id: number; media_type: 'movie' | 'tv'; title: string; poster_path: string; season_number?: number; episode_number?: number; },
+  item: { id: number; media_type: 'movie' | 'tv' | 'anime'; title: string; poster_path: string; season_number?: number; episode_number?: number; },
   secondsWatched: number,
   totalDuration: number
 ) => {
@@ -77,7 +77,7 @@ export const saveWatchProgress = async (
   }
 };
 
-export const removeFromHistory = async (id: number, mediaType: 'movie' | 'tv') => {
+export const removeFromHistory = async (id: number, mediaType: 'movie' | 'tv' | 'anime') => {
   const { data: { user } } = await supabase.auth.getUser();
   if (user) {
     await supabase.from('watch_history').delete().eq('user_id', user.id).eq('media_id', id).eq('media_type', mediaType);
@@ -134,7 +134,7 @@ export const addToHistory = async (item: Omit<WatchHistoryItem, 'last_watched' |
   }
 };
 
-export const getProgressForMedia = async (mediaId: number, mediaType: 'movie' | 'tv'): Promise<number> => {
+export const getProgressForMedia = async (mediaId: number, mediaType: 'movie' | 'tv' | 'anime'): Promise<number> => {
   const { data: { user } } = await supabase.auth.getUser();
   if (user) {
     const { data } = await supabase
