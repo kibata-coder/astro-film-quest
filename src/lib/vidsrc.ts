@@ -14,19 +14,20 @@ export interface StreamProvider {
 
 const PROVIDERS: StreamProvider[] = [
   {
-    id: 'vidlink',
-    name: 'Server 1 (Cpt Jack Sparrow)',
-    // VidLink is incredibly fast, has 4k, and flawless built-in subtitles
-    movie: (id: number) => `https://vidlink.pro/movie/${id}?autoplay=true`,
-    tv: (id: number, s: number, e: number) => `https://vidlink.pro/tv/${id}/${s}/${e}?autoplay=true`,
-  },
-  {
     id: 'vidsrc',
-    name: 'Server 2 (Mauii)',
+    name: 'Server 1 (Cpt Jack Sparrow)',
     movie: (id: number) =>
       `https://vidsrcme.su/embed/movie?tmdb=${id}&autoplay=1`,
     tv: (id: number, s: number, e: number) =>
       `https://vidsrcme.su/embed/tv?tmdb=${id}&season=${s}&episode=${e}&autoplay=1&autonext=1`,
+  },
+  {
+    id: 'vidfun',
+    name: 'Server 2 (Mauii)',
+    movie: (id: number) => 
+      `https://vidnest.fun/movie/${id}`,
+    tv: (id: number, s: number, e: number) => 
+      `https://vidnest.fun/tv/${id}/${s}/${e}`,
   },
   {
     id: 'vidapi-ru',
@@ -37,12 +38,10 @@ const PROVIDERS: StreamProvider[] = [
       `https://vaplayer.ru/embed/tv/${id}/${s}/${e}`,
   },
   {
-    id: 'vidfun',
+    id: 'vidlink',
     name: 'Server 4 (Hobbit)',
-    movie: (id: number) => 
-      `https://vidnest.fun/movie/${id}`,
-    tv: (id: number, s: number, e: number) => 
-      `https://vidnest.fun/tv/${id}/${s}/${e}`,
+    movie: (id: number) => `https://vidlink.pro/movie/${id}?autoplay=true`,
+    tv: (id: number, s: number, e: number) => `https://vidlink.pro/tv/${id}/${s}/${e}?autoplay=true`,
   },
   {
     id: 'vidsrc-wtf',

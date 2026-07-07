@@ -291,7 +291,7 @@ const VideoPlayer = ({
             </SelectContent>
           </Select>
 
-          {/* Subtitle button — only for Server 2 (vidsrcme) which supports sub_url */}
+          {/* Subtitle button — only for Server 1 (vidsrcme.su) which supports sub_url */}
           {providers[providerIdx]?.id === 'vidsrc' && (
             <Button
               variant={activeSubUrl ? 'secondary' : 'ghost'}
