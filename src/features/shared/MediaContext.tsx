@@ -12,7 +12,7 @@ interface MediaContextType {
   isMovieModalOpen: boolean;
   openMovieModal: (movie: Movie) => void;
   closeMovieModal: () => void;
-  forceCloseMovieModal: () => void;
+  forceCloseMovieModal: (skipHistory?: boolean) => void;
   
   // TV modal
   selectedShow: TVShow | null;
@@ -20,7 +20,7 @@ interface MediaContextType {
   tvModalOptions: TVModalOptions | null;
   openTVModal: (show: TVShow, options?: TVModalOptions) => void;
   closeTVModal: () => void;
-  forceCloseTVModal: () => void;
+  forceCloseTVModal: (skipHistory?: boolean) => void;
   
   // Close all modals
   closeAllModals: () => void;
@@ -74,12 +74,12 @@ export function MediaProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Force close without history.back race conditions (for play transitions)
-  const forceCloseMovieModal = useCallback(() => {
+  const forceCloseMovieModal = useCallback((skipHistory = false) => {
     setIsMovieModalOpen(false);
     setTimeout(() => setSelectedMovie(null), 300);
-    // Overwrite the modal history entry in place to avoid triggering popstate
-    // (which would otherwise close the player that's opening right after).
-    if (window.history.state?.modal === 'movie') {
+    // Only rewrite history when NOT handing off to the video player
+    // (the player pushes its own #player entry; overwriting it would break back-nav)
+    if (!skipHistory && window.history.state?.modal === 'movie') {
       window.history.replaceState({}, '', window.location.pathname);
     }
   }, []);
@@ -101,10 +101,10 @@ export function MediaProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Force close without history.back race conditions (for play transitions)
-  const forceCloseTVModal = useCallback(() => {
+  const forceCloseTVModal = useCallback((skipHistory = false) => {
     setIsTVModalOpen(false);
     setTimeout(() => setSelectedShow(null), 300);
-    if (window.history.state?.modal === 'tv') {
+    if (!skipHistory && window.history.state?.modal === 'tv') {
       window.history.replaceState({}, '', window.location.pathname);
     }
   }, []);

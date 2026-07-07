@@ -46,8 +46,8 @@ const Layout = memo(({ children, onSearch, searchQuery, showFooter = true }: Lay
 
   const handlePlayMovie = () => {
     if (selectedMovie) {
-      forceCloseMovieModal();
       playMovie(selectedMovie);
+      forceCloseMovieModal(true);
     }
   };
 
@@ -60,8 +60,8 @@ const Layout = memo(({ children, onSearch, searchQuery, showFooter = true }: Lay
     posterPath: string | null
   ) => {
     if (selectedShow) {
-      forceCloseTVModal();
       playEpisode(selectedShow, seasonNumber, episodeNumber, episodeName);
+      forceCloseTVModal(true);
     }
   };
 

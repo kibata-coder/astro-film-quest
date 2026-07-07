@@ -235,7 +235,7 @@ const VideoPlayer = ({
   // ── Build embed URL (with optional sub_url injected) ─────────────────────────
   const buildEmbedUrl = () => {
     let base =
-      mediaType === 'tv' && seasonNumber && episodeNumber
+      mediaType === 'tv' && seasonNumber !== undefined && episodeNumber !== undefined
         ? getTVShowEmbedUrl(mediaId, seasonNumber, episodeNumber, providerIdx)
         : getMovieEmbedUrl(mediaId, providerIdx);
 
@@ -330,7 +330,7 @@ const VideoPlayer = ({
         <iframe
           key={`${mediaId}-${seasonNumber ?? 'm'}-${episodeNumber ?? 'm'}-${providerIdx}-${activeSubUrl ?? 'nosub'}`}
           src={embedUrl}
-          className="h-full w-full border-0"
+          className="absolute inset-0 h-full w-full border-0"
           allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope"
           allowFullScreen
         />

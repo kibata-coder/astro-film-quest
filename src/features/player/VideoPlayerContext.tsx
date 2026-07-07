@@ -52,9 +52,10 @@ export function VideoPlayerProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // SHIELD 1: The Hash Guard (Stops the player from crashing)
     const handlePopState = () => {
+      // If we still have the #player hash or player state, do NOT close
       if (window.location.hash === '#player') return;
       if (window.history.state?.player) return;
-      
+      // Only close if the player is genuinely open and user navigated back
       if (isOpenRef.current) {
         setVideoState(prev => ({ ...prev, isOpen: false }));
         setEpisodeContext(null);
