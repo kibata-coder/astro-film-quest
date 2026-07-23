@@ -284,6 +284,8 @@ export interface DiscoverFilters {
   language?: string;
   sortBy?: string;
   page?: number;
+  watchProviderId?: number;   // TMDB watch_provider_id (Netflix=8, Prime=9 …)
+  companyId?: number;          // TMDB company_id (Marvel=420, Pixar=3 …)
 }
 
 const buildDiscoverParams = (
@@ -301,6 +303,11 @@ const buildDiscoverParams = (
   }
   if (filters.rating) params['vote_average.gte'] = filters.rating;
   if (filters.language) params.with_original_language = filters.language;
+  if (filters.watchProviderId) {
+    params.with_watch_providers = filters.watchProviderId;
+    params.watch_region = 'US';
+  }
+  if (filters.companyId) params.with_companies = filters.companyId;
   return params;
 };
 
