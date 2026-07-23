@@ -38,18 +38,21 @@ const ScrollableSection = memo(({
       });
     };
     checkScroll();
+
     const el = scrollRef.current;
-    if (el) {
-      el.addEventListener('scroll', throttled, { passive: true });
-      window.addEventListener('resize', throttled, { passive: true });
-    }
+    if (!el) return;
+
+    el.addEventListener('scroll', throttled, { passive: true });
+    
+    // ResizeObserver catches both window resizes AND dynamic children loading
+    const resizeObserver = new ResizeObserver(throttled);
+    resizeObserver.observe(el);
+
     return () => {
-      if (el) {
-        el.removeEventListener('scroll', throttled);
-        window.removeEventListener('resize', throttled);
-      }
+      el.removeEventListener('scroll', throttled);
+      resizeObserver.disconnect();
     };
-  }, [children]);
+  }, []);
 
   const scroll = (direction: 'left' | 'right') => {
     if (!scrollRef.current) return;

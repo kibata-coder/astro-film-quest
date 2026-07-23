@@ -14,6 +14,9 @@ import {
   getAnimeMovies,
   getPersonDetails,
   getPersonCombinedCredits,
+  discoverMovies,
+  discoverTVShows,
+  DiscoverFilters,
   // Genres
   getActionMovies, getAdventureMovies, getComedyMovies, getDramaMovies, 
   getHorrorMovies, getSciFiMovies, getFantasyMovies, getRomanceMovies, 
@@ -135,8 +138,27 @@ export const useSearchMedia = (query: string) => {
     },
     enabled: !!query,
     staleTime: 1000 * 60 * 1,
+    gcTime: 1000 * 60 * 2,
   });
 };
+
+// --- Brand Hooks ---
+
+export const useBrandMovies = (brandId: string, filters: DiscoverFilters, enabled = true) =>
+  useQuery({
+    queryKey: ['brand', brandId, 'movies', filters],
+    queryFn: () => discoverMovies(filters),
+    enabled: enabled && !!brandId,
+    staleTime: 1000 * 60 * 30, // 30 min cache
+  });
+
+export const useBrandTVShows = (brandId: string, filters: DiscoverFilters, enabled = true) =>
+  useQuery({
+    queryKey: ['brand', brandId, 'tv', filters],
+    queryFn: () => discoverTVShows(filters),
+    enabled: enabled && !!brandId,
+    staleTime: 1000 * 60 * 30, // 30 min cache
+  });
 
 // --- People Hooks ---
 

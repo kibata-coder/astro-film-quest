@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { 
   Film, Globe, Clapperboard, Sparkles, Tv, LucideIcon, Flame,
   Sword, Compass, Laugh, Theater, Ghost, Rocket, 
@@ -48,9 +49,13 @@ const SectionSkeleton = () => (
 );
 
 // Inner component that actually calls the hook with enabled flag
-const DynamicSectionInner = ({ title, icon, useDataHook, onItemClick, enabled, isTrending }: DynamicSectionProps & { enabled: boolean }) => {
+const DynamicSectionInner = memo(({ title, icon, useDataHook, onItemClick, enabled, isTrending }: DynamicSectionProps & { enabled: boolean }) => {
   const { data, isLoading } = useDataHook(enabled);
   const items = data?.results?.slice(0, 15) || [];
+
+  const handleCardClick = useCallback((item: any) => {
+    onItemClick?.(item);
+  }, [onItemClick]);
 
   if (isLoading || !enabled) return <SectionSkeleton />;
   if (!items.length) return null;
@@ -61,17 +66,55 @@ const DynamicSectionInner = ({ title, icon, useDataHook, onItemClick, enabled, i
         <MediaCard 
           key={item.id} 
           item={item} 
-          onClick={() => onItemClick?.(item)} 
+          onClick={handleCardClick} 
           rank={isTrending && index < 10 ? index + 1 : undefined}
         />
       ))}
     </ScrollableSection>
   );
-};
+});
 
-const DynamicSection = ({ title, icon, useDataHook, onItemClick, isTrending }: DynamicSectionProps) => (
-  <DynamicSectionInner title={title} icon={icon} useDataHook={useDataHook} onItemClick={onItemClick} enabled={true} isTrending={isTrending} />
-);
+DynamicSectionInner.displayName = 'DynamicSectionInner';
+
+const DynamicSection = memo(({ title, icon, useDataHook, onItemClick, isTrending }: DynamicSectionProps) => {
+  const [isVisible, setIsVisible] = useState(!!isTrending);
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isTrending || isVisible) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '300px' }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [isTrending, isVisible]);
+
+  return (
+    <div ref={sectionRef}>
+      <DynamicSectionInner 
+        title={title} 
+        icon={icon} 
+        useDataHook={useDataHook} 
+        onItemClick={onItemClick} 
+        enabled={isVisible} 
+        isTrending={isTrending} 
+      />
+    </div>
+  );
+});
+
+DynamicSection.displayName = 'DynamicSection';
 
 // --- Exported Sections ---
 
