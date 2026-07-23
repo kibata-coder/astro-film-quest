@@ -41,10 +41,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    // Auto popup the FEATURE UPSELL after 5 seconds if not logged in
+    // Auto popup login modal after 5 seconds if not logged in
     const timer = setTimeout(() => {
       if (!user && !localStorage.getItem('hasSeenLoginPrompt')) {
-        setIsSignUpPromptOpen(true);
+        setIsAuthModalOpen(true);
         localStorage.setItem('hasSeenLoginPrompt', 'true');
       }
     }, 5000);
