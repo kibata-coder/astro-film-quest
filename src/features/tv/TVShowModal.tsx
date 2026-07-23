@@ -52,6 +52,10 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
   const streamProviders = isAnime ? getAnimeProviders() : getProviders();
 
   const handlePlayClick = (showId: number, showName: string, seasonNumber: number, episodeNumber: number, episodeName: string, posterPath: string | null) => {
+    if (!user) {
+      openSignUpPrompt();
+      return;
+    }
     setPendingPlayArgs({ showId, showName, seasonNumber, episodeNumber, episodeName, posterPath });
     setShowServerDialog(true);
   };
