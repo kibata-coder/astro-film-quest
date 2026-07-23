@@ -1,10 +1,6 @@
-import { supabase } from '@/integrations/supabase/client';
-
+const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY as string;
+const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p';
-
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
-const SUPABASE_ANON = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
-const TMDB_FN_URL = `${SUPABASE_URL}/functions/v1/tmdb`;
 
 export const getImageUrl = (path: string | null, size: 'w300' | 'w500' | 'w780' | 'original' = 'w500') => {
   if (!path) return null;
@@ -30,33 +26,32 @@ async function callTMDB<T>(
   params?: Record<string, string | number>,
   signal?: AbortSignal,
 ): Promise<TMDBResponse<T> & T> {
-  // Use cacheable GET so the browser HTTP cache (and any CDN in front of the
-  // edge function) can serve repeats instantly. The edge function also
-  // caches in-memory per isolate. AbortSignal cancels in-flight requests
-  // (e.g. when a debounced search query supersedes a previous one).
   try {
-    const qs = new URLSearchParams({ endpoint });
-    if (params) qs.set('params', JSON.stringify(params));
+    const url = new URL(`${TMDB_BASE_URL}${endpoint}`);
+    url.searchParams.append('api_key', TMDB_API_KEY || '');
+    
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== null) {
+          url.searchParams.append(k, String(v));
+        }
+      });
+    }
 
-    const res = await fetch(`${TMDB_FN_URL}?${qs.toString()}`, {
+    const res = await fetch(url.toString(), {
       method: 'GET',
       headers: {
-        apikey: SUPABASE_ANON,
-        Authorization: `Bearer ${SUPABASE_ANON}`,
+        'Accept': 'application/json',
       },
       signal,
     });
+    
     if (!res.ok) throw new Error(`TMDB ${endpoint} ${res.status}`);
     return await res.json();
   } catch (err) {
-    // Propagate aborts so react-query treats them as cancellations, not errors
     if ((err as { name?: string })?.name === 'AbortError') throw err;
-    console.warn('TMDB GET failed, falling back to invoke', err);
-    const { data, error } = await supabase.functions.invoke('tmdb', {
-      body: { endpoint, params },
-    });
-    if (error) throw error;
-    return data;
+    console.error('TMDB GET failed', err);
+    throw err;
   }
 }
 

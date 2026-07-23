@@ -17,31 +17,38 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { getImageUrl, getMovieDetails, getTVShowDetails, Movie, TVShow } from '@/lib/tmdb';
 import { useMedia } from '@/features/shared';
+import { isAnimeMedia } from '@/lib/anime';
 
 const POSTER_CACHE_KEY = 'poster-cache-v1';
+const ANIME_CACHE_KEY = 'anime-cache-v1';
 
-const loadPosterCache = (): Map<string, string | null> => {
+const loadCache = (key: string): Map<string, any> => {
   try {
-    const raw = localStorage.getItem(POSTER_CACHE_KEY);
+    const raw = localStorage.getItem(key);
     if (!raw) return new Map();
-    const obj = JSON.parse(raw) as Record<string, string | null>;
+    const obj = JSON.parse(raw);
     return new Map(Object.entries(obj));
   } catch {
     return new Map();
   }
 };
 
-const posterCache = loadPosterCache();
+const posterCache = loadCache(POSTER_CACHE_KEY);
+const animeCache = loadCache(ANIME_CACHE_KEY);
 let savePending = false;
-const persistPosterCache = () => {
+const persistCache = () => {
   if (savePending) return;
   savePending = true;
   setTimeout(() => {
     savePending = false;
     try {
-      const obj: Record<string, string | null> = {};
-      posterCache.forEach((v, k) => { obj[k] = v; });
-      localStorage.setItem(POSTER_CACHE_KEY, JSON.stringify(obj));
+      const pObj: Record<string, any> = {};
+      posterCache.forEach((v, k) => { pObj[k] = v; });
+      localStorage.setItem(POSTER_CACHE_KEY, JSON.stringify(pObj));
+      
+      const aObj: Record<string, any> = {};
+      animeCache.forEach((v, k) => { aObj[k] = v; });
+      localStorage.setItem(ANIME_CACHE_KEY, JSON.stringify(aObj));
     } catch {
       /* quota or serialization error — ignore */
     }
@@ -57,17 +64,44 @@ const fetchMissingPoster = async (id: number, mediaType: 'movie' | 'tv' | 'anime
     const details = mediaType === 'movie' ? await getMovieDetails(id) : await getTVShowDetails(id);
     const path = (details as any)?.poster_path ?? null;
     posterCache.set(key, path);
-    persistPosterCache();
+    
+    // Opportunistically save anime status while we have details
+    animeCache.set(key, isAnimeMedia(details));
+    
+    persistCache();
     return path;
   } catch {
     posterCache.set(key, null);
-    persistPosterCache();
+    persistCache();
     return null;
   }
 };
 
+const checkIsAnime = async (id: number, mediaType: 'movie' | 'tv' | 'anime'): Promise<boolean> => {
+  if (mediaType === 'anime') return true;
+
+  const key = `${mediaType}-${id}`;
+  if (animeCache.has(key)) return animeCache.get(key) ?? false;
+  try {
+    const details = mediaType === 'movie' ? await getMovieDetails(id) : await getTVShowDetails(id);
+    const isAnime = isAnimeMedia(details);
+    animeCache.set(key, isAnime);
+    
+    // Opportunistically save poster path while we have details
+    const path = (details as any)?.poster_path ?? null;
+    posterCache.set(key, path);
+    
+    persistCache();
+    return isAnime;
+  } catch {
+    animeCache.set(key, false);
+    persistCache();
+    return false;
+  }
+};
+
 interface ContinueWatchingSectionProps {
-  filterType?: 'movie' | 'tv';
+  filterType?: 'movie' | 'tv' | 'anime' | 'soudflex';
   title?: string;
 }
 
@@ -77,7 +111,22 @@ const ContinueWatchingSection = ({ filterType, title = 'Continue Watching' }: Co
 
   const loadHistory = async () => {
     const data = await getWatchHistory();
-    const filtered = filterType ? data.filter((i) => i.media_type === filterType) : data;
+    
+    // Check anime status for all items to filter accurately
+    const animeStatuses = await Promise.all(data.map(item => checkIsAnime(item.id, item.media_type)));
+    const dataWithAnime = data.map((item, i) => ({ ...item, isAnime: animeStatuses[i] }));
+    
+    let filtered = dataWithAnime;
+    if (filterType === 'anime') {
+      filtered = dataWithAnime.filter(i => i.isAnime || i.media_type === 'anime');
+    } else if (filterType === 'movie') {
+      filtered = dataWithAnime.filter(i => i.media_type === 'movie' && !i.isAnime);
+    } else if (filterType === 'tv') {
+      filtered = dataWithAnime.filter(i => i.media_type === 'tv' && !i.isAnime);
+    } else if (filterType === 'soudflex') {
+      filtered = dataWithAnime.filter(i => !i.isAnime && i.media_type !== 'anime');
+    }
+    
     setHistory(filtered);
 
     // Backfill missing posters from TMDB in a single batched upsert
@@ -284,7 +333,7 @@ const ContinueWatchingSection = ({ filterType, title = 'Continue Watching' }: Co
                   <X className="w-4 h-4" />
                 </button>
                 
-                {/* Episode Badge for TV Shows / Anime */}
+                {/* Episode Badge for TV Shows and Anime */}
                 {(item.media_type === 'tv' || item.media_type === 'anime') && item.episode_number && (
                   <div className="absolute bottom-2 right-2 bg-primary/90 text-primary-foreground text-xs font-bold px-2 py-1 rounded">
                     {item.media_type === 'tv' && item.season_number ? `S${item.season_number} ` : ''}E{item.episode_number}
