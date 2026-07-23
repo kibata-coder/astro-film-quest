@@ -13,15 +13,18 @@ const buttonVariants = cva(
         // Primary — SoudFlex blue with glow
         default:
           "bg-primary text-primary-foreground shadow-[0_4px_20px_hsl(var(--primary)/0.35)] hover:bg-primary/90 hover:shadow-[0_6px_28px_hsl(var(--primary)/0.5)]",
+        // White — White by default, glows primary on hover (For Play buttons)
+        white:
+          "bg-white text-black hover:bg-primary hover:text-primary-foreground hover:shadow-[0_0_24px_hsl(var(--primary)/0.5)]",
         // Destructive — red
         destructive:
           "bg-destructive text-destructive-foreground shadow-[0_4px_16px_hsl(var(--destructive)/0.3)] hover:bg-destructive/90",
-        // Outline — subtle dark border, glass-like
+        // Outline — subtle dark border, glows primary on hover
         outline:
-          "border border-white/10 bg-white/5 text-foreground backdrop-blur-sm hover:bg-white/10 hover:border-white/20",
-        // Secondary — slightly lighter dark
+          "border border-white/10 bg-white/5 text-foreground backdrop-blur-sm hover:bg-primary/10 hover:border-primary/50 hover:text-primary",
+        // Secondary — slightly lighter dark, glows primary on hover
         secondary:
-          "bg-white/8 text-foreground hover:bg-white/15",
+          "bg-white/8 text-foreground hover:bg-primary hover:text-primary-foreground hover:shadow-[0_0_20px_hsl(var(--primary)/0.4)]",
         // Ghost — no background, just hover
         ghost:
           "hover:bg-white/10 hover:text-foreground",
