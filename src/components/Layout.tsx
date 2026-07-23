@@ -5,6 +5,7 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import { useMedia } from '@/features/shared';
 import { useVideoPlayer } from '@/features/player';
 import { useAuth, AuthModal } from '@/features/auth';
+import SignUpPrompt from '@/components/SignUpPrompt';
 
 const MovieModal = lazy(() => import('@/features/movies/MovieModal'));
 const TVShowModal = lazy(() => import('@/features/tv/TVShowModal'));

@@ -86,8 +86,12 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
   const [showServerDialog, setShowServerDialog] = useState(false);
   const streamProviders = isAnimeMedia(movie as unknown as Parameters<typeof isAnimeMedia>[0]) ? getAnimeProviders() : getProviders();
 
-  // ALWAYS OPEN THE DIALOG (NO BYPASS)
+  // Gate play behind auth
   const handlePlayClick = () => {
+    if (!user) {
+      openSignUpPrompt();
+      return;
+    }
     setShowServerDialog(true);
   };
 

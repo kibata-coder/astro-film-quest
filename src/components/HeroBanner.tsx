@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Movie, getBackdropUrl } from '@/lib/tmdb';
 import { pickBackdropSize, shouldReduceMotion } from '@/lib/connection';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/features/auth';
 
 interface HeroBannerProps {
   movies: Movie[];
@@ -12,6 +13,7 @@ interface HeroBannerProps {
 }
 
 const HeroBanner = memo(({ movies, onPlay, onInfo }: HeroBannerProps) => {
+  const { user, openSignUpPrompt } = useAuth();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const reduceMotion = useRef(shouldReduceMotion());
@@ -116,7 +118,7 @@ const HeroBanner = memo(({ movies, onPlay, onInfo }: HeroBannerProps) => {
           </p>
 
           <div className="flex gap-4">
-            <Button variant="white" size="lg" onClick={() => onPlay(currentMovie)} className="gap-2">
+            <Button variant="white" size="lg" onClick={() => { if (!user) { openSignUpPrompt(); return; } onPlay(currentMovie); }} className="gap-2">
               <Play className="w-5 h-5" fill="currentColor" />
               Play
             </Button>

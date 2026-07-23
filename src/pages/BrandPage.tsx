@@ -1,15 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import Seo from '@/components/Seo';
 import { MovieGrid } from '@/features/movies';
 import MediaCard from '@/components/MediaCard';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import ScrollableSection from '@/components/ScrollableSection';
 import { getBrandById } from '@/lib/brands';
 import { discoverMovies, discoverTVShows } from '@/lib/tmdb';
 import type { Movie, TVShow } from '@/lib/tmdb';
 import { useMedia } from '@/features/shared';
+import { useBrandMovies, useBrandTVShows } from '@/hooks/use-media';
 import { ArrowLeft, Film, Tv, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -18,58 +18,65 @@ const BrandPage = () => {
   const brand = id ? getBrandById(id) : undefined;
   const { openMovieModal, openTVModal } = useMedia();
 
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [tvShows, setTvShows] = useState<TVShow[]>([]);
   const [moviePage, setMoviePage] = useState(1);
   const [tvPage, setTvPage] = useState(1);
-  const [movieTotalPages, setMovieTotalPages] = useState(1);
-  const [tvTotalPages, setTvTotalPages] = useState(1);
-  const [isLoadingMovies, setIsLoadingMovies] = useState(true);
-  const [isLoadingTV, setIsLoadingTV] = useState(true);
+  const [extraMovies, setExtraMovies] = useState<Movie[]>([]);
+  const [extraTVShows, setExtraTVShows] = useState<TVShow[]>([]);
   const [isLoadingMoreMovies, setIsLoadingMoreMovies] = useState(false);
   const [isLoadingMoreTV, setIsLoadingMoreTV] = useState(false);
 
-  // Build filter object from brand type
-  const buildFilters = useCallback(
-    (page: number) => {
-      if (!brand) return {};
-      return brand.type === 'provider'
-        ? { watchProviderId: brand.tmdbId, page }
-        : { companyId: brand.tmdbId, page };
-    },
-    [brand],
+  const initialFilters = useMemo(() => {
+    if (!brand) return {};
+    return brand.type === 'provider'
+      ? { watchProviderId: brand.tmdbId, page: 1 }
+      : { companyId: brand.tmdbId, page: 1 };
+  }, [brand]);
+
+  // Use React Query for initial page 1 (cached!)
+  const { data: initialMovieData, isLoading: isLoadingMovies } = useBrandMovies(
+    brand?.id || '',
+    initialFilters,
+    !!brand
+  );
+  const { data: initialTVData, isLoading: isLoadingTV } = useBrandTVShows(
+    brand?.id || '',
+    initialFilters,
+    !!brand
   );
 
-  // Initial load
+  // Reset extra pages when brand changes
   useEffect(() => {
-    if (!brand) return;
-    setMovies([]);
-    setTvShows([]);
     setMoviePage(1);
     setTvPage(1);
-    setIsLoadingMovies(true);
-    setIsLoadingTV(true);
+    setExtraMovies([]);
+    setExtraTVShows([]);
+  }, [brand?.id]);
 
-    discoverMovies(buildFilters(1))
-      .then((res) => {
-        setMovies(res.results?.filter((m) => m.poster_path) || []);
-        setMovieTotalPages(res.total_pages ?? 1);
-      })
-      .finally(() => setIsLoadingMovies(false));
+  const movies = useMemo(() => {
+    const p1 = initialMovieData?.results?.filter((m) => m.poster_path) || [];
+    return [...p1, ...extraMovies];
+  }, [initialMovieData, extraMovies]);
 
-    discoverTVShows(buildFilters(1))
-      .then((res) => {
-        setTvShows(res.results?.filter((s) => s.poster_path) || []);
-        setTvTotalPages(res.total_pages ?? 1);
-      })
-      .finally(() => setIsLoadingTV(false));
-  }, [brand, buildFilters]);
+  const tvShows = useMemo(() => {
+    const p1 = initialTVData?.results?.filter((s) => s.poster_path) || [];
+    return [...p1, ...extraTVShows];
+  }, [initialTVData, extraTVShows]);
+
+  const movieTotalPages = initialMovieData?.total_pages ?? 1;
+  const tvTotalPages = initialTVData?.total_pages ?? 1;
+
+  const buildFiltersForPage = (page: number) => {
+    if (!brand) return {};
+    return brand.type === 'provider'
+      ? { watchProviderId: brand.tmdbId, page }
+      : { companyId: brand.tmdbId, page };
+  };
 
   const loadMoreMovies = async () => {
     const next = moviePage + 1;
     setIsLoadingMoreMovies(true);
-    const res = await discoverMovies(buildFilters(next));
-    setMovies((prev) => [...prev, ...(res.results?.filter((m) => m.poster_path) || [])]);
+    const res = await discoverMovies(buildFiltersForPage(next));
+    setExtraMovies((prev) => [...prev, ...(res.results?.filter((m) => m.poster_path) || [])]);
     setMoviePage(next);
     setIsLoadingMoreMovies(false);
   };
@@ -77,8 +84,8 @@ const BrandPage = () => {
   const loadMoreTV = async () => {
     const next = tvPage + 1;
     setIsLoadingMoreTV(true);
-    const res = await discoverTVShows(buildFilters(next));
-    setTvShows((prev) => [...prev, ...(res.results?.filter((s) => s.poster_path) || [])]);
+    const res = await discoverTVShows(buildFiltersForPage(next));
+    setExtraTVShows((prev) => [...prev, ...(res.results?.filter((s) => s.poster_path) || [])]);
     setTvPage(next);
     setIsLoadingMoreTV(false);
   };
