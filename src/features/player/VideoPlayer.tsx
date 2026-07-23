@@ -240,7 +240,7 @@ const VideoPlayer = ({
         : getMovieEmbedUrl(mediaId, providerIdx);
 
     if (activeSubUrl && providerIdx === 0) {
-      // Only inject sub_url for Server 1 (vidsrcme.su) — it supports the parameter
+      // Only inject sub_url for Server 1 (vidsrcme.su) it supports the parameter
       const separator = base.includes('?') ? '&' : '?';
       base += `${separator}sub_url=${encodeURIComponent(activeSubUrl)}&ds_lang=${subLang}`;
     }
@@ -291,7 +291,7 @@ const VideoPlayer = ({
             </SelectContent>
           </Select>
 
-          {/* Subtitle button — only for Server 1 (vidsrcme.su) which supports sub_url */}
+          {/* Subtitle button only for Server 1 (vidsrcme.su) which supports sub_url */}
           {providers[providerIdx]?.id === 'vidsrc' && (
             <Button
               variant={activeSubUrl ? 'secondary' : 'ghost'}
@@ -299,7 +299,7 @@ const VideoPlayer = ({
               className="h-8 w-8 relative"
               onClick={handleOpenSubPanel}
               aria-label="Subtitles"
-              title={activeSubUrl ? 'Subtitles active — click to change' : 'Add subtitles'}
+              title={activeSubUrl ? 'Subtitles active click to change' : 'Add subtitles'}
             >
               <Subtitles className="h-4 w-4" />
               {activeSubUrl && (
@@ -308,7 +308,7 @@ const VideoPlayer = ({
             </Button>
           )}
 
-          {isTVShow && totalEpisodes && (
+          {isTVShow && typeof totalEpisodes === 'number' && totalEpisodes > 0 && (
             <>
               <Button variant="ghost" size="icon" onClick={onPreviousEpisode} disabled={isFirstEpisode} aria-label="Previous episode">
                 <ChevronLeft className="h-5 w-5" />

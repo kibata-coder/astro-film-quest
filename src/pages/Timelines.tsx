@@ -33,7 +33,7 @@ const Timelines = memo(() => {
   return (
     <Layout>
       <Seo
-        title="Franchise Timelines & Story Orders — SoudFlex"
+        title="Franchise Timelines & Story Orders SoudFlex"
         description="Watch Marvel, Star Wars, DC, and Anime sagas in official chronological story order or release date order with progress tracking."
         canonicalPath="/timelines"
       />
@@ -49,7 +49,7 @@ const Timelines = memo(() => {
               Franchise Timeline Guides
             </h1>
             <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
-              Never wonder what order to watch in again. Explore the official story timelines for Marvel, Star Wars, DC, and major anime sagas — and track your progress as you watch.
+              Never wonder what order to watch in again. Explore the official story timelines for Marvel, Star Wars, DC, and major anime sagas and track your progress as you watch.
             </p>
           </div>
           <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-primary/10 to-transparent pointer-events-none hidden md:block" />

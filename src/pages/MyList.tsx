@@ -101,7 +101,7 @@ const MyList = () => {
   return (
     <Layout>
       <Seo
-        title="My List — Bookmarks & Collections | SoudFlex"
+        title="My List Bookmarks & Collections | SoudFlex"
         description="Your saved movies, TV shows, and anime, organized into bookmarks and custom collections on SoudFlex."
         canonicalPath="/mylist"
       />

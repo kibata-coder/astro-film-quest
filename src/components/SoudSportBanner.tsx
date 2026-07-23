@@ -19,7 +19,7 @@ const SoudSportBanner = memo(() => {
               Looking for live sports? Check out SoudSport.
             </p>
             <p className="text-xs md:text-sm text-muted-foreground">
-              Live football streams, scores & highlights — our sister site.
+              Live football streams, scores & highlights our sister site.
             </p>
           </div>
         </div>

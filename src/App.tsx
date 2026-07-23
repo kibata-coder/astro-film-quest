@@ -35,7 +35,7 @@ const TimelinePage = lazy(() => import("./pages/TimelinePage"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 30,        // 30 min — TMDB content rarely changes
+      staleTime: 1000 * 60 * 30,        // 30 min TMDB content rarely changes
       gcTime: 1000 * 60 * 60 * 2,       // 2h in memory cache
       retry: 1,
       refetchOnWindowFocus: false,

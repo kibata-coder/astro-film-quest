@@ -99,7 +99,7 @@ const MediaCard = memo(({ item, onClick, showBadge = true, className, rank }: Me
           </div>
         )}
 
-        {/* Hover overlay — pointer-events:none keeps it cheap on touch devices */}
+        {/* Hover overlay pointer-events:none keeps it cheap on touch devices */}
         <div className="hidden md:flex absolute inset-0 bg-background/70 opacity-0 group-hover:opacity-100 transition-opacity duration-200 items-center justify-center pointer-events-none">
           <div className="flex flex-col items-center gap-2">
             <div className="p-3 rounded-full bg-primary/90">

@@ -106,7 +106,7 @@ const BrandPage = () => {
   return (
     <Layout>
       <Seo
-        title={`${brand.name} — Movies & TV Shows | SoudFlex`}
+        title={`${brand.name} Movies & TV Shows | SoudFlex`}
         description={brand.description}
         canonicalPath={`/brand/${brand.id}`}
       />

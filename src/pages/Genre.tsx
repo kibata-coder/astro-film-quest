@@ -45,7 +45,7 @@ const Genre = () => {
   return (
     <Layout>
       <Seo
-        title={`${title || 'Movies'} — Browse by Genre | SoudFlex`}
+        title={`${title || 'Movies'} Browse by Genre | SoudFlex`}
         description={`Browse and stream ${(title || 'movies').toLowerCase()} on SoudFlex. Handpicked titles across the ${(title || 'movies').toLowerCase()} genre.`}
       />
       <main className="pt-24 px-5 md:px-16 pb-16 min-h-screen">

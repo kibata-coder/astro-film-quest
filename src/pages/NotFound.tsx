@@ -12,7 +12,7 @@ const NotFound = () => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted">
       <Seo
-        title="404 — Page Not Found | SoudFlex"
+        title="404 Page Not Found | SoudFlex"
         description="This page could not be found. Return to SoudFlex to keep watching movies, TV shows, and anime."
       />
       <div className="text-center">

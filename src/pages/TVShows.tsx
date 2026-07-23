@@ -42,7 +42,7 @@ const TVShows = () => {
   return (
     <Layout onSearch={setSearchQuery} searchQuery={searchQuery}>
       <Seo
-        title="TV Shows — Stream Popular Series | SoudFlex"
+        title="TV Shows Stream Popular Series | SoudFlex"
         description="Discover popular TV shows and series across every genre. Filter by year, rating, and language to find your next binge on SoudFlex."
         canonicalPath="/tv"
         jsonLd={{

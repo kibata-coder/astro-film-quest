@@ -69,7 +69,7 @@ const HeroBanner = memo(({ movies, onPlay, onInfo }: HeroBannerProps) => {
 
   return (
     <div className="relative h-[70vh] md:h-[85vh] w-full overflow-hidden">
-      {/* Background image — using <img> so the browser preloads + decodes it natively.
+      {/* Background image using <img> so the browser preloads + decodes it natively.
           fetchpriority=high tells the browser this is the LCP element. */}
       {backdropUrl ? (
         <img

@@ -86,10 +86,8 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
   const [showServerDialog, setShowServerDialog] = useState(false);
   const streamProviders = isAnimeMedia(movie as unknown as Parameters<typeof isAnimeMedia>[0]) ? getAnimeProviders() : getProviders();
 
-  // Gate play behind auth
   const handlePlayClick = () => {
     if (!user) {
-      onClose();
       openSignUpPrompt();
       return;
     }
@@ -265,7 +263,6 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
               onClick={(e) => {
                 if (!user) {
                   e.preventDefault();
-                  onClose();
                   openSignUpPrompt();
                 }
               }}

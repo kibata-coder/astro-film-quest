@@ -42,7 +42,7 @@ const Movies = () => {
   return (
     <Layout onSearch={setSearchQuery} searchQuery={searchQuery}>
       <Seo
-        title="Movies — Watch Trending & Popular Films | SoudFlex"
+        title="Movies Watch Trending & Popular Films | SoudFlex"
         description="Browse and stream trending movies across every genre and language. Filter by year, rating, and language to find your next film on SoudFlex."
         canonicalPath="/movies"
         jsonLd={{
