@@ -91,26 +91,6 @@ const SoudanimeDetails = () => {
     return anime.streamingEpisodes.find(ep => parseEpisodeNumber(ep.title) === epNum) || null;
   };
 
-  if (isLoading) {
-    return (
-      <Layout>
-        <div className="min-h-screen flex items-center justify-center pt-24 pb-12">
-          <LoadingSpinner />
-        </div>
-      </Layout>
-    );
-  }
-
-  if (isError || !anime) {
-    return (
-      <Layout>
-        <div className="min-h-screen flex items-center justify-center pt-24 pb-12">
-          <p className="text-red-500">Failed to load anime details.</p>
-        </div>
-      </Layout>
-    );
-  }
-
   // Handle player messages for saving progress
   useEffect(() => {
     if (!playingEpisode || !anime) return;
@@ -145,6 +125,26 @@ const SoudanimeDetails = () => {
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, [playingEpisode, anime]);
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center pt-24 pb-12">
+          <LoadingSpinner />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (isError || !anime) {
+    return (
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center pt-24 pb-12">
+          <p className="text-red-500">Failed to load anime details.</p>
+        </div>
+      </Layout>
+    );
+  }
 
   // Render the player if an episode is selected
   if (playingEpisode) {
