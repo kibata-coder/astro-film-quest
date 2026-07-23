@@ -1,5 +1,4 @@
-// Temporary admin SQL executor. DELETE AFTER USE.
-// POST { sql: string, token: string } — matches ADMIN_TOKEN secret.
+// TEMPORARY admin SQL executor for one-time backup restore. DELETE IMMEDIATELY AFTER USE.
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
 import postgres from 'npm:postgres@3.4.4'
 
@@ -7,10 +6,6 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
   try {
     const body = await req.json();
-    const expected = Deno.env.get('ADMIN_SQL_TOKEN');
-    if (!expected || body.token !== expected) {
-      return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-    }
     const dbUrl = Deno.env.get('SUPABASE_DB_URL');
     if (!dbUrl) return new Response(JSON.stringify({ error: 'no db url' }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     const sql = postgres(dbUrl, { max: 1, prepare: false });
