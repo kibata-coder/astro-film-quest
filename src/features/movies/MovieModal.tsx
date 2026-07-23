@@ -89,6 +89,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
   // Gate play behind auth
   const handlePlayClick = () => {
     if (!user) {
+      onClose();
       openSignUpPrompt();
       return;
     }
@@ -264,6 +265,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
               onClick={(e) => {
                 if (!user) {
                   e.preventDefault();
+                  onClose();
                   openSignUpPrompt();
                 }
               }}
