@@ -239,8 +239,9 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
           
           <Button
             onClick={handlePlayClick}
+            variant="white"
             size={isMobile ? "default" : "lg"}
-            className="gap-2 bg-foreground text-background hover:bg-foreground/90 font-semibold"
+            className="gap-2 font-semibold"
           >
             <Play className="w-4 h-4 fill-current" />
             Play

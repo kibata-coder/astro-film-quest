@@ -116,7 +116,7 @@ const HeroBanner = memo(({ movies, onPlay, onInfo }: HeroBannerProps) => {
           </p>
 
           <div className="flex gap-4">
-            <Button size="lg" onClick={() => onPlay(currentMovie)} className="gap-2 bg-foreground text-background hover:bg-foreground/90">
+            <Button variant="white" size="lg" onClick={() => onPlay(currentMovie)} className="gap-2">
               <Play className="w-5 h-5" fill="currentColor" />
               Play
             </Button>

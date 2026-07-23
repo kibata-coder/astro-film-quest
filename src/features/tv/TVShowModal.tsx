@@ -218,8 +218,9 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
                       handlePlayClick(show.id, show.name, selectedSeason, ep.episode_number, ep.name || `Episode ${ep.episode_number}`, show.poster_path);
                     }
                   }}
+                  variant="white"
                   size={isMobile ? "default" : "lg"}
-                  className="gap-2 bg-foreground text-background hover:bg-foreground/90 font-semibold"
+                  className="gap-2 font-semibold"
                 >
                   <Play className="w-4 h-4 fill-current" />
                   {initialEpisode !== undefined && selectedSeason === initialSeason ? 'Resume' : 'Play'}
