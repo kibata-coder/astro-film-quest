@@ -114,6 +114,7 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
                 <NavLink to="/" className="text-sm font-medium hover:text-primary transition-colors">Home</NavLink>
                 <NavLink to="/movies" className="text-sm font-medium hover:text-primary transition-colors">Movies</NavLink>
                 <NavLink to="/tv" className="text-sm font-medium hover:text-primary transition-colors">TV Shows</NavLink>
+                <NavLink to="/timelines" className="text-sm font-medium hover:text-primary transition-colors">Timelines</NavLink>
                 {user && <NavLink to="/mylist" className="text-sm font-medium hover:text-primary transition-colors">My List</NavLink>}
               </>
             ) : (
