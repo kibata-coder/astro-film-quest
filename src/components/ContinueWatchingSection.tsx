@@ -57,7 +57,7 @@ const persistCache = () => {
 
 const fetchMissingPoster = async (id: number, mediaType: 'movie' | 'tv' | 'anime'): Promise<string | null> => {
   if (mediaType === 'anime') return null; // Anime poster is provided at save time, TMDB won't have it
-
+  
   const key = `${mediaType}-${id}`;
   if (posterCache.has(key)) return posterCache.get(key) ?? null;
   try {
@@ -218,7 +218,7 @@ const ContinueWatchingSection = ({ filterType, title = 'Continue Watching' }: Co
       window.location.href = `/anime/${item.id}`;
       return;
     }
-
+    
     if (item.media_type === 'movie') {
       // Create a compatible Movie object from the history item
       const movie: Movie = {
@@ -333,7 +333,7 @@ const ContinueWatchingSection = ({ filterType, title = 'Continue Watching' }: Co
                   <X className="w-4 h-4" />
                 </button>
                 
-              {/* Episode Badge for TV Shows and Anime */}
+                {/* Episode Badge for TV Shows and Anime */}
                 {(item.media_type === 'tv' || item.media_type === 'anime') && item.episode_number && (
                   <div className="absolute bottom-2 right-2 bg-primary/90 text-primary-foreground text-xs font-bold px-2 py-1 rounded">
                     {item.media_type === 'tv' && item.season_number ? `S${item.season_number} ` : ''}E{item.episode_number}

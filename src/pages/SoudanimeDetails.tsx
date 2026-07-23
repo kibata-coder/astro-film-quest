@@ -6,6 +6,7 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import Layout from '@/components/Layout';
 import Seo from '@/components/Seo';
 import { useAuth } from '@/features/auth';
+import { saveWatchProgress } from '@/lib/watchHistory';
 
 const SoudanimeDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -109,6 +110,41 @@ const SoudanimeDetails = () => {
       </Layout>
     );
   }
+
+  // Handle player messages for saving progress
+  useEffect(() => {
+    if (!playingEpisode || !anime) return;
+
+    const handleMessage = (event: MessageEvent) => {
+      let data = event.data;
+      if (typeof data === 'string') {
+        try {
+          data = JSON.parse(data);
+        } catch (e) {
+          return;
+        }
+      }
+
+      if (data && (data.channel === 'megacloud' || data.type === 'watching-log' || data.event)) {
+        if (data.type === 'watching-log' && data.currentTime && data.duration) {
+          saveWatchProgress(
+            {
+              id: anime.id,
+              media_type: 'anime',
+              title: anime.title.english || anime.title.romaji,
+              poster_path: anime.coverImage?.large || '',
+              episode_number: playingEpisode.number,
+            },
+            data.currentTime,
+            data.duration
+          );
+        }
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [playingEpisode, anime]);
 
   // Render the player if an episode is selected
   if (playingEpisode) {
