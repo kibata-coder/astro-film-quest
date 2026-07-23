@@ -131,6 +131,7 @@ const Layout = memo(({ children, onSearch, searchQuery, showFooter = true }: Lay
       {showFooter && <Footer />}
 
       <AuthModal isOpen={isAuthModalOpen} onClose={closeAuthModal} />
+      <SignUpPrompt />
 
       <Suspense fallback={null}>
         <MovieModal
