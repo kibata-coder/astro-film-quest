@@ -24,7 +24,7 @@ export default function SignUpPrompt() {
 
   return (
     <Dialog open={isSignUpPromptOpen} onOpenChange={closeSignUpPrompt}>
-      <DialogContent className="max-w-md bg-card border-border">
+      <DialogContent className="max-w-md bg-card border-border z-[200]">
         <DialogHeader>
           <DialogTitle className="text-xl text-center">Get More From SoudFlex</DialogTitle>
           <DialogDescription className="text-center text-muted-foreground">

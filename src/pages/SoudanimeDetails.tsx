@@ -11,7 +11,7 @@ import { saveWatchProgress } from '@/lib/watchHistory';
 const SoudanimeDetails = () => {
   const { id } = useParams<{ id: string }>();
   const { data: anime, isLoading, isError } = useAnimeSeries(id ? parseInt(id) : null);
-  const { user } = useAuth();
+  const { user, openSignUpPrompt } = useAuth();
   
   const [playingEpisode, setPlayingEpisode] = useState<{ number: number, language: string } | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
@@ -319,13 +319,25 @@ const SoudanimeDetails = () => {
                   
                   <div className="flex gap-1.5 mt-auto">
                     <button 
-                      onClick={() => setPlayingEpisode({ number: epNum, language: 'sub' })}
+                      onClick={() => {
+                        if (!user) {
+                          openSignUpPrompt();
+                          return;
+                        }
+                        setPlayingEpisode({ number: epNum, language: 'sub' });
+                      }}
                       className="flex-1 flex items-center justify-center gap-1 bg-orange-500/10 hover:bg-orange-500 text-orange-500 hover:text-white py-1 px-1.5 rounded-md text-[10px] font-bold transition-all border border-orange-500/20 hover:border-orange-500"
                     >
                       <PlayCircle className="w-3 h-3" /> SUB
                     </button>
                     <button 
-                      onClick={() => setPlayingEpisode({ number: epNum, language: 'dub' })}
+                      onClick={() => {
+                        if (!user) {
+                          openSignUpPrompt();
+                          return;
+                        }
+                        setPlayingEpisode({ number: epNum, language: 'dub' });
+                      }}
                       className="flex-1 flex items-center justify-center gap-1 bg-blue-500/10 hover:bg-blue-500 text-blue-500 hover:text-white py-1 px-1.5 rounded-md text-[10px] font-bold transition-all border border-blue-500/20 hover:border-blue-500"
                     >
                       <PlayCircle className="w-3 h-3" /> DUB

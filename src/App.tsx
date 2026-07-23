@@ -29,6 +29,8 @@ const Login = lazy(() => import("./pages/Login"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Brands = lazy(() => import("./pages/Brands"));
 const BrandPage = lazy(() => import("./pages/BrandPage"));
+const Timelines = lazy(() => import("./pages/Timelines"));
+const TimelinePage = lazy(() => import("./pages/TimelinePage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -79,6 +81,8 @@ const App = () => (
                     <Route path="/person/:id" element={<Person />} />
                     <Route path="/brands" element={<Brands />} />
                     <Route path="/brand/:id" element={<BrandPage />} />
+                    <Route path="/timelines" element={<Timelines />} />
+                    <Route path="/timeline/:id" element={<TimelinePage />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </Suspense>
