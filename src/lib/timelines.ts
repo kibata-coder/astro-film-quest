@@ -31,7 +31,7 @@ export const FRANCHISE_TIMELINES: TimelineFranchise[] = [
     shortName: 'MCU',
     tagline: 'The complete Marvel timeline from Captain America to Multiverse Saga',
     description: 'Experience the entire Marvel Cinematic Universe in official in-universe chronological order or by release date.',
-    bannerUrl: 'https://image.tmdb.org/t/p/w1280/yF1W2VLwB922BrEX2ZcrV2x8Hjq.jpg',
+    bannerUrl: 'https://image.tmdb.org/t/p/w1280/7RyHsO4yDXtBv1zUU3mTpHeQ0d5.jpg',
     accentColor: '#EC1D24',
     phases: ['Phase One', 'Phase Two', 'Phase Three', 'Phase Four', 'Phase Five'],
     items: [
@@ -352,7 +352,7 @@ export const FRANCHISE_TIMELINES: TimelineFranchise[] = [
     shortName: 'Star Wars',
     tagline: 'From the Fall of the Jedi to the Rise of Skywalker',
     description: 'Explore the complete Star Wars saga in narrative BBY/ABY chronological order.',
-    bannerUrl: 'https://image.tmdb.org/t/p/w1280/5iwx1vKZ6FAAYviAh9V29yKi2Sp.jpg',
+    bannerUrl: 'https://image.tmdb.org/t/p/w1280/yUiXA68FfQeA8cRBhd0Ao0jIRZt.jpg',
     accentColor: '#FFE81F',
     phases: ['Prequel Era', 'Reign of the Empire', 'Age of Rebellion', 'The New Republic', 'Sequel Era'],
     items: [
@@ -530,7 +530,7 @@ export const FRANCHISE_TIMELINES: TimelineFranchise[] = [
     shortName: 'DCEU',
     tagline: 'The complete Justice League & DC universe timeline',
     description: 'Watch the DC Extended Universe from Wonder Woman through the Flash and Aquaman.',
-    bannerUrl: 'https://image.tmdb.org/t/p/w1280/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg',
+    bannerUrl: 'https://image.tmdb.org/t/p/w1280/13Nz8EchKRdCgJcKdEoJAnpiVn2.jpg',
     accentColor: '#0476F1',
     phases: ['Origins', 'Justice League Era', 'Post-Snyderverse', 'Multiverse Reset'],
     items: [
