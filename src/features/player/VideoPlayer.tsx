@@ -308,7 +308,7 @@ const VideoPlayer = ({
             </Button>
           )}
 
-          {isTVShow && totalEpisodes && (
+          {isTVShow && typeof totalEpisodes === 'number' && totalEpisodes > 0 && (
             <>
               <Button variant="ghost" size="icon" onClick={onPreviousEpisode} disabled={isFirstEpisode} aria-label="Previous episode">
                 <ChevronLeft className="h-5 w-5" />

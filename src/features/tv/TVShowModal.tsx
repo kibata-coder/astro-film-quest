@@ -53,7 +53,6 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
 
   const handlePlayClick = (showId: number, showName: string, seasonNumber: number, episodeNumber: number, episodeName: string, posterPath: string | null) => {
     if (!user) {
-      onClose();
       openSignUpPrompt();
       return;
     }
@@ -245,7 +244,6 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
                       onClick={(e) => {
                         if (!user) {
                           e.preventDefault();
-                          onClose();
                           openSignUpPrompt();
                         }
                       }}
