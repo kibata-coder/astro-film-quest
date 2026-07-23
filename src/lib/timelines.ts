@@ -730,7 +730,7 @@ export const FRANCHISE_TIMELINES: TimelineFranchise[] = [
     id: 'aot',
     name: 'Attack on Titan',
     shortName: 'AoT',
-    tagline: 'Shingeki no Kyojin — Season 1 through The Final Season',
+    tagline: 'Shingeki no Kyojin Season 1 through The Final Season',
     description: 'Experience Eren Yeager’s complete journey from the fall of Wall Maria to the Rumbling.',
     bannerUrl: 'https://image.tmdb.org/t/p/w1280/rqbCbjB19amtOtFQbb3K2lgm2zv.jpg',
     accentColor: '#A8201A',
@@ -739,7 +739,7 @@ export const FRANCHISE_TIMELINES: TimelineFranchise[] = [
       {
         id: 1429,
         media_type: 'anime',
-        title: 'Attack on Titan — Season 1',
+        title: 'Attack on Titan Season 1',
         year: 2013,
         poster_path: '/3Npd9yTdy76kHzoFpL0SOIxE6Uv.jpg',
         chronologicalOrder: 1,
@@ -750,7 +750,7 @@ export const FRANCHISE_TIMELINES: TimelineFranchise[] = [
       {
         id: 1429,
         media_type: 'anime',
-        title: 'Attack on Titan — Season 2',
+        title: 'Attack on Titan Season 2',
         year: 2017,
         poster_path: '/2fhK0wbFixskgRyuq6YvaMn75et.jpg',
         chronologicalOrder: 2,
@@ -761,7 +761,7 @@ export const FRANCHISE_TIMELINES: TimelineFranchise[] = [
       {
         id: 1429,
         media_type: 'anime',
-        title: 'Attack on Titan — Season 3',
+        title: 'Attack on Titan Season 3',
         year: 2018,
         poster_path: '/ynow2o9v0G341PLv1chCRDufCgc.jpg',
         chronologicalOrder: 3,
@@ -772,7 +772,7 @@ export const FRANCHISE_TIMELINES: TimelineFranchise[] = [
       {
         id: 1429,
         media_type: 'anime',
-        title: 'Attack on Titan — The Final Season',
+        title: 'Attack on Titan The Final Season',
         year: 2020,
         poster_path: '/sfbSjGlLHsvFQrMUSNR9RrwZgV1.jpg',
         chronologicalOrder: 4,

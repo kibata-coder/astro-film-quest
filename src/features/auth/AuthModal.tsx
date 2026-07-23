@@ -181,7 +181,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                 </div>
               )}
 
-              {/* Primary CTA button — SoudFlex blue */}
+              {/* Primary CTA button SoudFlex blue */}
               <button
                 type="submit"
                 disabled={loading}

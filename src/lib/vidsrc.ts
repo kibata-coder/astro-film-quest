@@ -1,4 +1,4 @@
-// Streaming providers — updated to include 3 reliable servers.
+// Streaming providers updated to include 3 reliable servers.
 //
 // API reference:
 // Server 1 Docs: https://vidsrcme.su/embed/movie?tmdb=ID

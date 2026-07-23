@@ -160,7 +160,7 @@ export const AnimeMoviesSection = ({ onMovieClick }: MovieSectionProps) => (
   <DynamicSection title="Anime Movies" icon={Flame} useDataHook={useAnimeMovies} onItemClick={onMovieClick} />
 );
 
-// 4. Genre Sections — factory to avoid 12 duplicate component bodies
+// 4. Genre Sections factory to avoid 12 duplicate component bodies
 const makeGenreSection = (
   title: string,
   icon: LucideIcon,

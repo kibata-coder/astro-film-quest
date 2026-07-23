@@ -119,7 +119,7 @@ const TimelinePage = memo(() => {
   return (
     <Layout>
       <Seo
-        title={`${franchise.name} Timeline — Story Order Guide | SoudFlex`}
+        title={`${franchise.name} Timeline Story Order Guide | SoudFlex`}
         description={franchise.description}
         canonicalPath={`/timeline/${franchise.id}`}
       />

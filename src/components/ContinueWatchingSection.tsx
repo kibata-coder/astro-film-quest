@@ -50,7 +50,7 @@ const persistCache = () => {
       animeCache.forEach((v, k) => { aObj[k] = v; });
       localStorage.setItem(ANIME_CACHE_KEY, JSON.stringify(aObj));
     } catch {
-      /* quota or serialization error — ignore */
+      /* quota or serialization error ignore */
     }
   }, 500);
 };

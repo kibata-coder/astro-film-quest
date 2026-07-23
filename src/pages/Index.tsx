@@ -44,8 +44,8 @@ const Index = () => {
   return (
     <Layout onSearch={setSearchQuery} searchQuery={searchQuery} showFooter={!debouncedSearch}>
       <Seo
-        title="SoudFlex — Stream Movies, TV Shows & Anime Free"
-        description="Watch trending movies, TV shows, and anime online. Discover trailers, cast, and where to stream your favorites — all in one place on SoudFlex."
+        title="SoudFlex Stream Movies, TV Shows & Anime Free"
+        description="Watch trending movies, TV shows, and anime online. Discover trailers, cast, and where to stream your favorites all in one place on SoudFlex."
         canonicalPath="/"
       />
       {debouncedSearch ? (

@@ -113,7 +113,7 @@ const Person = () => {
   return (
     <Layout>
       <Seo
-        title={`${person.name} — Filmography & Bio | SoudFlex`}
+        title={`${person.name} Filmography & Bio | SoudFlex`}
         description={`Explore ${person.name}'s filmography, known roles, and biography on SoudFlex.${person.known_for_department ? ` Known for ${person.known_for_department}.` : ''}`.slice(0, 160)}
       />
       <main className="container mx-auto px-5 md:px-8 pt-28 pb-16">

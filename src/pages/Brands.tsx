@@ -57,8 +57,8 @@ const Brands = memo(() => {
   return (
     <Layout>
       <Seo
-        title="All Brands & Studios — SoudFlex"
-        description="Browse movies and TV shows by your favourite streaming service or studio — Netflix, Marvel, Prime Video, Disney, DC, and more."
+        title="All Brands & Studios SoudFlex"
+        description="Browse movies and TV shows by your favourite streaming service or studio Netflix, Marvel, Prime Video, Disney, DC, and more."
         canonicalPath="/brands"
       />
 

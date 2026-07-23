@@ -1,4 +1,4 @@
-// Central registry of all brands — studios, streaming services, and major franchises.
+// Central registry of all brands studios, streaming services, and major franchises.
 // TMDB IDs verified: watch_provider_id for streamers, company_id for studios/franchises.
 
 export type BrandType = 'provider' | 'company';
@@ -32,7 +32,7 @@ const LOGOS: Record<string, string> = {
   starwars: `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 150'><rect width='400' height='150' rx='8' fill='%23000000'/><text x='50%25' y='42%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial Black,Arial' font-weight='900' font-size='36' fill='%23FFE81F' letter-spacing='2'>STAR WARS</text><text x='50%25' y='75%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial,Helvetica' font-weight='400' font-size='22' fill='%23FFE81F' letter-spacing='3'>A LUCASFILM STORY</text></svg>`,
 };
 
-// ─── Brand list — ordered: most-known first ──────────────────────────────────
+// ─── Brand list ordered: most-known first ──────────────────────────────────
 
 export const ALL_BRANDS: Brand[] = [
   {
@@ -42,7 +42,7 @@ export const ALL_BRANDS: Brand[] = [
     type: 'company',
     color: '#EC1D24',
     logo: LOGOS.marvel,
-    description: 'The Marvel Cinematic Universe — blockbusters from Iron Man to the Avengers and beyond.',
+    description: 'The Marvel Cinematic Universe blockbusters from Iron Man to the Avengers and beyond.',
   },
   {
     id: 'dc',
@@ -60,7 +60,7 @@ export const ALL_BRANDS: Brand[] = [
     type: 'provider',
     color: '#E50914',
     logo: LOGOS.netflix,
-    description: 'Netflix Originals — award-winning series, films, documentaries and more.',
+    description: 'Netflix Originals award-winning series, films, documentaries and more.',
   },
   {
     id: 'prime',
@@ -69,7 +69,7 @@ export const ALL_BRANDS: Brand[] = [
     type: 'provider',
     color: '#00A8E1',
     logo: LOGOS.prime,
-    description: 'Amazon Prime Video — The Boys, The Rings of Power, and thousands more.',
+    description: 'Amazon Prime Video The Boys, The Rings of Power, and thousands more.',
   },
   {
     id: 'disney',
@@ -78,7 +78,7 @@ export const ALL_BRANDS: Brand[] = [
     type: 'provider',
     color: '#113CCF',
     logo: LOGOS.disney,
-    description: 'Disney, Pixar, Marvel, Star Wars and National Geographic — all in one place.',
+    description: 'Disney, Pixar, Marvel, Star Wars and National Geographic all in one place.',
   },
   {
     id: 'hbo',
@@ -123,7 +123,7 @@ export const ALL_BRANDS: Brand[] = [
     type: 'company',
     color: '#FFE81F',
     logo: LOGOS.starwars,
-    description: 'A galaxy far, far away — every Star Wars film and series.',
+    description: 'A galaxy far, far away every Star Wars film and series.',
   },
   {
     id: 'universal',
@@ -159,7 +159,7 @@ export const ALL_BRANDS: Brand[] = [
     type: 'company',
     color: '#000000',
     logo: LOGOS.a24,
-    description: 'Everything Everywhere, Midsommar, Hereditary — prestige indie cinema.',
+    description: 'Everything Everywhere, Midsommar, Hereditary prestige indie cinema.',
   },
 ];
 

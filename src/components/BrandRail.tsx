@@ -4,7 +4,7 @@ import { ChevronRight } from 'lucide-react';
 import { RAIL_BRANDS } from '@/lib/brands';
 
 /**
- * BrandRail — horizontal row of brand logos shown on the home page,
+ * BrandRail horizontal row of brand logos shown on the home page,
  * replacing the old SoudSportBanner. Shows the 6 most recognisable
  * brands and a "More →" chip that leads to /brands.
  */

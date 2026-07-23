@@ -179,7 +179,7 @@ const SoudanimeDetails = () => {
   return (
     <Layout>
       <Seo
-        title={`${anime.title.english || anime.title.romaji} — Watch Anime | SoudFlex`}
+        title={`${anime.title.english || anime.title.romaji} Watch Anime | SoudFlex`}
         description={(anime.description || `Watch ${anime.title.english || anime.title.romaji} episodes subbed and dubbed on SoudFlex.`).replace(/<[^>]+>/g, '').slice(0, 160)}
       />
       <div className="bg-background text-foreground pb-20">
