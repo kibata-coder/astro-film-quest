@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Camera, Save, Loader2, User } from 'lucide-react';
+import { Save, Loader2, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 
@@ -16,13 +16,10 @@ const Profile = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const [displayName, setDisplayName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -53,46 +50,7 @@ const Profile = () => {
     }
   };
 
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !user) return;
 
-    if (file.size > 2 * 1024 * 1024) {
-      toast({ title: 'File too large', description: 'Avatar must be under 2MB', variant: 'destructive' });
-      return;
-    }
-
-    setUploading(true);
-    try {
-      const ext = file.name.split('.').pop();
-      const filePath = `${user.id}/avatar.${ext}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file, { upsert: true });
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
-
-      const url = `${publicUrl}?t=${Date.now()}`;
-      setAvatarUrl(url);
-
-      await supabase
-        .from('profiles')
-        .update({ avatar_url: url, updated_at: new Date().toISOString() })
-        .eq('id', user.id);
-
-      toast({ title: 'Avatar updated!' });
-    } catch (err) {
-      console.error('Upload error:', err);
-      toast({ title: 'Upload failed', variant: 'destructive' });
-    } finally {
-      setUploading(false);
-    }
-  };
 
   const handleSave = async () => {
     if (!user) return;
@@ -138,29 +96,12 @@ const Profile = () => {
               <>
                 {/* Avatar */}
                 <div className="flex flex-col items-center gap-3">
-                  <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                    <Avatar className="w-24 h-24 border-2 border-border">
-                      <AvatarImage src={avatarUrl || undefined} />
-                      <AvatarFallback className="bg-muted text-foreground text-xl">
-                        {initials}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="absolute inset-0 rounded-full bg-background/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      {uploading ? (
-                        <Loader2 className="w-6 h-6 animate-spin text-foreground" />
-                      ) : (
-                        <Camera className="w-6 h-6 text-foreground" />
-                      )}
-                    </div>
-                  </div>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleAvatarUpload}
-                  />
-                  <p className="text-xs text-muted-foreground">Click to change avatar</p>
+                  <Avatar className="w-24 h-24 border-2 border-border">
+                    <AvatarImage src={avatarUrl || undefined} />
+                    <AvatarFallback className="bg-muted text-foreground text-xl">
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
                 </div>
 
                 {/* Email (read-only) */}
