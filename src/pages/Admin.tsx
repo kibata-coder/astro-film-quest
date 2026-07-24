@@ -9,9 +9,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import { Users, Activity, PlayCircle, Star } from "lucide-react";
+import { Users, Activity, PlayCircle, Star, ArrowUpDown } from "lucide-react";
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend
@@ -33,11 +40,14 @@ interface GlobalStats {
 
 const COLORS = ['#8b5cf6', '#3b82f6']; // Purple and Blue for the Pie Chart
 
+type SortOption = 'newest_user' | 'oldest_user' | 'latest_signin' | 'oldest_signin';
+
 const Admin = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [globalStats, setGlobalStats] = useState<GlobalStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [sortOption, setSortOption] = useState<SortOption>('newest_user');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -99,6 +109,31 @@ const Admin = () => {
     // We'll show daily signups for simplicity.
     return Object.entries(grouped).map(([date, signups]) => ({ date, signups }));
   }, [users]);
+
+  const sortedUsers = useMemo(() => {
+    return [...users].sort((a, b) => {
+      switch (sortOption) {
+        case 'newest_user':
+          return new Date(b.sign_up_date).getTime() - new Date(a.sign_up_date).getTime();
+        case 'oldest_user':
+          return new Date(a.sign_up_date).getTime() - new Date(b.sign_up_date).getTime();
+        case 'latest_signin': {
+          const timeA = a.last_sign_in_at ? new Date(a.last_sign_in_at).getTime() : 0;
+          const timeB = b.last_sign_in_at ? new Date(b.last_sign_in_at).getTime() : 0;
+          return timeB - timeA;
+        }
+        case 'oldest_signin': {
+          const timeA = a.last_sign_in_at ? new Date(a.last_sign_in_at).getTime() : 0;
+          const timeB = b.last_sign_in_at ? new Date(b.last_sign_in_at).getTime() : 0;
+          if (timeA === 0) return 1; // push never signed in to bottom
+          if (timeB === 0) return -1;
+          return timeA - timeB;
+        }
+        default:
+          return 0;
+      }
+    });
+  }, [users, sortOption]);
 
   if (loading) {
     return (
@@ -232,6 +267,25 @@ const Admin = () => {
         </Card>
       </div>
       
+      {/* Users Table Header & Filters */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+        <h2 className="text-2xl font-semibold">User Directory</h2>
+        <div className="flex items-center gap-2">
+          <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+          <Select value={sortOption} onValueChange={(v) => setSortOption(v as SortOption)}>
+            <SelectTrigger className="w-[180px] bg-card/50">
+              <SelectValue placeholder="Sort users..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="newest_user">Newest Users</SelectItem>
+              <SelectItem value="oldest_user">Oldest Users</SelectItem>
+              <SelectItem value="latest_signin">Latest Sign-in</SelectItem>
+              <SelectItem value="oldest_signin">Oldest Sign-in</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       {/* Users Table */}
       <div className="rounded-xl border bg-card/50 backdrop-blur-sm overflow-hidden shadow-xl">
         <Table>
@@ -244,7 +298,7 @@ const Admin = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.map((user) => (
+            {sortedUsers.map((user) => (
               <TableRow key={user.id} className="transition-colors hover:bg-muted/50">
                 <TableCell className="font-mono text-xs text-muted-foreground">{user.id}</TableCell>
                 <TableCell className="font-medium">{user.email}</TableCell>
