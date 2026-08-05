@@ -210,7 +210,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_admin_global_stats: {
+        Args: never
+        Returns: {
+          total_bookmarks: number
+          total_collections: number
+          total_ratings: number
+          total_watch_history: number
+        }[]
+      }
+      get_admin_users: {
+        Args: never
+        Returns: {
+          email: string
+          id: string
+          last_sign_in_at: string
+          sign_up_date: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
