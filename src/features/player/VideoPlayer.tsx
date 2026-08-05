@@ -346,6 +346,7 @@ const VideoPlayer = ({
       {/* ── Video area ──────────────────────────────────────────────────────── */}
       <div className="relative flex-1 bg-black group">
         <iframe
+          ref={iframeRef}
           key={`${mediaId}-${seasonNumber ?? 'm'}-${episodeNumber ?? 'm'}-${providerIdx}-${activeSubUrl ?? 'nosub'}`}
           src={embedUrl}
           className="absolute inset-0 h-full w-full border-0"
