@@ -33,6 +33,7 @@ const MegaPlayPlayer = ({
   hasPrev,
 }: MegaPlayPlayerProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const [controlsVisible, setControlsVisible] = useState(true);
   const hideTimer = useRef<number | null>(null);
 
@@ -49,6 +50,21 @@ const MegaPlayPlayer = ({
     showControls();
     return () => {
       if (hideTimer.current) window.clearTimeout(hideTimer.current);
+    };
+  }, []);
+
+  // Hard teardown of the stream iframe so its scripts/audio are unloaded
+  // instead of lingering in memory after the player closes.
+  useEffect(() => {
+    return () => {
+      const frame = iframeRef.current;
+      if (!frame) return;
+      try {
+        frame.src = 'about:blank';
+        frame.removeAttribute('src');
+      } catch {
+        /* cross-origin frame already detached */
+      }
     };
   }, []);
 
@@ -114,6 +130,7 @@ const MegaPlayPlayer = ({
     >
       <div className="relative flex-1 overflow-hidden bg-black">
         <iframe
+          ref={iframeRef}
           src={iframeSrc}
           className="absolute inset-0 h-full w-full border-0"
           allowFullScreen

@@ -60,6 +60,7 @@ const VideoPlayer = ({
   });
   const startTimeRef = useRef<number>(0);
   const durationRef = useRef<number>(0);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   // ── Subtitle state ──────────────────────────────────────────────────────────
   const [showSubPanel, setShowSubPanel] = useState(false);
@@ -88,6 +89,23 @@ const VideoPlayer = ({
     document.body.style.overflow = isOpen ? 'hidden' : 'unset';
     return () => { document.body.style.overflow = 'unset'; };
   }, [isOpen]);
+
+  // ── Hard teardown of the provider iframe ────────────────────────────────────
+  // Vidsrc ad scripts keep timers/audio alive after React unmounts the node.
+  // Navigating the frame to about:blank forces the document to unload so the
+  // browser can reclaim it, instead of leaking a renderer per playback.
+  useEffect(() => {
+    return () => {
+      const frame = iframeRef.current;
+      if (!frame) return;
+      try {
+        frame.src = 'about:blank';
+        frame.removeAttribute('src');
+      } catch {
+        /* cross-origin frame already detached */
+      }
+    };
+  }, []);
 
   // ── Duration fetch ──────────────────────────────────────────────────────────
   useEffect(() => {
@@ -328,6 +346,7 @@ const VideoPlayer = ({
       {/* ── Video area ──────────────────────────────────────────────────────── */}
       <div className="relative flex-1 bg-black group">
         <iframe
+          ref={iframeRef}
           key={`${mediaId}-${seasonNumber ?? 'm'}-${episodeNumber ?? 'm'}-${providerIdx}-${activeSubUrl ?? 'nosub'}`}
           src={embedUrl}
           className="absolute inset-0 h-full w-full border-0"
