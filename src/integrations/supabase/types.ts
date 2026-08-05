@@ -168,6 +168,7 @@ export type Database = {
           duration: number
           episode_number: number | null
           id: string
+          is_anime: boolean | null
           media_id: number
           media_type: string
           poster_path: string | null
@@ -181,6 +182,7 @@ export type Database = {
           duration?: number
           episode_number?: number | null
           id?: string
+          is_anime?: boolean | null
           media_id: number
           media_type: string
           poster_path?: string | null
@@ -194,6 +196,7 @@ export type Database = {
           duration?: number
           episode_number?: number | null
           id?: string
+          is_anime?: boolean | null
           media_id?: number
           media_type?: string
           poster_path?: string | null
