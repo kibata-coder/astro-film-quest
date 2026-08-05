@@ -33,6 +33,7 @@ const MegaPlayPlayer = ({
   hasPrev,
 }: MegaPlayPlayerProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const [controlsVisible, setControlsVisible] = useState(true);
   const hideTimer = useRef<number | null>(null);
 
