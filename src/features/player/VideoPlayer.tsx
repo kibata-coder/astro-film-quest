@@ -60,6 +60,7 @@ const VideoPlayer = ({
   });
   const startTimeRef = useRef<number>(0);
   const durationRef = useRef<number>(0);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   // ── Subtitle state ──────────────────────────────────────────────────────────
   const [showSubPanel, setShowSubPanel] = useState(false);
