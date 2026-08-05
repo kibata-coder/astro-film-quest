@@ -65,6 +65,9 @@ const Layout = memo(({ children, onSearch, searchQuery, showFooter = true }: Lay
       forceCloseTVModal(true);
     }
   };
+  const showMovieModal = isMovieModalOpen && !videoState.isOpen;
+  const showTVModal = isTVModalOpen && !videoState.isOpen;
+
 
   // ── Player slot ──
   const renderPlayer = () => {
