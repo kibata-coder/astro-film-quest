@@ -52,6 +52,21 @@ const MegaPlayPlayer = ({
     };
   }, []);
 
+  // Hard teardown of the stream iframe so its scripts/audio are unloaded
+  // instead of lingering in memory after the player closes.
+  useEffect(() => {
+    return () => {
+      const frame = iframeRef.current;
+      if (!frame) return;
+      try {
+        frame.src = 'about:blank';
+        frame.removeAttribute('src');
+      } catch {
+        /* cross-origin frame already detached */
+      }
+    };
+  }, []);
+
   // Keyboard
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
