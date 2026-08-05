@@ -130,6 +130,7 @@ const MegaPlayPlayer = ({
     >
       <div className="relative flex-1 overflow-hidden bg-black">
         <iframe
+          ref={iframeRef}
           src={iframeSrc}
           className="absolute inset-0 h-full w-full border-0"
           allowFullScreen
