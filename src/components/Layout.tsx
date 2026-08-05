@@ -133,24 +133,30 @@ const Layout = memo(({ children, onSearch, searchQuery, showFooter = true }: Lay
       <AuthModal isOpen={isAuthModalOpen} onClose={closeAuthModal} />
       <SignUpPrompt />
 
+      {/* Each lazy chunk is only requested once its surface is actually opened,
+          so a plain browse never downloads modal or player code. */}
       <Suspense fallback={null}>
-        <MovieModal
-          movie={selectedMovie}
-          isOpen={isMovieModalOpen && !videoState.isOpen}
-          onClose={closeMovieModal}
-          onPlay={handlePlayMovie}
-          onSelectMovie={openMovieModal}
-        />
+        {showMovieModal && (
+          <MovieModal
+            movie={selectedMovie}
+            isOpen
+            onClose={closeMovieModal}
+            onPlay={handlePlayMovie}
+            onSelectMovie={openMovieModal}
+          />
+        )}
 
-        <TVShowModal
-          show={selectedShow}
-          isOpen={isTVModalOpen && !videoState.isOpen}
-          onClose={closeTVModal}
-          onPlay={handlePlayTVShow}
-          onSelectShow={openTVModal}
-          initialSeason={tvModalOptions?.initialSeason}
-          initialEpisode={tvModalOptions?.initialEpisode}
-        />
+        {showTVModal && (
+          <TVShowModal
+            show={selectedShow}
+            isOpen
+            onClose={closeTVModal}
+            onPlay={handlePlayTVShow}
+            onSelectShow={openTVModal}
+            initialSeason={tvModalOptions?.initialSeason}
+            initialEpisode={tvModalOptions?.initialEpisode}
+          />
+        )}
 
         {renderPlayer()}
       </Suspense>
