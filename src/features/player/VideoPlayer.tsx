@@ -90,6 +90,23 @@ const VideoPlayer = ({
     return () => { document.body.style.overflow = 'unset'; };
   }, [isOpen]);
 
+  // ── Hard teardown of the provider iframe ────────────────────────────────────
+  // Vidsrc ad scripts keep timers/audio alive after React unmounts the node.
+  // Navigating the frame to about:blank forces the document to unload so the
+  // browser can reclaim it, instead of leaking a renderer per playback.
+  useEffect(() => {
+    return () => {
+      const frame = iframeRef.current;
+      if (!frame) return;
+      try {
+        frame.src = 'about:blank';
+        frame.removeAttribute('src');
+      } catch {
+        /* cross-origin frame already detached */
+      }
+    };
+  }, []);
+
   // ── Duration fetch ──────────────────────────────────────────────────────────
   useEffect(() => {
     if (!isOpen || !mediaId) return;
