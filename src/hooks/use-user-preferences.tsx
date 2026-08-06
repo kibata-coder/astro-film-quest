@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -35,55 +35,60 @@ const DEFAULT_PREFERENCES: UserPreferences = {
 
 export function useUserPreferences() {
   const { user } = useAuth();
-  const [preferences, setPreferences] = useState<UserPreferences>(DEFAULT_PREFERENCES);
-  const [loading, setLoading] = useState(true);
+  const userId = user?.id ?? null;
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (!user) {
-      setPreferences(DEFAULT_PREFERENCES);
-      setLoading(false);
-      return;
-    }
+  const queryKey = ['profile-preferences', userId] as const;
 
-    const loadPreferences = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('preferences')
-          .eq('id', user.id)
-          .maybeSingle();
+  const { data, isLoading } = useQuery({
+    queryKey,
+    enabled: !!userId,
+    // Preferences change only when this user toggles them, so never refetch on
+    // mount/focus. This used to fire thousands of profile reads per day.
+    staleTime: Infinity,
+    gcTime: 1000 * 60 * 60,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    retry: 1,
+    queryFn: async (): Promise<UserPreferences> => {
+      const { data: row, error } = await supabase
+        .from('profiles')
+        .select('preferences')
+        .eq('id', userId!)
+        .maybeSingle();
 
-        if (error) throw error;
-        
-        if (data?.preferences && typeof data.preferences === 'object') {
-          setPreferences({ ...DEFAULT_PREFERENCES, ...(data.preferences as object) });
-        }
-      } catch (err) {
-        console.error('Failed to load preferences', err);
-      } finally {
-        setLoading(false);
+      if (error) throw error;
+
+      if (row?.preferences && typeof row.preferences === 'object') {
+        return { ...DEFAULT_PREFERENCES, ...(row.preferences as object) };
       }
-    };
+      return DEFAULT_PREFERENCES;
+    },
+  });
 
-    loadPreferences();
-  }, [user]);
+  const preferences = data ?? DEFAULT_PREFERENCES;
+  const loading = !!userId && isLoading;
 
   const toggleSection = async (key: keyof UserPreferences) => {
-    if (!user) return;
+    if (!userId) return;
+    const previous = preferences;
     const newPrefs = { ...preferences, [key]: !preferences[key] };
-    setPreferences(newPrefs);
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .upsert({ 
-          id: user.id, 
-          preferences: newPrefs, 
-          updated_at: new Date().toISOString() 
-        });
-      if (error) throw error;
-    } catch (err) {
-      toast.error("Failed to save setting");
-      setPreferences(preferences);
+
+    // Optimistic write-through so no refetch is needed.
+    queryClient.setQueryData(queryKey, newPrefs);
+
+    const { error } = await supabase
+      .from('profiles')
+      .upsert({
+        id: userId,
+        preferences: newPrefs,
+        updated_at: new Date().toISOString(),
+      });
+
+    if (error) {
+      queryClient.setQueryData(queryKey, previous);
+      toast.error('Failed to save setting');
     }
   };
 
