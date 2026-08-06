@@ -55,50 +55,82 @@ const persistCache = () => {
   }, 500);
 };
 
-const fetchMissingPoster = async (id: number, mediaType: 'movie' | 'tv' | 'anime'): Promise<string | null> => {
-  if (mediaType === 'anime') return null; // Anime poster is provided at save time, TMDB won't have it
-  
+/**
+ * One TMDB detail fetch per title, shared by both the poster and the anime
+ * lookup. Previously each of those fetched details separately, so a history of
+ * N items cost 2N requests; concurrent section instances doubled it again.
+ * In-flight promises are deduped so simultaneous callers await the same request.
+ */
+const inFlight = new Map<string, Promise<{ poster: string | null; isAnime: boolean }>>();
+
+const resolveDetails = (
+  id: number,
+  mediaType: 'movie' | 'tv' | 'anime'
+): Promise<{ poster: string | null; isAnime: boolean }> => {
   const key = `${mediaType}-${id}`;
-  if (posterCache.has(key)) return posterCache.get(key) ?? null;
-  try {
-    const details = mediaType === 'movie' ? await getMovieDetails(id) : await getTVShowDetails(id);
-    const path = (details as any)?.poster_path ?? null;
-    posterCache.set(key, path);
-    
-    // Opportunistically save anime status while we have details
-    animeCache.set(key, isAnimeMedia(details));
-    
-    persistCache();
-    return path;
-  } catch {
-    posterCache.set(key, null);
-    persistCache();
-    return null;
+
+  // Fully cached: no network at all.
+  if (posterCache.has(key) && animeCache.has(key)) {
+    return Promise.resolve({
+      poster: posterCache.get(key) ?? null,
+      isAnime: animeCache.get(key) ?? false,
+    });
+  }
+
+  const existing = inFlight.get(key);
+  if (existing) return existing;
+
+  const request = (async () => {
+    try {
+      const details =
+        mediaType === 'movie' ? await getMovieDetails(id) : await getTVShowDetails(id);
+      const poster = (details as any)?.poster_path ?? null;
+      const isAnime = isAnimeMedia(details);
+      posterCache.set(key, poster);
+      animeCache.set(key, isAnime);
+      persistCache();
+      return { poster, isAnime };
+    } catch {
+      posterCache.set(key, null);
+      animeCache.set(key, false);
+      persistCache();
+      return { poster: null, isAnime: false };
+    } finally {
+      inFlight.delete(key);
+    }
+  })();
+
+  inFlight.set(key, request);
+  return request;
+};
+
+/** Anime status from data we already hold, without touching the network. */
+const knownIsAnime = (item: WatchHistoryItem): boolean | undefined => {
+  if (item.media_type === 'anime') return true;
+  if (typeof item.is_anime === 'boolean') return item.is_anime;
+  const key = `${item.media_type}-${item.id}`;
+  return animeCache.has(key) ? animeCache.get(key) ?? false : undefined;
+};
+
+const matchesFilter = (
+  item: WatchHistoryItem,
+  isAnime: boolean,
+  filterType?: 'movie' | 'tv' | 'anime' | 'soudflex'
+): boolean => {
+  switch (filterType) {
+    case 'anime':
+      return isAnime || item.media_type === 'anime';
+    case 'movie':
+      return item.media_type === 'movie' && !isAnime;
+    case 'tv':
+      return item.media_type === 'tv' && !isAnime;
+    case 'soudflex':
+      return !isAnime && item.media_type !== 'anime';
+    default:
+      return true;
   }
 };
 
-const checkIsAnime = async (id: number, mediaType: 'movie' | 'tv' | 'anime'): Promise<boolean> => {
-  if (mediaType === 'anime') return true;
-
-  const key = `${mediaType}-${id}`;
-  if (animeCache.has(key)) return animeCache.get(key) ?? false;
-  try {
-    const details = mediaType === 'movie' ? await getMovieDetails(id) : await getTVShowDetails(id);
-    const isAnime = isAnimeMedia(details);
-    animeCache.set(key, isAnime);
-    
-    // Opportunistically save poster path while we have details
-    const path = (details as any)?.poster_path ?? null;
-    posterCache.set(key, path);
-    
-    persistCache();
-    return isAnime;
-  } catch {
-    animeCache.set(key, false);
-    persistCache();
-    return false;
-  }
-};
 
 interface ContinueWatchingSectionProps {
   filterType?: 'movie' | 'tv' | 'anime' | 'soudflex';
