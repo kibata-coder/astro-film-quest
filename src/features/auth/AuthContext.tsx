@@ -23,14 +23,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isSignUpPromptOpen, setIsSignUpPromptOpen] = useState(false);
 
+  const userIdRef = useRef<string | null>(null);
+
   useEffect(() => {
+    let mounted = true;
+
+    const applyUser = (nextUser: User | null) => {
+      if (!mounted) return;
+      const nextId = nextUser?.id ?? null;
+      // Only push a new object identity when the actual user changed.
+      // Token refreshes emit a fresh object for the same user otherwise.
+      if (userIdRef.current === nextId) return;
+      userIdRef.current = nextId;
+      setUser(nextUser);
+    };
+
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setIsLoading(false);
+      applyUser(session?.user ?? null);
+      if (mounted) setIsLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setUser(session?.user ?? null);
+      applyUser(session?.user ?? null);
       if (session?.user) {
         setIsAuthModalOpen(false);
         setIsSignUpPromptOpen(false);
@@ -41,19 +55,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    // Auto popup login modal after 5 seconds if not logged in
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  // Auto popup login modal after 5 seconds if still not logged in
+  useEffect(() => {
+    if (localStorage.getItem('hasSeenLoginPrompt')) return;
     const timer = setTimeout(() => {
-      if (!user && !localStorage.getItem('hasSeenLoginPrompt')) {
+      if (!userIdRef.current) {
         setIsAuthModalOpen(true);
         localStorage.setItem('hasSeenLoginPrompt', 'true');
       }
     }, 5000);
-
-    return () => {
-      subscription.unsubscribe();
-      clearTimeout(timer);
-    };
-  }, [user]);
+    return () => clearTimeout(timer);
+  }, []);
 
   const openAuthModal = useCallback(() => setIsAuthModalOpen(true), []);
   const closeAuthModal = useCallback(() => setIsAuthModalOpen(false), []);
@@ -65,18 +83,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
   }, []);
 
+  const value = useMemo(() => ({
+    user,
+    isLoading,
+    isAuthModalOpen,
+    isSignUpPromptOpen,
+    openAuthModal,
+    closeAuthModal,
+    openSignUpPrompt,
+    closeSignUpPrompt,
+    signOut,
+  }), [user, isLoading, isAuthModalOpen, isSignUpPromptOpen, openAuthModal, closeAuthModal, openSignUpPrompt, closeSignUpPrompt, signOut]);
+
   return (
-    <AuthContext.Provider value={{
-      user,
-      isLoading,
-      isAuthModalOpen,
-      isSignUpPromptOpen,
-      openAuthModal,
-      closeAuthModal,
-      openSignUpPrompt,
-      closeSignUpPrompt,
-      signOut,
-    }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
