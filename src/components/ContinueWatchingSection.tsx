@@ -141,72 +141,82 @@ const ContinueWatchingSection = ({ filterType, title = 'Continue Watching' }: Co
   const [history, setHistory] = useState<WatchHistoryItem[]>([]);
   const { openMovieModal, openTVModal } = useMedia();
 
+  /**
+   * Two phases so the row paints immediately:
+   *  1. Render everything we can classify from the DB column or local cache.
+   *  2. Resolve only the genuinely unknown items in the background, then patch
+   *     the list and write both poster and anime flag back in one upsert.
+   */
   const loadHistory = async () => {
     const data = await getWatchHistory();
-    
-    // Check anime status for all items to filter accurately
-    const animeStatuses = await Promise.all(data.map(item => checkIsAnime(item.id, item.media_type)));
-    const dataWithAnime = data.map((item, i) => ({ ...item, isAnime: animeStatuses[i] }));
-    
-    let filtered = dataWithAnime;
-    if (filterType === 'anime') {
-      filtered = dataWithAnime.filter(i => i.isAnime || i.media_type === 'anime');
-    } else if (filterType === 'movie') {
-      filtered = dataWithAnime.filter(i => i.media_type === 'movie' && !i.isAnime);
-    } else if (filterType === 'tv') {
-      filtered = dataWithAnime.filter(i => i.media_type === 'tv' && !i.isAnime);
-    } else if (filterType === 'soudflex') {
-      filtered = dataWithAnime.filter(i => !i.isAnime && i.media_type !== 'anime');
-    }
-    
-    setHistory(filtered);
 
-    // Backfill missing posters from TMDB in a single batched upsert
-    const missing = filtered.filter((i) => !i.poster_path);
-    if (missing.length === 0) return;
+    const unresolved: WatchHistoryItem[] = [];
+    const firstPass = data.filter((item) => {
+      const known = knownIsAnime(item);
+      if (known === undefined) {
+        unresolved.push(item);
+        // Unknown items are optimistically shown on unfiltered rows only, so a
+        // movie never flashes into the Anime row before it is classified.
+        return filterType === undefined;
+      }
+      return matchesFilter(item, known, filterType);
+    });
 
-    const { data: { user } } = await supabase.auth.getUser();
+    setHistory(firstPass);
 
-    // Fetch all missing posters in parallel
+    if (unresolved.length === 0) return;
+
+    // Phase 2 — background resolution, deduped and parallel.
     const resolved = await Promise.all(
-      missing.map(async (item) => ({
+      unresolved.map(async (item) => ({
         item,
-        path: await fetchMissingPoster(item.id, item.media_type),
+        ...(await resolveDetails(item.id, item.media_type)),
       }))
     );
 
-    const updates = resolved.filter((r) => r.path);
-    if (updates.length === 0) return;
+    const keyOf = (i: WatchHistoryItem) => `${i.media_type}-${i.id}`;
+    const resolvedByKey = new Map(resolved.map((r) => [keyOf(r.item), r]));
 
-    // Optimistic UI update
-    setHistory((prev) =>
-      prev.map((i) => {
-        const found = updates.find(
-          (u) => u.item.id === i.id && u.item.media_type === i.media_type
-        );
-        return found ? { ...i, poster_path: found.path as string } : i;
-      })
+    // Re-derive the whole list now that every item is classified.
+    setHistory(
+      data
+        .map((item) => {
+          const hit = resolvedByKey.get(keyOf(item));
+          if (!hit) return item;
+          return {
+            ...item,
+            is_anime: hit.isAnime,
+            poster_path: item.poster_path || hit.poster || '',
+          };
+        })
+        .filter((item) => matchesFilter(item, knownIsAnime(item) ?? false, filterType))
     );
 
-    // Single bulk upsert instead of N updates
-    if (user) {
-      const rows = updates.map(({ item, path }) => ({
-        user_id: user.id,
-        media_id: item.id,
-        media_type: item.media_type,
-        title: item.title,
-        poster_path: path as string,
-        season_number: item.season_number ?? null,
-        episode_number: item.episode_number ?? null,
-        progress: item.progress,
-        duration: Math.round(item.duration),
-        updated_at: new Date(item.last_watched).toISOString(),
-      }));
+    // Persist what we learned so the next visit needs no TMDB calls at all.
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const rows = resolved.map(({ item, poster, isAnime }) => ({
+      user_id: user.id,
+      media_id: item.id,
+      media_type: item.media_type,
+      title: item.title,
+      poster_path: item.poster_path || poster || null,
+      is_anime: isAnime,
+      season_number: item.season_number ?? null,
+      episode_number: item.episode_number ?? null,
+      progress: item.progress,
+      duration: Math.round(item.duration),
+      updated_at: new Date(item.last_watched).toISOString(),
+    }));
+
+    if (rows.length > 0) {
       await supabase
         .from('watch_history')
         .upsert(rows as any, { onConflict: 'user_id, media_id, media_type' });
     }
   };
+
 
   useEffect(() => {
     loadHistory();
