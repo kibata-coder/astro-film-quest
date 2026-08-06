@@ -43,7 +43,8 @@ export const getWatchHistory = async (): Promise<WatchHistoryItem[]> => {
       last_watched: new Date(item.updated_at).getTime(),
       progress: item.progress || 0,
       duration: (item as any).duration || 0,
-      completed: (item.progress || 0) > 0.8
+      completed: (item.progress || 0) > 0.8,
+      is_anime: (item as any).is_anime ?? undefined,
     }));
   }
   return getLocalHistory();
