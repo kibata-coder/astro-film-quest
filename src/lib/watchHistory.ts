@@ -11,6 +11,8 @@ export interface WatchHistoryItem {
   progress: number;
   duration: number;
   completed: boolean;
+  /** Persisted anime classification. `undefined` means "not yet resolved". */
+  is_anime?: boolean;
 }
 
 const LOCAL_STORAGE_KEY = 'watch-history';
