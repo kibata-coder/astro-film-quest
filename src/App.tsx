@@ -9,6 +9,7 @@ import { MediaProvider } from "@/features/shared";
 import { VideoPlayerProvider } from "@/features/player";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import MaintenanceGate from "@/components/MaintenanceGate";
 
 // Lazy load all pages for code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -63,31 +64,33 @@ const App = () => (
             <Sonner />
             <ErrorBoundary>
               <BrowserRouter>
-                <Suspense fallback={<PageLoader />}>
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/movies" element={<Movies />} />
-                    <Route path="/tv" element={<TVShows />} />
-                    <Route path="/anime" element={<Anime />} />
-                    <Route path="/anime/seasonal" element={<AnimeSeasonal />} />
-                    <Route path="/anime/popular" element={<AnimePopular />} />
-                    <Route path="/anime/new" element={<AnimeNew />} />
-                    <Route path="/anime/:id" element={<SoudanimeDetails />} />
-                    
-                    <Route path="/mylist" element={<MyList />} />
-                    <Route path="/foryou" element={<ForYou />} />
-                    <Route path="/genre/:id" element={<Genre />} />
-                    <Route path="/profile" element={<Profile />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/person/:id" element={<Person />} />
-                    <Route path="/brands" element={<Brands />} />
-                    <Route path="/brand/:id" element={<BrandPage />} />
-                    <Route path="/timelines" element={<Timelines />} />
-                    <Route path="/timeline/:id" element={<TimelinePage />} />
-                    <Route path="/admin" element={<Admin />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </Suspense>
+                <MaintenanceGate>
+                  <Suspense fallback={<PageLoader />}>
+                    <Routes>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/movies" element={<Movies />} />
+                      <Route path="/tv" element={<TVShows />} />
+                      <Route path="/anime" element={<Anime />} />
+                      <Route path="/anime/seasonal" element={<AnimeSeasonal />} />
+                      <Route path="/anime/popular" element={<AnimePopular />} />
+                      <Route path="/anime/new" element={<AnimeNew />} />
+                      <Route path="/anime/:id" element={<SoudanimeDetails />} />
+
+                      <Route path="/mylist" element={<MyList />} />
+                      <Route path="/foryou" element={<ForYou />} />
+                      <Route path="/genre/:id" element={<Genre />} />
+                      <Route path="/profile" element={<Profile />} />
+                      <Route path="/login" element={<Login />} />
+                      <Route path="/person/:id" element={<Person />} />
+                      <Route path="/brands" element={<Brands />} />
+                      <Route path="/brand/:id" element={<BrandPage />} />
+                      <Route path="/timelines" element={<Timelines />} />
+                      <Route path="/timeline/:id" element={<TimelinePage />} />
+                      <Route path="/admin" element={<Admin />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </Suspense>
+                </MaintenanceGate>
               </BrowserRouter>
             </ErrorBoundary>
           </TooltipProvider>
