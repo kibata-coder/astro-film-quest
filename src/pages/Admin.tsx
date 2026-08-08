@@ -158,6 +158,9 @@ const Admin = () => {
       <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-primary via-purple-500 to-blue-500 bg-clip-text text-transparent">
         Admin Analytics
       </h1>
+
+      <MaintenanceToggle />
+
       
       {/* Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
