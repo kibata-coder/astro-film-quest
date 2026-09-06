@@ -19,6 +19,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import MaintenanceToggle from "@/features/admin/MaintenanceToggle";
+import UserDetailSheet from "@/features/admin/UserDetailSheet";
 import { Users, Activity, PlayCircle, Star, ArrowUpDown } from "lucide-react";
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -49,6 +50,7 @@ const Admin = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sortOption, setSortOption] = useState<SortOption>('newest_user');
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -303,7 +305,11 @@ const Admin = () => {
           </TableHeader>
           <TableBody>
             {sortedUsers.map((user) => (
-              <TableRow key={user.id} className="transition-colors hover:bg-muted/50">
+              <TableRow
+                key={user.id}
+                onClick={() => setSelectedUserId(user.id)}
+                className="cursor-pointer transition-colors hover:bg-muted/50"
+              >
                 <TableCell className="font-mono text-xs text-muted-foreground">{user.id}</TableCell>
                 <TableCell className="font-medium">{user.email}</TableCell>
                 <TableCell>{new Date(user.sign_up_date).toLocaleString()}</TableCell>
@@ -324,7 +330,13 @@ const Admin = () => {
           </TableBody>
         </Table>
       </div>
+
+      <UserDetailSheet
+        userId={selectedUserId}
+        onOpenChange={(open) => !open && setSelectedUserId(null)}
+      />
     </div>
+
   );
 };
 
