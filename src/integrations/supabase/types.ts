@@ -243,6 +243,25 @@ export type Database = {
           total_watch_history: number
         }[]
       }
+      get_admin_user_activity: {
+        Args: { target_user_id: string }
+        Returns: Json
+      }
+      get_admin_user_detail: {
+        Args: { target_user_id: string }
+        Returns: {
+          avatar_url: string
+          bookmark_count: number
+          collection_count: number
+          display_name: string
+          email: string
+          id: string
+          last_sign_in_at: string
+          rating_count: number
+          sign_up_date: string
+          watch_count: number
+        }[]
+      }
       get_admin_users: {
         Args: never
         Returns: {
