@@ -19,6 +19,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import MaintenanceToggle from "@/features/admin/MaintenanceToggle";
+import UserDetailSheet from "@/features/admin/UserDetailSheet";
 import { Users, Activity, PlayCircle, Star, ArrowUpDown } from "lucide-react";
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -49,6 +50,7 @@ const Admin = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sortOption, setSortOption] = useState<SortOption>('newest_user');
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
