@@ -305,7 +305,11 @@ const Admin = () => {
           </TableHeader>
           <TableBody>
             {sortedUsers.map((user) => (
-              <TableRow key={user.id} className="transition-colors hover:bg-muted/50">
+              <TableRow
+                key={user.id}
+                onClick={() => setSelectedUserId(user.id)}
+                className="cursor-pointer transition-colors hover:bg-muted/50"
+              >
                 <TableCell className="font-mono text-xs text-muted-foreground">{user.id}</TableCell>
                 <TableCell className="font-medium">{user.email}</TableCell>
                 <TableCell>{new Date(user.sign_up_date).toLocaleString()}</TableCell>
@@ -326,7 +330,13 @@ const Admin = () => {
           </TableBody>
         </Table>
       </div>
+
+      <UserDetailSheet
+        userId={selectedUserId}
+        onOpenChange={(open) => !open && setSelectedUserId(null)}
+      />
     </div>
+
   );
 };
 
