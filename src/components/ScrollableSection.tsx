@@ -124,6 +124,15 @@ const ScrollableSection = memo(({
         {/* Scrollable Content */}
         <div
           ref={scrollRef}
+          onFocusCapture={(e) => {
+            const el = e.target as HTMLElement;
+            const container = scrollRef.current;
+            if (!container || !container.contains(el)) return;
+            const cRect = container.getBoundingClientRect();
+            const eRect = el.getBoundingClientRect();
+            const delta = eRect.left + eRect.width / 2 - (cRect.left + cRect.width / 2);
+            if (Math.abs(delta) > 4) container.scrollBy({ left: delta, behavior: 'smooth' });
+          }}
           className="flex gap-3 md:gap-5 overflow-x-auto pb-4 scrollbar-hide scroll-smooth"
         >
           {children}
