@@ -2,6 +2,9 @@ import { useState, memo } from 'react';
 import { Play, Star, Film, Tv } from 'lucide-react';
 import { getImageUrl, Movie, TVShow } from '@/lib/tmdb';
 import { cn } from '@/lib/utils';
+import { isTvDevice } from '@/hooks/useTvNavigation';
+
+const IS_TV = isTvDevice();
 
 type MediaItem = Movie | TVShow;
 
@@ -58,7 +61,9 @@ const MediaCard = memo(({ item, onClick, showBadge = true, className, rank }: Me
 
       {/* aspect-[2/3] reserves space → no CLS even before the image loads */}
       <div className={cn(
-        "relative rounded-lg overflow-hidden bg-muted transition-transform duration-300 group-hover:scale-105 z-10 shadow-2xl aspect-[2/3]", 
+        "relative rounded-lg overflow-hidden bg-muted z-10 shadow-2xl aspect-[2/3]",
+        // Hover scale is GPU-heavy on TV ARM chips — skip it
+        IS_TV ? '' : 'transition-transform duration-300 group-hover:scale-105',
         rank ? "w-[130px] sm:w-40 md:w-48 ml-auto" : "w-full"
       )}>
         {!imageLoaded && !imageError && (
@@ -97,7 +102,10 @@ const MediaCard = memo(({ item, onClick, showBadge = true, className, rank }: Me
         )}
 
         {showBadge && rating > 0 && (
-          <div className="absolute top-2 right-2 flex items-center gap-1 px-1.5 py-0.5 rounded bg-background/90 backdrop-blur-sm">
+          <div className={cn(
+            "absolute top-2 right-2 flex items-center gap-1 px-1.5 py-0.5 rounded bg-background/90",
+            IS_TV ? '' : 'backdrop-blur-sm'
+          )}>
             <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
             <span className="text-xs font-medium">{rating.toFixed(1)}</span>
           </div>
@@ -128,7 +136,10 @@ const MediaCard = memo(({ item, onClick, showBadge = true, className, rank }: Me
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span>{year}</span>
           {rating > 0 && (
-            <div className="flex items-center gap-1 bg-black/40 px-1.5 py-0.5 rounded backdrop-blur-sm">
+            <div className={cn(
+              "flex items-center gap-1 bg-black/40 px-1.5 py-0.5 rounded",
+              IS_TV ? '' : 'backdrop-blur-sm'
+            )}>
               <Star className="w-3 h-3 fill-primary text-primary" />
               <span>{rating.toFixed(1)}</span>
             </div>

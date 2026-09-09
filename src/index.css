@@ -225,3 +225,26 @@ body.tv-mode [data-tv-card="true"]:focus .group-hover\:opacity-100,
 body.tv-mode [data-tv-card="true"][data-tv-focused="true"] .group-hover\:opacity-100 {
   opacity: 1;
 }
+
+/* ── TV performance mode ──────────────────────────────────────────────────────
+   Kills all transitions & animations globally on TV so the page feels snappy.
+   body.tv-mode is always on when isTvDevice() is true (useTvNavigation.ts).
+   The D-pad focus glow is explicitly re-enabled below since it's needed. */
+body.tv-mode *,
+body.tv-mode *::before,
+body.tv-mode *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Re-allow the focus ring transition so the glow still appears on navigation */
+body.tv-mode [data-tv-card="true"]:focus,
+body.tv-mode [data-tv-card="true"][data-tv-focused="true"],
+body.tv-mode [data-tv-focusable="true"]:focus,
+body.tv-mode [data-tv-focusable="true"][data-tv-focused="true"],
+body.tv-mode a[data-tv-focused="true"],
+body.tv-mode button[data-tv-focused="true"] {
+  transition-duration: 0.18s !important;
+}

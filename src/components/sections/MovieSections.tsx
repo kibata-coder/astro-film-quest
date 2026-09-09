@@ -22,6 +22,13 @@ import {
   useThrillerMovies, useWesternMovies, useCrimeMovies, useWarMovies 
 } from '@/hooks/use-media';
 import { Movie, TVShow } from '@/lib/tmdb';
+import { isTvDevice } from '@/hooks/useTvNavigation';
+
+// Detect once at module init — never changes during a session
+const IS_TV = isTvDevice();
+// TVs get fewer cards (less DOM, faster render) and tighter lazy-load margin
+const MAX_CARDS = IS_TV ? 8 : 15;
+const LAZY_MARGIN = IS_TV ? '0px' : '300px';
 
 // --- Generic Component ---
 
@@ -33,15 +40,16 @@ interface DynamicSectionProps {
   isTrending?: boolean;
 }
 
+// On TV: static grey box instead of CPU-burning animate-pulse skeletons
 const SectionSkeleton = () => (
   <div className="mb-10 md:mb-14">
-    <div className="h-7 w-48 bg-muted rounded animate-pulse mb-5 md:mb-6" />
+    <div className={`h-7 w-48 bg-muted rounded mb-5 md:mb-6 ${IS_TV ? '' : 'animate-pulse'}`} />
     <div className="flex gap-3 md:gap-5 overflow-hidden">
-      {Array.from({ length: 6 }).map((_, i) => (
+      {Array.from({ length: IS_TV ? 4 : 6 }).map((_, i) => (
         <div key={i} className="flex-shrink-0 w-40 md:w-48">
-          <div className="aspect-[2/3] rounded-lg bg-muted animate-pulse" />
-          <div className="mt-3 h-4 bg-muted rounded animate-pulse" />
-          <div className="mt-2 h-3 w-16 bg-muted rounded animate-pulse" />
+          <div className={`aspect-[2/3] rounded-lg bg-muted ${IS_TV ? '' : 'animate-pulse'}`} />
+          <div className={`mt-3 h-4 bg-muted rounded ${IS_TV ? '' : 'animate-pulse'}`} />
+          <div className={`mt-2 h-3 w-16 bg-muted rounded ${IS_TV ? '' : 'animate-pulse'}`} />
         </div>
       ))}
     </div>
@@ -51,7 +59,7 @@ const SectionSkeleton = () => (
 // Inner component that actually calls the hook with enabled flag
 const DynamicSectionInner = memo(({ title, icon, useDataHook, onItemClick, enabled, isTrending }: DynamicSectionProps & { enabled: boolean }) => {
   const { data, isLoading } = useDataHook(enabled);
-  const items = data?.results?.slice(0, 15) || [];
+  const items = data?.results?.slice(0, MAX_CARDS) || [];
 
   const handleCardClick = useCallback((item: any) => {
     onItemClick?.(item);
@@ -90,7 +98,7 @@ const DynamicSection = memo(({ title, icon, useDataHook, onItemClick, isTrending
           observer.disconnect();
         }
       },
-      { rootMargin: '300px' }
+      { rootMargin: LAZY_MARGIN }
     );
 
     if (sectionRef.current) {

@@ -28,9 +28,17 @@ export const isSlowConnection = (): boolean => {
   return false;
 };
 
-/** True for low-end CPU devices (heuristic). */
+/** True for low-end CPU devices (heuristic). Includes smart TVs. */
 export const isLowEndDevice = (): boolean => {
   if (typeof navigator === 'undefined') return false;
+  // Smart TVs are low-end by definition — flag them immediately
+  const ua = (navigator.userAgent || '').toLowerCase();
+  if (
+    ua.includes('browsehere') || ua.includes('smart-tv') || ua.includes('smarttv') ||
+    ua.includes('hbbtv') || ua.includes('tizen') || ua.includes('webos') ||
+    ua.includes('googletv') || ua.includes('android tv') || ua.includes('hisense') ||
+    ua.includes('crkey') || ua.includes('aft')
+  ) return true;
   // @ts-expect-error - deviceMemory is non-standard
   const mem = navigator.deviceMemory as number | undefined;
   const cores = navigator.hardwareConcurrency || 0;
