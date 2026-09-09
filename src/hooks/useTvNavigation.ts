@@ -9,26 +9,62 @@ import {
 
 const TV_MODE_CLASS = 'tv-mode';
 
+export function isTvDevice(): boolean {
+  if (typeof window === 'undefined') return false;
+  const ua = (navigator.userAgent || '').toLowerCase();
+  const search = window.location.search || '';
+  return (
+    search.includes('tv=1') ||
+    ua.includes('browsehere') ||
+    ua.includes('tcl') ||
+    ua.includes('smart-tv') ||
+    ua.includes('smarttv') ||
+    ua.includes('googletv') ||
+    ua.includes('android tv') ||
+    ua.includes('appletv') ||
+    ua.includes('hbbtv') ||
+    ua.includes('tizen') ||
+    ua.includes('webos') ||
+    ua.includes('hisense') ||
+    ua.includes('crkey') ||
+    ua.includes('aft')
+  );
+}
+
 /**
  * Global TV remote / arrow-key navigation.
  *
  * - Arrow keys move focus geometrically.
  * - Enter activates the focused element (native click for buttons/links).
  * - Back / Return / Escape bubbles through so existing close handlers run.
- * - Mouse movement disables the TV focus visuals so desktop UX is untouched.
+ * - Mouse movement disables TV mode on PCs, but is ignored on TV browsers (e.g. TCL BrowseHere).
  */
 export function useTvNavigation() {
   const lastFocusBeforeDialog = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const body = document.body;
+    const isTv = isTvDevice();
 
     const enableTvMode = () => {
       if (!body.classList.contains(TV_MODE_CLASS)) body.classList.add(TV_MODE_CLASS);
     };
     const disableTvMode = () => {
+      // On Smart TVs / BrowseHere, never disable TV mode
+      if (isTv) return;
       if (body.classList.contains(TV_MODE_CLASS)) body.classList.remove(TV_MODE_CLASS);
     };
+
+    if (isTv) {
+      enableTvMode();
+      // Auto-focus hero play button or first card on TV load
+      window.setTimeout(() => {
+        if (!document.activeElement || document.activeElement === document.body) {
+          const initial = findNextElement(null, 'down', getActiveScope());
+          if (initial) focusElement(initial);
+        }
+      }, 600);
+    }
 
     const isTextInput = (el: Element | null) =>
       !!el &&

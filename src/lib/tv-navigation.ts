@@ -212,6 +212,10 @@ export function ensureVisible(el: HTMLElement) {
 }
 
 export function focusElement(el: HTMLElement) {
+  document.querySelectorAll('[data-tv-focused="true"]').forEach((node) => {
+    node.removeAttribute('data-tv-focused');
+  });
+  el.setAttribute('data-tv-focused', 'true');
   el.focus({ preventScroll: true });
   ensureVisible(el);
 }

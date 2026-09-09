@@ -199,9 +199,13 @@
    Only active once a remote / arrow key has been pressed (body.tv-mode).
    Moving a mouse removes the class, so desktop hover UX is untouched. */
 body.tv-mode [data-tv-card="true"]:focus,
+body.tv-mode [data-tv-card="true"][data-tv-focused="true"],
 body.tv-mode [data-tv-focusable="true"]:focus,
+body.tv-mode [data-tv-focusable="true"][data-tv-focused="true"],
 body.tv-mode a:focus-visible,
+body.tv-mode a[data-tv-focused="true"],
 body.tv-mode button:focus-visible,
+body.tv-mode button[data-tv-focused="true"],
 body.tv-mode [tabindex]:focus-visible {
   outline: 3px solid hsl(var(--primary));
   outline-offset: 3px;
@@ -211,11 +215,13 @@ body.tv-mode [tabindex]:focus-visible {
   z-index: 30;
 }
 
-body.tv-mode [data-tv-card="true"]:focus {
+body.tv-mode [data-tv-card="true"]:focus,
+body.tv-mode [data-tv-card="true"][data-tv-focused="true"] {
   transform: scale(1.08);
 }
 
 /* Reveal the poster hover overlay when a card is focused by remote */
-body.tv-mode [data-tv-card="true"]:focus .group-hover\:opacity-100 {
+body.tv-mode [data-tv-card="true"]:focus .group-hover\:opacity-100,
+body.tv-mode [data-tv-card="true"][data-tv-focused="true"] .group-hover\:opacity-100 {
   opacity: 1;
 }
