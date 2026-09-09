@@ -10,6 +10,7 @@ import { VideoPlayerProvider } from "@/features/player";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import MaintenanceGate from "@/components/MaintenanceGate";
+import { useTvNavigation } from "@/hooks/useTvNavigation";
 
 // Lazy load all pages for code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -54,14 +55,21 @@ const PageLoader = () => (
   </div>
 );
 
+const TvNavigation = () => {
+  useTvNavigation();
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
+
     <AuthProvider>
       <MediaProvider>
         <VideoPlayerProvider>
           <TooltipProvider>
             <Toaster />
             <Sonner />
+            <TvNavigation />
             <ErrorBoundary>
               <BrowserRouter>
                 <MaintenanceGate>
