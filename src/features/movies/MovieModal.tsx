@@ -242,6 +242,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
           
           <Button
             onClick={handlePlayClick}
+            data-tv-primary="true"
             variant="white"
             size={isMobile ? "default" : "lg"}
             className="gap-2 font-semibold"

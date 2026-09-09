@@ -118,11 +118,11 @@ const HeroBanner = memo(({ movies, onPlay, onInfo }: HeroBannerProps) => {
           </p>
 
           <div className="flex gap-4">
-            <Button variant="white" size="lg" onClick={() => { if (!user) { openSignUpPrompt(); return; } onPlay(currentMovie); }} className="gap-2">
+            <Button data-tv-focusable="true" variant="white" size="lg" onClick={() => { if (!user) { openSignUpPrompt(); return; } onPlay(currentMovie); }} className="gap-2">
               <Play className="w-5 h-5" fill="currentColor" />
               Play
             </Button>
-            <Button size="lg" variant="secondary" onClick={() => onInfo(currentMovie)} className="gap-2">
+            <Button data-tv-focusable="true" size="lg" variant="secondary" onClick={() => onInfo(currentMovie)} className="gap-2">
               <Info className="w-5 h-5" />
               More Info
             </Button>

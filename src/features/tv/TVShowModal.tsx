@@ -222,6 +222,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
                       handlePlayClick(show.id, show.name, selectedSeason, ep.episode_number, ep.name || `Episode ${ep.episode_number}`, show.poster_path);
                     }
                   }}
+                  data-tv-primary="true"
                   variant="white"
                   size={isMobile ? "default" : "lg"}
                   className="gap-2 font-semibold"
