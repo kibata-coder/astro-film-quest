@@ -28,8 +28,18 @@ const MediaCard = memo(({ item, onClick, showBadge = true, className, rank }: Me
   return (
     <div
       onClick={() => onClick(item)}
+      tabIndex={0}
+      role="button"
+      aria-label={title}
+      data-tv-card="true"
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick(item);
+        }
+      }}
       className={cn(
-        'flex-shrink-0 cursor-pointer group relative flex flex-col',
+        'flex-shrink-0 cursor-pointer group relative flex flex-col outline-none',
         rank ? 'w-[180px] sm:w-[220px] md:w-[260px]' : 'w-[130px] sm:w-40 md:w-48',
         className,
       )}

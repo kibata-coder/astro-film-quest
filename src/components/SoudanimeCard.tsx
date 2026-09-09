@@ -9,6 +9,7 @@ const SoudanimeCard = ({ anime }: SoudanimeCardProps) => {
   return (
     <Link 
       to={`/anime/${anime.id}`} 
+      data-tv-card="true"
       className="group relative flex flex-col gap-2 rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 hover:z-10 focus:outline-none focus:ring-2 focus:ring-orange-500 w-[160px] md:w-[200px] shrink-0"
     >
       <div className="relative aspect-[2/3] w-full overflow-hidden rounded-xl bg-muted/20 border border-border shadow-sm">

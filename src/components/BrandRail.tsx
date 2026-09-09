@@ -30,6 +30,7 @@ const BrandRail = memo(() => {
           <Link
             key={brand.id}
             to={`/brand/${brand.id}`}
+            data-tv-focusable="true"
             className="flex-shrink-0 group relative overflow-hidden rounded-xl border border-white/8 bg-card/60 backdrop-blur-sm transition-all duration-300 hover:scale-[1.04] hover:border-white/25 hover:shadow-[0_0_28px_var(--brand-glow)]"
             style={{ '--brand-glow': brand.color + '55' } as React.CSSProperties}
           >

@@ -135,7 +135,15 @@ const VideoPlayer = ({
   useEffect(() => {
     if (!isOpen) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') handleClose();
+      // Escape plus TV remote back keys: Tizen 10009, webOS 461, Android TV 4.
+      if (
+        event.key === 'Escape' ||
+        event.keyCode === 10009 ||
+        event.keyCode === 461 ||
+        event.keyCode === 4
+      ) {
+        handleClose();
+      }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
