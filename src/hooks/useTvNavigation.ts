@@ -72,11 +72,12 @@ export function useTvNavigation() {
       }
 
       // Directional movement.
-      if (moveFocus(key)) e.preventDefault();
-      else if (!document.activeElement || document.activeElement === document.body) {
-        const first = getFocusableElements(getActiveScope())[0];
-        if (first) {
-          focusElement(first);
+      if (moveFocus(key)) {
+        e.preventDefault();
+      } else if (!document.activeElement || document.activeElement === document.body) {
+        const next = findNextElement(null, key, getActiveScope());
+        if (next) {
+          focusElement(next);
           e.preventDefault();
         }
       }

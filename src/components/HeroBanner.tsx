@@ -68,7 +68,7 @@ const HeroBanner = memo(({ movies, onPlay, onInfo }: HeroBannerProps) => {
   const backdropUrl = getBackdropUrl(currentMovie.backdrop_path, backdropSize.current);
 
   return (
-    <div className="relative h-[70vh] md:h-[85vh] w-full overflow-hidden">
+    <div data-tv-hero="true" className="relative h-[70vh] md:h-[85vh] w-full overflow-hidden">
       {/* Background image using <img> so the browser preloads + decodes it natively.
           fetchpriority=high tells the browser this is the LCP element. */}
       {backdropUrl ? (
@@ -118,7 +118,7 @@ const HeroBanner = memo(({ movies, onPlay, onInfo }: HeroBannerProps) => {
           </p>
 
           <div className="flex gap-4">
-            <Button data-tv-focusable="true" variant="white" size="lg" onClick={() => { if (!user) { openSignUpPrompt(); return; } onPlay(currentMovie); }} className="gap-2">
+            <Button data-tv-focusable="true" data-tv-hero-play="true" variant="white" size="lg" onClick={() => { if (!user) { openSignUpPrompt(); return; } onPlay(currentMovie); }} className="gap-2">
               <Play className="w-5 h-5" fill="currentColor" />
               Play
             </Button>
@@ -136,6 +136,8 @@ const HeroBanner = memo(({ movies, onPlay, onInfo }: HeroBannerProps) => {
             onClick={() => goTo((currentIndex - 1 + featuredMovies.length) % featuredMovies.length)}
             className="hidden md:block absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-background/50 hover:bg-background/80 transition-colors"
             aria-label="Previous"
+            data-tv-skip="true"
+            tabIndex={-1}
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
@@ -143,6 +145,8 @@ const HeroBanner = memo(({ movies, onPlay, onInfo }: HeroBannerProps) => {
             onClick={() => goTo((currentIndex + 1) % featuredMovies.length)}
             className="hidden md:block absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-background/50 hover:bg-background/80 transition-colors"
             aria-label="Next"
+            data-tv-skip="true"
+            tabIndex={-1}
           >
             <ChevronRight className="w-6 h-6" />
           </button>
@@ -160,6 +164,8 @@ const HeroBanner = memo(({ movies, onPlay, onInfo }: HeroBannerProps) => {
                 index === currentIndex ? 'bg-foreground w-6' : 'bg-foreground/40 hover:bg-foreground/60',
               )}
               aria-label={`Go to slide ${index + 1}`}
+              data-tv-skip="true"
+              tabIndex={-1}
             />
           ))}
         </div>

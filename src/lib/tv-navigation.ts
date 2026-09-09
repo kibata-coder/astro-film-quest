@@ -92,10 +92,62 @@ export function findNextElement(
 ): HTMLElement | null {
   const candidates = getFocusableElements(scope);
   if (!candidates.length) return null;
-  if (!current || !scope.contains(current)) return candidates[0];
+
+  // Cold start: pick the most logical entry point rather than an arbitrary first element
+  if (!current || !scope.contains(current)) {
+    const primary = candidates.find((el) => el.getAttribute('data-tv-primary') === 'true' && isVisible(el));
+    if (primary) return primary;
+
+    const heroPlay = candidates.find(
+      (el) => el.getAttribute('data-tv-hero-play') === 'true' && isVisible(el),
+    );
+    if (heroPlay) return heroPlay;
+
+    const firstCard = candidates.find(
+      (el) => el.getAttribute('data-tv-card') === 'true' && isVisible(el),
+    );
+    if (firstCard) return firstCard;
+
+    return candidates[0];
+  }
 
   const from = center(current);
   const fromRect = current.getBoundingClientRect();
+  const isFromHeader = !!current.closest('header');
+  const isFromHero = !!current.closest('[data-tv-hero="true"]');
+
+  // Seamless jump: Downward from Header into Hero or Content
+  if (isFromHeader && direction === 'down') {
+    const heroPlay = candidates.find(
+      (el) => el.getAttribute('data-tv-hero-play') === 'true' && isVisible(el),
+    );
+    if (heroPlay) return heroPlay;
+
+    const belowHeader = candidates.filter((el) => {
+      const r = el.getBoundingClientRect();
+      return r.top >= fromRect.bottom && !el.closest('header') && isVisible(el);
+    });
+    if (belowHeader.length) {
+      belowHeader.sort((a, b) => {
+        const ra = a.getBoundingClientRect();
+        const rb = b.getBoundingClientRect();
+        const aCard = a.getAttribute('data-tv-card') === 'true';
+        const bCard = b.getAttribute('data-tv-card') === 'true';
+        if (aCard && !bCard) return -1;
+        if (!aCard && bCard) return 1;
+        return ra.top - rb.top || Math.abs(ra.left - from.x) - Math.abs(rb.left - from.x);
+      });
+      return belowHeader[0];
+    }
+  }
+
+  // Seamless jump: Upward from Hero Banner into Header Navigation
+  if (isFromHero && direction === 'up') {
+    const headerNav =
+      candidates.find((el) => el.closest('header nav') && isVisible(el)) ||
+      candidates.find((el) => el.closest('header') && isVisible(el));
+    if (headerNav) return headerNav;
+  }
 
   let best: HTMLElement | null = null;
   let bestScore = Infinity;
