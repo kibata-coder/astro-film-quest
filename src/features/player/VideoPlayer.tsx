@@ -95,8 +95,8 @@ const VideoPlayer = ({
   // Navigating the frame to about:blank forces the document to unload so the
   // browser can reclaim it, instead of leaking a renderer per playback.
   useEffect(() => {
+    const frame = iframeRef.current;
     return () => {
-      const frame = iframeRef.current;
       if (!frame) return;
       try {
         frame.src = 'about:blank';
