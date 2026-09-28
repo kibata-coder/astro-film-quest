@@ -80,13 +80,15 @@ export function useTvNavigation() {
       // Never hijack typing in the search box. Backspace/Delete must delete text,
       // and only a real remote back button (or Escape) may act as navigation.
       if (isTextInput(document.activeElement)) {
-        const isRemoteBack =
-          e.keyCode === 10009 || e.keyCode === 461 || e.keyCode === 4 || e.key === 'Escape';
-        if (!isRemoteBack) return;
+        const isRemoteBack = e.keyCode === 10009 || e.keyCode === 461 || e.keyCode === 4;
+        if (!isRemoteBack) return; // Escape bubbles to the search box's own handler
         enableTvMode();
         (document.activeElement as HTMLElement | null)?.blur();
+        e.preventDefault();
         return;
       }
+
+
 
 
       if (key === 'back') {
