@@ -34,6 +34,16 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
   const isAnimeExperience = location.pathname.startsWith('/anime');
 
   useEffect(() => {
+    setLocalSearch(searchQuery);
+  }, [searchQuery]);
+
+  const closeSearch = () => {
+    setShowSearch(false);
+    setLocalSearch('');
+    onSearch?.('');
+  };
+
+  useEffect(() => {
     let ticking = false;
     const handleScroll = () => {
       if (ticking) return;
