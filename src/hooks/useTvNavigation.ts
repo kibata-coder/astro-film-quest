@@ -3,6 +3,7 @@ import {
   getActiveScope,
   getFocusableElements,
   focusElement,
+  findNextElement,
   moveFocus,
   normalizeKey,
 } from '@/lib/tv-navigation';
@@ -76,8 +77,17 @@ export function useTvNavigation() {
       const key = normalizeKey(e);
       if (!key) return;
 
-      // Never hijack typing in the search box.
-      if (isTextInput(document.activeElement) && key !== 'back') return;
+      // Never hijack typing in the search box. Backspace/Delete must delete text,
+      // and only a real remote back button (or Escape) may act as navigation.
+      if (isTextInput(document.activeElement)) {
+        const isRemoteBack =
+          e.keyCode === 10009 || e.keyCode === 461 || e.keyCode === 4 || e.key === 'Escape';
+        if (!isRemoteBack) return;
+        enableTvMode();
+        (document.activeElement as HTMLElement | null)?.blur();
+        return;
+      }
+
 
       if (key === 'back') {
         // Let existing Escape handlers (modals, player) do the work.
