@@ -34,6 +34,16 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
   const isAnimeExperience = location.pathname.startsWith('/anime');
 
   useEffect(() => {
+    setLocalSearch(searchQuery);
+  }, [searchQuery]);
+
+  const closeSearch = () => {
+    setShowSearch(false);
+    setLocalSearch('');
+    onSearch?.('');
+  };
+
+  useEffect(() => {
     let ticking = false;
     const handleScroll = () => {
       if (ticking) return;
@@ -173,17 +183,22 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
                   setLocalSearch(e.target.value);
                   onSearch(e.target.value);
                 }}
+                onKeyDown={(e) => {
+                  e.stopPropagation();
+                  if (e.key === 'Escape') {
+                    e.preventDefault();
+                    closeSearch();
+                  }
+                }}
+                data-tv-focusable="true"
                 className="flex-1 h-10 md:w-64"
                 autoFocus
               />
               <Button 
                 variant="ghost" 
                 size="icon" 
-                onClick={() => {
-                  setShowSearch(false);
-                  setLocalSearch('');
-                  onSearch('');
-                }}
+                onClick={closeSearch}
+                data-tv-focusable="true"
                 className="ml-2 text-foreground hover:text-primary"
               >
                 <X className="w-5 h-5" />

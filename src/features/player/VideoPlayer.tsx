@@ -95,8 +95,8 @@ const VideoPlayer = ({
   // Navigating the frame to about:blank forces the document to unload so the
   // browser can reclaim it, instead of leaking a renderer per playback.
   useEffect(() => {
+    const frame = iframeRef.current;
     return () => {
-      const frame = iframeRef.current;
       if (!frame) return;
       try {
         frame.src = 'about:blank';
@@ -301,7 +301,7 @@ const VideoPlayer = ({
             onValueChange={(v) => {
               const idx = Number(v);
               setProviderIdx(idx);
-              try { window.localStorage.setItem(PROVIDER_STORAGE_KEY, String(idx)); } catch {}
+              try { window.localStorage.setItem(PROVIDER_STORAGE_KEY, String(idx)); } catch { /* storage unavailable */ }
             }}
           >
             <SelectTrigger className="h-8 gap-1.5 w-[155px] text-xs bg-white/5 backdrop-blur-md border-white/10 hover:bg-white/10 transition-colors">
