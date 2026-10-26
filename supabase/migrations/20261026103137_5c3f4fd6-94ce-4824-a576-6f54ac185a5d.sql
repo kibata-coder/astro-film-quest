@@ -1,0 +1,1 @@
+ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS recommended_provider_id text NOT NULL DEFAULT 'vidsrc';

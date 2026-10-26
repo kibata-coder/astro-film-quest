@@ -168,18 +168,21 @@ export type Database = {
           id: string
           maintenance_message: string | null
           maintenance_mode: boolean
+          recommended_provider_id: string
           updated_at: string
         }
         Insert: {
           id?: string
           maintenance_message?: string | null
           maintenance_mode?: boolean
+          recommended_provider_id?: string
           updated_at?: string
         }
         Update: {
           id?: string
           maintenance_message?: string | null
           maintenance_mode?: boolean
+          recommended_provider_id?: string
           updated_at?: string
         }
         Relationships: []
