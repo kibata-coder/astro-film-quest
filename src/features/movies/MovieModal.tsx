@@ -25,7 +25,8 @@ import { checkIsBookmarked, toggleBookmark } from '@/lib/bookmarks';
 import { isAnimeMedia } from '@/lib/anime';
 import { useMedia } from '@/features/shared';
 import { useAuth } from '@/features/auth';
-import { getProviders, getAnimeProviders } from '@/lib/vidsrc';
+import { getProviders, getAnimeProviders, orderProviders, setSelectedProviderId, DEFAULT_RECOMMENDED_PROVIDER_ID } from '@/lib/vidsrc';
+import { useSiteSettings } from '@/hooks/use-site-settings';
 import { Badge } from '@/components/ui/badge';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ThumbsRating from '@/components/ThumbsRating';
@@ -84,7 +85,9 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
   const [isMuted, setIsMuted] = useState(true);
 
   const [showServerDialog, setShowServerDialog] = useState(false);
-  const streamProviders = isAnimeMedia(movie as unknown as Parameters<typeof isAnimeMedia>[0]) ? getAnimeProviders() : getProviders();
+  const { data: siteSettings } = useSiteSettings();
+  const recommendedId = siteSettings?.recommended_provider_id ?? DEFAULT_RECOMMENDED_PROVIDER_ID;
+  const streamProviders = isAnimeMedia(movie as unknown as Parameters<typeof isAnimeMedia>[0]) ? getAnimeProviders() : orderProviders(getProviders(), recommendedId);
 
   const handlePlayClick = () => {
     if (!user) {
@@ -109,7 +112,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
     }
 
     try {
-      window.localStorage.setItem(PROVIDER_STORAGE_KEY, String(index));
+      if (streamProviders[index]) setSelectedProviderId(streamProviders[index].id);
     } catch {}
     setShowServerDialog(false);
     onPlay();
@@ -369,7 +372,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
                     {provider.name}
                   </span>
                   
-                  {index === 0 && (
+                  {provider.id === recommendedId && (
                     <div className="absolute top-0 right-0 px-2.5 py-1 text-[10px] uppercase font-bold tracking-wider bg-blue-500/20 text-blue-400 group-hover:bg-white/20 group-hover:text-white rounded-bl-xl rounded-tr-xl transition-colors">
                       Recommended
                     </div>
