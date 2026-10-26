@@ -148,6 +148,29 @@ const PROVIDERS: StreamProvider[] = [
 
 export const getProviders = (): StreamProvider[] => PROVIDERS;
 
+export const DEFAULT_RECOMMENDED_PROVIDER_ID = 'vidsrc';
+
+/** Returns providers with the recommended one moved to the front (unknown id → original order). */
+export const orderProviders = (
+  providers: StreamProvider[],
+  recommendedId?: string | null
+): StreamProvider[] => {
+  const idx = providers.findIndex((p) => p.id === recommendedId);
+  if (idx <= 0) return providers;
+  return [providers[idx], ...providers.slice(0, idx), ...providers.slice(idx + 1)];
+};
+
+export const getProviderUrl = (
+  provider: StreamProvider,
+  tmdbId: number,
+  mediaType: 'movie' | 'tv',
+  season?: number,
+  episode?: number
+): string =>
+  mediaType === 'tv' && season !== undefined && episode !== undefined
+    ? provider.tv(tmdbId, season, episode)
+    : provider.movie(tmdbId);
+
 export const getAnimeProviders = (): StreamProvider[] => [
   {
     id: 'naruto',

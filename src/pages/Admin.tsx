@@ -19,6 +19,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import MaintenanceToggle from "@/features/admin/MaintenanceToggle";
+import RecommendedServerPicker from "@/features/admin/RecommendedServerPicker";
 import UserDetailSheet from "@/features/admin/UserDetailSheet";
 import { Users, Activity, PlayCircle, Star, ArrowUpDown } from "lucide-react";
 import { 
@@ -162,6 +163,7 @@ const Admin = () => {
       </h1>
 
       <MaintenanceToggle />
+      <RecommendedServerPicker />
 
       
       {/* Stat Cards */}

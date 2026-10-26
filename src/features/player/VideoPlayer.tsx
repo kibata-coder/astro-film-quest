@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { X, ChevronLeft, ChevronRight, Server, Subtitles, Loader2, Check, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { getMovieEmbedUrl, getTVShowEmbedUrl, getProviders } from '@/lib/vidsrc';
+import { getProviders, orderProviders, getProviderUrl, DEFAULT_RECOMMENDED_PROVIDER_ID } from '@/lib/vidsrc';
+import { useSiteSettings } from '@/hooks/use-site-settings';
 import { searchSubtitles, getSubtitleProxyUrl, SubtitleResult } from '@/lib/subtitles';
 import { saveWatchProgress } from '@/lib/watchHistory';
 import { getMovieDetails, getTVShowDetails } from '@/lib/tmdb';
@@ -21,7 +22,6 @@ interface VideoPlayerProps {
   onPreviousEpisode?: () => void;
 }
 
-const PROVIDER_STORAGE_KEY = 'soudflex.preferredProvider';
 
 const SUBTITLE_LANGUAGES = [
   { code: 'en', label: 'English' },
@@ -51,13 +51,11 @@ const VideoPlayer = ({
   onNextEpisode,
   onPreviousEpisode,
 }: VideoPlayerProps) => {
-  const providers = getProviders();
-  const [providerIdx, setProviderIdx] = useState<number>(() => {
-    if (typeof window === 'undefined') return 0;
-    const stored = window.localStorage.getItem(PROVIDER_STORAGE_KEY);
-    const n = stored ? parseInt(stored, 10) : 0;
-    return Number.isFinite(n) && n >= 0 && n < providers.length ? n : 0;
-  });
+  const { data: siteSettings } = useSiteSettings();
+  const recommendedId = siteSettings?.recommended_provider_id ?? DEFAULT_RECOMMENDED_PROVIDER_ID;
+  const providers = useMemo(() => orderProviders(getProviders(), recommendedId), [recommendedId]);
+  // Index into the ordered list; 0 is always the admin-recommended server.
+  const [providerIdx, setProviderIdx] = useState<number>(0);
   const startTimeRef = useRef<number>(0);
   const durationRef = useRef<number>(0);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -71,18 +69,10 @@ const VideoPlayer = ({
   const [activeSubUrl, setActiveSubUrl] = useState<string | null>(null);
   const [applyingSubId, setApplyingSubId] = useState<number | null>(null);
 
-  // ── Provider sync ───────────────────────────────────────────────────────────
+  // ── Start every playback on the recommended server ──────────────────────────
   useEffect(() => {
-    if (isOpen && typeof window !== 'undefined') {
-      const stored = window.localStorage.getItem(PROVIDER_STORAGE_KEY);
-      if (stored) {
-        const n = parseInt(stored, 10);
-        if (Number.isFinite(n) && n >= 0 && n < providers.length) {
-          setProviderIdx(n);
-        }
-      }
-    }
-  }, [isOpen, providers.length]);
+    if (isOpen) setProviderIdx(0);
+  }, [isOpen, mediaId, recommendedId]);
 
   // ── Body scroll lock ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -260,12 +250,10 @@ const VideoPlayer = ({
 
   // ── Build embed URL (with optional sub_url injected) ─────────────────────────
   const buildEmbedUrl = () => {
-    let base =
-      mediaType === 'tv' && seasonNumber !== undefined && episodeNumber !== undefined
-        ? getTVShowEmbedUrl(mediaId, seasonNumber, episodeNumber, providerIdx)
-        : getMovieEmbedUrl(mediaId, providerIdx);
+    const provider = providers[providerIdx] ?? providers[0];
+    let base = getProviderUrl(provider, mediaId, mediaType, seasonNumber, episodeNumber);
 
-    if (activeSubUrl && providerIdx === 0) {
+    if (activeSubUrl && provider.id === 'vidsrc') {
       // Only inject sub_url for Server 1 (vidsrcme.su) it supports the parameter
       const separator = base.includes('?') ? '&' : '?';
       base += `${separator}sub_url=${encodeURIComponent(activeSubUrl)}&ds_lang=${subLang}`;
@@ -299,9 +287,7 @@ const VideoPlayer = ({
           <Select
             value={String(providerIdx)}
             onValueChange={(v) => {
-              const idx = Number(v);
-              setProviderIdx(idx);
-              try { window.localStorage.setItem(PROVIDER_STORAGE_KEY, String(idx)); } catch { /* storage unavailable */ }
+              setProviderIdx(Number(v));
             }}
           >
             <SelectTrigger className="h-8 gap-1.5 w-[155px] text-xs bg-white/5 backdrop-blur-md border-white/10 hover:bg-white/10 transition-colors">
@@ -311,7 +297,14 @@ const VideoPlayer = ({
             <SelectContent className="z-[9999] bg-background/95 backdrop-blur-xl border-white/10" position="popper" sideOffset={8}>
               {providers.map((p, i) => (
                 <SelectItem key={p.id} value={String(i)} className="text-xs cursor-pointer focus:bg-white/10">
-                  {p.name}
+                  <span className="flex items-center gap-2">
+                    {p.name}
+                    {p.id === recommendedId && (
+                      <span className="rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">
+                        Recommended
+                      </span>
+                    )}
+                  </span>
                 </SelectItem>
               ))}
             </SelectContent>
