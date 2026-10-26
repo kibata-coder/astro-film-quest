@@ -8,6 +8,7 @@ export interface SiteSettings {
   id: string;
   maintenance_mode: boolean;
   maintenance_message: string | null;
+  recommended_provider_id: string;
   updated_at: string;
 }
 
@@ -16,7 +17,7 @@ export const siteSettingsKey = ['site-settings'] as const;
 async function fetchSiteSettings(): Promise<SiteSettings | null> {
   const { data, error } = await supabase
     .from('site_settings')
-    .select('id, maintenance_mode, maintenance_message, updated_at')
+    .select('id, maintenance_mode, maintenance_message, recommended_provider_id, updated_at')
     .eq('id', 'global')
     .maybeSingle();
 
