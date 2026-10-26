@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { X, ChevronLeft, ChevronRight, Server, Subtitles, Loader2, Check, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { getProviders, orderProviders, getProviderUrl, DEFAULT_RECOMMENDED_PROVIDER_ID } from '@/lib/vidsrc';
+import { getProviders, orderProviders, getProviderUrl, getSelectedProviderId, DEFAULT_RECOMMENDED_PROVIDER_ID } from '@/lib/vidsrc';
 import { useSiteSettings } from '@/hooks/use-site-settings';
 import { searchSubtitles, getSubtitleProxyUrl, SubtitleResult } from '@/lib/subtitles';
 import { saveWatchProgress } from '@/lib/watchHistory';
@@ -71,8 +71,11 @@ const VideoPlayer = ({
 
   // ── Start every playback on the recommended server ──────────────────────────
   useEffect(() => {
-    if (isOpen) setProviderIdx(0);
-  }, [isOpen, mediaId, recommendedId]);
+    if (!isOpen) return;
+    const picked = getSelectedProviderId();
+    const idx = picked ? providers.findIndex((p) => p.id === picked) : -1;
+    setProviderIdx(idx >= 0 ? idx : 0);
+  }, [isOpen, mediaId, providers]);
 
   // ── Body scroll lock ────────────────────────────────────────────────────────
   useEffect(() => {

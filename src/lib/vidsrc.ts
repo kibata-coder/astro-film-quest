@@ -195,3 +195,12 @@ export const getTVShowEmbedUrl = (
   const provider = PROVIDERS[safeIndex(providerIndex)];
   return provider.tv(tmdbId, season ?? 1, episode ?? 1);
 };
+
+/** Server picked in the "Select a Server" screen, handed to the player for that playback. */
+const SELECTED_PROVIDER_KEY = 'soudflex.selectedProviderId';
+export const setSelectedProviderId = (id: string) => {
+  try { window.sessionStorage.setItem(SELECTED_PROVIDER_KEY, id); } catch { /* storage unavailable */ }
+};
+export const getSelectedProviderId = (): string | null => {
+  try { return window.sessionStorage.getItem(SELECTED_PROVIDER_KEY); } catch { return null; }
+};
