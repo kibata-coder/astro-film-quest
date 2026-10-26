@@ -372,7 +372,7 @@ const MovieModal = ({ movie, isOpen, onClose, onPlay, onSelectMovie }: MovieModa
                     {provider.name}
                   </span>
                   
-                  {provider.id === recommendedId && (
+                  {(streamProviders === getAnimeProviders() ? index === 0 : provider.id === recommendedId) && (
                     <div className="absolute top-0 right-0 px-2.5 py-1 text-[10px] uppercase font-bold tracking-wider bg-blue-500/20 text-blue-400 group-hover:bg-white/20 group-hover:text-white rounded-bl-xl rounded-tr-xl transition-colors">
                       Recommended
                     </div>
