@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { X, ChevronLeft, ChevronRight, Server, Subtitles, Loader2, Check, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { getMovieEmbedUrl, getTVShowEmbedUrl, getProviders } from '@/lib/vidsrc';
+import { getProviders, orderProviders, getProviderUrl, DEFAULT_RECOMMENDED_PROVIDER_ID } from '@/lib/vidsrc';
+import { useSiteSettings } from '@/hooks/use-site-settings';
 import { searchSubtitles, getSubtitleProxyUrl, SubtitleResult } from '@/lib/subtitles';
 import { saveWatchProgress } from '@/lib/watchHistory';
 import { getMovieDetails, getTVShowDetails } from '@/lib/tmdb';
@@ -51,13 +52,11 @@ const VideoPlayer = ({
   onNextEpisode,
   onPreviousEpisode,
 }: VideoPlayerProps) => {
-  const providers = getProviders();
-  const [providerIdx, setProviderIdx] = useState<number>(() => {
-    if (typeof window === 'undefined') return 0;
-    const stored = window.localStorage.getItem(PROVIDER_STORAGE_KEY);
-    const n = stored ? parseInt(stored, 10) : 0;
-    return Number.isFinite(n) && n >= 0 && n < providers.length ? n : 0;
-  });
+  const { data: siteSettings } = useSiteSettings();
+  const recommendedId = siteSettings?.recommended_provider_id ?? DEFAULT_RECOMMENDED_PROVIDER_ID;
+  const providers = useMemo(() => orderProviders(getProviders(), recommendedId), [recommendedId]);
+  // Index into the ordered list; 0 is always the admin-recommended server.
+  const [providerIdx, setProviderIdx] = useState<number>(0);
   const startTimeRef = useRef<number>(0);
   const durationRef = useRef<number>(0);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -71,18 +70,10 @@ const VideoPlayer = ({
   const [activeSubUrl, setActiveSubUrl] = useState<string | null>(null);
   const [applyingSubId, setApplyingSubId] = useState<number | null>(null);
 
-  // ── Provider sync ───────────────────────────────────────────────────────────
+  // ── Start every playback on the recommended server ──────────────────────────
   useEffect(() => {
-    if (isOpen && typeof window !== 'undefined') {
-      const stored = window.localStorage.getItem(PROVIDER_STORAGE_KEY);
-      if (stored) {
-        const n = parseInt(stored, 10);
-        if (Number.isFinite(n) && n >= 0 && n < providers.length) {
-          setProviderIdx(n);
-        }
-      }
-    }
-  }, [isOpen, providers.length]);
+    if (isOpen) setProviderIdx(0);
+  }, [isOpen, mediaId, recommendedId]);
 
   // ── Body scroll lock ────────────────────────────────────────────────────────
   useEffect(() => {
