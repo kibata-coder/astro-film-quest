@@ -216,3 +216,6 @@ export const setSelectedProviderId = (id: string) => {
 export const getSelectedProviderId = (): string | null => {
   try { return window.sessionStorage.getItem(SELECTED_PROVIDER_KEY); } catch { return null; }
 };
+export const clearSelectedProviderId = () => {
+  try { window.sessionStorage.removeItem(SELECTED_PROVIDER_KEY); } catch { /* storage unavailable */ }
+};

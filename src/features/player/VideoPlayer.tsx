@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { X, ChevronLeft, ChevronRight, Server, Subtitles, Loader2, Check, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { getProviders, orderProviders, getProviderUrl, getSelectedProviderId, DEFAULT_RECOMMENDED_PROVIDER_ID } from '@/lib/vidsrc';
+import { getProviders, orderProviders, getProviderUrl, getSelectedProviderId, clearSelectedProviderId, getRecommendedIds } from '@/lib/vidsrc';
 import { useSiteSettings } from '@/hooks/use-site-settings';
 import { searchSubtitles, getSubtitleProxyUrl, SubtitleResult } from '@/lib/subtitles';
 import { saveWatchProgress } from '@/lib/watchHistory';
@@ -52,8 +52,9 @@ const VideoPlayer = ({
   onPreviousEpisode,
 }: VideoPlayerProps) => {
   const { data: siteSettings } = useSiteSettings();
-  const recommendedId = siteSettings?.recommended_provider_id ?? DEFAULT_RECOMMENDED_PROVIDER_ID;
-  const providers = useMemo(() => orderProviders(getProviders(), recommendedId), [recommendedId]);
+  const recommendedIds = getRecommendedIds(siteSettings);
+  const recommendedKey = recommendedIds.join(",");
+  const providers = useMemo(() => orderProviders(getProviders(), recommendedIds), [recommendedKey]); // eslint-disable-line react-hooks/exhaustive-deps
   // Index into the ordered list; 0 is always the admin-recommended server.
   const [providerIdx, setProviderIdx] = useState<number>(0);
   const startTimeRef = useRef<number>(0);
@@ -70,9 +71,17 @@ const VideoPlayer = ({
   const [applyingSubId, setApplyingSubId] = useState<number | null>(null);
 
   // ── Start every playback on the recommended server ──────────────────────────
+  // The server tapped in "Select a Server" is read once per playback, then cleared
+  // so it never leaks into a later playback (e.g. the home banner Play button).
+  const pickedIdRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!isOpen) { pickedIdRef.current = null; return; }
+    pickedIdRef.current = getSelectedProviderId();
+    clearSelectedProviderId();
+  }, [isOpen, mediaId]);
   useEffect(() => {
     if (!isOpen) return;
-    const picked = getSelectedProviderId();
+    const picked = pickedIdRef.current;
     const idx = picked ? providers.findIndex((p) => p.id === picked) : -1;
     setProviderIdx(idx >= 0 ? idx : 0);
   }, [isOpen, mediaId, providers]);
@@ -302,7 +311,7 @@ const VideoPlayer = ({
                 <SelectItem key={p.id} value={String(i)} className="text-xs cursor-pointer focus:bg-white/10">
                   <span className="flex items-center gap-2">
                     {p.name}
-                    {p.id === recommendedId && (
+                    {recommendedIds.includes(p.id) && (
                       <span className="rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">
                         Recommended
                       </span>
