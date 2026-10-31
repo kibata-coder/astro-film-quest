@@ -1,0 +1,2 @@
+ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS recommended_provider_ids text[] NOT NULL DEFAULT ARRAY['vidsrc']::text[];
+UPDATE public.site_settings SET recommended_provider_ids = ARRAY[recommended_provider_id] WHERE id = 'global';

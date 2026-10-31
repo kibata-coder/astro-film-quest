@@ -11,7 +11,7 @@ import { getBackdropUrl, getImageUrl, getTVShowDetails, getTVShowSeasonDetails, 
 import type { TVShow, TVShowDetails, Episode } from '@/lib/tmdb';
 import { checkIsBookmarked, toggleBookmark } from '@/lib/bookmarks';
 import { isAnimeMedia } from '@/lib/anime';
-import { getProviders, getAnimeProviders, orderProviders, setSelectedProviderId, DEFAULT_RECOMMENDED_PROVIDER_ID } from '@/lib/vidsrc';
+import { getProviders, getAnimeProviders, orderProviders, setSelectedProviderId, getRecommendedIds } from '@/lib/vidsrc';
 import { useSiteSettings } from '@/hooks/use-site-settings';
 import ThumbsRating from '@/components/ThumbsRating';
 import AddToCollectionDialog from '@/components/AddToCollectionDialog';
@@ -51,8 +51,9 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
   // Temporarily store play arguments while the user picks a server
   const [pendingPlayArgs, setPendingPlayArgs] = useState<any>(null);
   const { data: siteSettings } = useSiteSettings();
-  const recommendedId = siteSettings?.recommended_provider_id ?? DEFAULT_RECOMMENDED_PROVIDER_ID;
-  const streamProviders = isAnime ? getAnimeProviders() : orderProviders(getProviders(), recommendedId);
+  const recommendedIds = getRecommendedIds(siteSettings);
+  const recommendedKey = recommendedIds.join(",");
+  const streamProviders = isAnime ? getAnimeProviders() : orderProviders(getProviders(), recommendedIds);
 
   const handlePlayClick = (showId: number, showName: string, seasonNumber: number, episodeNumber: number, episodeName: string, posterPath: string | null) => {
     if (!user) {
@@ -466,7 +467,7 @@ const TVShowModal = ({ show, isOpen, onClose, onPlay, onSelectShow, initialSeaso
                     {provider.name}
                   </span>
                   
-                  {(isAnime ? index === 0 : provider.id === recommendedId) && (
+                  {(isAnime ? index === 0 : recommendedIds.includes(provider.id)) && (
                     <div className="absolute top-0 right-0 px-2.5 py-1 text-[10px] uppercase font-bold tracking-wider bg-blue-500/20 text-blue-400 group-hover:bg-white/20 group-hover:text-white rounded-bl-xl rounded-tr-xl transition-colors">
                       Recommended
                     </div>

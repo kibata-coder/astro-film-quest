@@ -169,6 +169,7 @@ export type Database = {
           maintenance_message: string | null
           maintenance_mode: boolean
           recommended_provider_id: string
+          recommended_provider_ids: string[]
           updated_at: string
         }
         Insert: {
@@ -176,6 +177,7 @@ export type Database = {
           maintenance_message?: string | null
           maintenance_mode?: boolean
           recommended_provider_id?: string
+          recommended_provider_ids?: string[]
           updated_at?: string
         }
         Update: {
@@ -183,6 +185,7 @@ export type Database = {
           maintenance_message?: string | null
           maintenance_mode?: boolean
           recommended_provider_id?: string
+          recommended_provider_ids?: string[]
           updated_at?: string
         }
         Relationships: []

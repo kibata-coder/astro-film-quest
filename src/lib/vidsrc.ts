@@ -150,14 +150,26 @@ export const getProviders = (): StreamProvider[] => PROVIDERS;
 
 export const DEFAULT_RECOMMENDED_PROVIDER_ID = 'vidsrc';
 
-/** Returns providers with the recommended one moved to the front (unknown id → original order). */
+/** Resolve the admin's recommended server ids from site settings (array preferred, legacy single id fallback). */
+export const getRecommendedIds = (
+  settings?: { recommended_provider_ids?: string[] | null; recommended_provider_id?: string | null } | null
+): string[] => {
+  const ids = settings?.recommended_provider_ids?.filter(Boolean);
+  if (ids && ids.length) return ids;
+  return [settings?.recommended_provider_id || DEFAULT_RECOMMENDED_PROVIDER_ID];
+};
+
+/** Recommended providers first (in admin order), then the rest in original order. Unknown ids are ignored. */
 export const orderProviders = (
   providers: StreamProvider[],
-  recommendedId?: string | null
+  recommended?: string[] | string | null
 ): StreamProvider[] => {
-  const idx = providers.findIndex((p) => p.id === recommendedId);
-  if (idx <= 0) return providers;
-  return [providers[idx], ...providers.slice(0, idx), ...providers.slice(idx + 1)];
+  const ids = Array.isArray(recommended) ? recommended : recommended ? [recommended] : [];
+  const top = ids
+    .map((id) => providers.find((p) => p.id === id))
+    .filter((p): p is StreamProvider => !!p);
+  const topIds = new Set(top.map((p) => p.id));
+  return [...top, ...providers.filter((p) => !topIds.has(p.id))];
 };
 
 export const getProviderUrl = (
@@ -203,4 +215,7 @@ export const setSelectedProviderId = (id: string) => {
 };
 export const getSelectedProviderId = (): string | null => {
   try { return window.sessionStorage.getItem(SELECTED_PROVIDER_KEY); } catch { return null; }
+};
+export const clearSelectedProviderId = () => {
+  try { window.sessionStorage.removeItem(SELECTED_PROVIDER_KEY); } catch { /* storage unavailable */ }
 };
